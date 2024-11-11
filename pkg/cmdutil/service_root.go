@@ -76,9 +76,9 @@ func InitializeService(command ...*cobra.Command) {
 	ServiceRootCmd.PersistentFlags().Int64("healthcheck-web-port", HealthCheckPortHTTP, "Port to listen on for services that support a health check")
 	ServiceRootCmd.PersistentFlags().String("healthcheck-host", "localhost", "Host to listen on for services that support a health check")
 
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-port"), "healthcheck.port", HealthCheckPortGRPC, "LIVE_DEALER_HEALTHCHECK_PORT")
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-web-port"), "healthcheck.web.port", HealthCheckPortHTTP, "LIVE_DEALER_HEALTHCHECK_WEB_PORT")
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-host"), "healthcheck.host", "localhost", "LIVE_DEALER_HEALTHCHECK_HOST")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-port"), "healthcheck.port", HealthCheckPortGRPC, "PLANNING_POCKER_HEALTHCHECK_PORT")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-web-port"), "healthcheck.web.port", HealthCheckPortHTTP, "PLANNING_POCKER_HEALTHCHECK_WEB_PORT")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-host"), "healthcheck.host", "localhost", "PLANNING_POCKER_HEALTHCHECK_HOST")
 
 	for _, c := range command {
 		ServiceRootCmd.AddCommand(c)
