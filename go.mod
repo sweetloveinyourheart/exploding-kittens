@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/cockroachdb/errors v1.11.3
+	github.com/goccy/go-yaml v1.14.3
 	github.com/gorilla/mux v1.8.1
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
