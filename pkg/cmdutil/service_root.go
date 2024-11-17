@@ -86,7 +86,7 @@ func InitializeService(command ...*cobra.Command) {
 
 	if len(os.Args) > 1 && os.Args[1] == "generate" {
 		// TODO: generateDocs(ServiceRootCmd)
-		// TODO: generateSchema(ServiceRootCmd)
+		generateSchema(ServiceRootCmd)
 		return
 	}
 
@@ -103,9 +103,9 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.SetConfigName("ppkr")
+		viper.SetConfigName("pp")
 		viper.SetConfigType("yaml")
-		viper.AddConfigPath("/etc/planning-pocker/")
+		viper.AddConfigPath("/etc/planning-pocker")
 		viper.AddConfigPath("$HOME/.planning-pocker")
 		viper.AddConfigPath("./cmd/planning-pocker")
 		viper.AddConfigPath(".")

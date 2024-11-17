@@ -9,7 +9,28 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	ServerId            = "server.id"
+	ServerReplicaNumber = "server.replica_number"
+	ServerReplicaCount  = "server.replica_count"
+)
+
 var Registry = make(map[*pflag.Flag]Binding)
+var securePaths = make(map[string]struct{})
+
+func SecureFields(fields ...string) {
+	for _, field := range fields {
+		securePaths[field] = struct{}{}
+	}
+}
+
+func GetSecureFields() []string {
+	var fields []string
+	for field := range securePaths {
+		fields = append(fields, field)
+	}
+	return fields
+}
 
 type Binding struct {
 	Flag       *pflag.Flag
