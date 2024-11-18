@@ -32,7 +32,7 @@ func generateSchema(rootCmd *cobra.Command) {
 
 	if _, err := os.Stat("./go.mod"); err == nil {
 		paths = []string{
-			path.Join(".", "cmd", "planing-pocker", "schema"),
+			path.Join(".", "cmd", "planning-pocker", "schema"),
 		}
 	} else {
 		paths = []string{

@@ -103,7 +103,7 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.SetConfigName("pp")
+		viper.SetConfigName("pocker")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath("/etc/planning-pocker")
 		viper.AddConfigPath("$HOME/.planning-pocker")
