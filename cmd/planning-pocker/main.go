@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	pp_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planing-pocker/services/userserver"
-	pp_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planing-pocker/utils"
+	pp_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
+	pp_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
 )
 
