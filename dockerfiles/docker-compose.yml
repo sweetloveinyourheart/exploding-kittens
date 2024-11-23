@@ -7,7 +7,7 @@ services:
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
     ports:
-      - 50051:50051 # GRPC port
+      - 8020:8020 # GRPC port
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.16"
