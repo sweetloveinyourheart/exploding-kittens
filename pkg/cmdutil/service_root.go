@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	fields "github.com/sweetloveinyourheart/planning-poker/pkg/config"
 )
 

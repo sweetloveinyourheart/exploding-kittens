@@ -4,10 +4,13 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
 	pp_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
 	pp_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
 )
+
+//go:generate go run github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker generate
 
 func init() {
 	// Always use UTC for generated timestamps

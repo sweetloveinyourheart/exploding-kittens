@@ -12,6 +12,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+
+	_ "golang.org/x/tools/go/packages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"

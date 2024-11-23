@@ -1,0 +1,74 @@
+- name: userserver
+  shortName: Run as userserver service
+  long: ""
+  service:
+    ports: []
+    healthCheckPorts:
+    - name: healthcheck-grpc
+      wireProtocol: tcp
+      protocol: grpc
+      public: false
+      defaultRoutes: []
+      flagName: healthcheck-port
+      flagUsage: Port to listen on for services that support a health check
+      configName: healthcheck.port
+      defaultValue: 5051
+      env:
+      - PLANNING_POCKER_HEALTHCHECK_PORT
+    - name: healthcheck-web
+      wireProtocol: tcp
+      protocol: http
+      public: false
+      defaultRoutes:
+      - /healthz
+      - /readyz
+      flagName: healthcheck-web-port
+      flagUsage: Port to listen on for services that support a health check
+      configName: healthcheck.web.port
+      defaultValue: 5052
+      env:
+      - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
+    defaultDatabaseName: pp_userserver
+  config:
+  - name: id
+    usage: Unique identifier for this services
+    default: ""
+    valueType: string
+    path: userserver.id
+    env:
+    - USERSERVER_ID
+  - name: token-signing-key
+    usage: Signing key used for service to service tokens
+    default: ""
+    valueType: string
+    path: userserver.secrets.token_signing_key
+    env:
+    - USERSERVER_SECRETS_TOKEN_SIGNING_KEY
+  - name: healthcheck-host
+    usage: Host to listen on for services that support a health check
+    default: localhost
+    valueType: string
+    path: healthcheck.host
+    env:
+    - PLANNING_POCKER_HEALTHCHECK_HOST
+  - name: healthcheck-port
+    usage: Port to listen on for services that support a health check
+    default: 5051
+    valueType: int
+    path: healthcheck.port
+    env:
+    - PLANNING_POCKER_HEALTHCHECK_PORT
+  - name: healthcheck-web-port
+    usage: Port to listen on for services that support a health check
+    default: 5052
+    valueType: int
+    path: healthcheck.web.port
+    env:
+    - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
+  - name: log-level
+    usage: log level to use
+    default: info
+    valueType: string
+    path: log.level
+    env:
+    - LOG_LEVEL

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
 	pp_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
 	pp_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
@@ -16,7 +17,7 @@ func init() {
 	time.Local = time.UTC
 }
 
-//go:generate go run github.com/sweetloveinyourheart/planning-poker/core/userserver generate
+//go:generate go run github.com/sweetloveinyourheart/planning-poker/cmd/core/userserver generate
 
 func main() {
 	cmdutil.ServiceRootCmd.Short = defaultShortDescription
