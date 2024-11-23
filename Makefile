@@ -7,5 +7,6 @@ COMPOSE_PROJECT_NAME=pocker
 
 include $(PWD)/scripts/_makefiles/build.mk
 include $(PWD)/scripts/_makefiles/develop.mk
+include $(PWD)/scripts/_makefiles/generate.mk
 
 export
