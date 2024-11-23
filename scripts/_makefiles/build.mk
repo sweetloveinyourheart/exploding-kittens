@@ -5,7 +5,7 @@ build: # Build everything
 	@make build-containers IMAGE_TAG=$(IMAGE_TAG)
 
 build-containers:
-	@make pocker-docker optionalReproFlag=$(optionalReproFlag) useDebug=$(useDebug)
+	@make pocker-docker optionalReproFlag=$(optionalReproFlag)
 
 # Base makefile target for building a binary
 GOOS_OVERRIDE ?= GOOS=linux
@@ -29,8 +29,8 @@ build-docker:
 	$(additionalDockerArgs)
 
 pocker-build:
-	@make build-binary$(useDebug) extraArgs=$(extraArgs) directory=cmd/planning-pocker executablePath=cmd/planning-pocker/planning-pocker
+	@make build-binary extraArgs=$(extraArgs) directory=cmd/planning-pocker executablePath=cmd/planning-pocker/planning-pocker
 
 pocker-docker:
-	@make pocker-build$(optionalReproFlag) extraArgs=$(extraArgs) useDebug=$(useDebug)
-	@make build-docker$(useDebug) buildPlatform=$(buildPlatorm) target=pocker
+	@make pocker-build $(optionalReproFlag) extraArgs=$(extraArgs)
+	@make build-docker buildPlatform=$(buildPlatorm) target=pocker
