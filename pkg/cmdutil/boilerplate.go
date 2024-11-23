@@ -60,7 +60,7 @@ func BoilerplateRun(serviceType string) (*AppRun, error) {
 func BoilerplateFlagsCore(command *cobra.Command, serviceType string, envPrefix string) {
 	_, serviceKey := st(serviceType)
 	envPrefix = strings.ToUpper(envPrefix)
-	config.String(command, "core.environment_name", "environment-name", "Environment name of this cluster", "CORE_ENVIRONMENT_NAME")
+
 	config.String(command, fmt.Sprintf("%s.id", serviceKey), "id", "Unique identifier for this services", fmt.Sprintf("%s_ID", envPrefix))
 	config.String(command, fmt.Sprintf("%s.secrets.token_signing_key", serviceKey), "token-signing-key", "Signing key used for service to service tokens", fmt.Sprintf("%s_SECRETS_TOKEN_SIGNING_KEY", envPrefix))
 
