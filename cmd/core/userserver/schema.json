@@ -98,6 +98,16 @@
         "env": [
           "LOG_LEVEL"
         ]
+      },
+      {
+        "name": "service",
+        "usage": "which service to run",
+        "default": "",
+        "valueType": "string",
+        "path": "service",
+        "env": [
+          "PLANNING_POCKER_SERVICE"
+        ]
       }
     ]
   }

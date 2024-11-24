@@ -11,7 +11,6 @@ import (
 )
 
 const serviceType = "userserver"
-const dbTablePrefix = "pp_userserver"
 const defDBName = "pp_userserver"
 const envPrefix = "USERSERVER"
 
