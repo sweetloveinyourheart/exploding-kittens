@@ -39,6 +39,10 @@ func BoilerplateRun(serviceType string) (*AppRun, error) {
 	// Logger init.
 	logLevel := config.Instance().GetString("log.level")
 	logger := log.New().SetStringLevel(logLevel)
+	logger.SetAsGlobal()
+	defer func() {
+		_ = logger.Sync()
+	}()
 
 	serviceName := config.Instance().GetString("service")
 	logger.Infow("starting service",
