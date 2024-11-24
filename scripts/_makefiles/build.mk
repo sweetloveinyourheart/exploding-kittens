@@ -12,7 +12,7 @@ GOOS_OVERRIDE ?= GOOS=linux
 build-binary:
 	@echo "Building $(executablePath) with tag: $(IMAGE_TAG)"
 	@cd $(directory) && \
-	CGO_ENABLED=0 $(GOOS_OVERRIDE) $(extraArgs) go build -buildvcs=false -asmflags= -trimpath -ldflags "-buildid= -s -w $(LINKER_VERSION_FLAGS) -extldflags "-static"" && \
+	CGO_ENABLED=0 $(GOOS_OVERRIDE) go build -buildvcs=false -asmflags= -trimpath -ldflags "-buildid= -s -extldflags "-static"" && \
 	cd $(ROOT_DIR) && \
 	sha256sum $(executablePath)
 
@@ -29,8 +29,8 @@ build-docker:
 	$(additionalDockerArgs)
 
 pocker-build:
-	@make build-binary extraArgs=$(extraArgs) directory=cmd/planning-pocker executablePath=cmd/planning-pocker/planning-pocker
+	@make build-binary directory=cmd/planning-pocker executablePath=cmd/planning-pocker/planning-pocker
 
 pocker-docker:
-	@make pocker-build $(optionalReproFlag) extraArgs=$(extraArgs)
+	@make pocker-build $(optionalReproFlag)
 	@make build-docker buildPlatform=$(buildPlatorm) target=pocker
