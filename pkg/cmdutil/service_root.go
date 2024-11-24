@@ -68,8 +68,10 @@ func InitializeService(command ...*cobra.Command) {
 
 	// Common
 	ServiceRootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.planning-poker/app.yaml)")
+	ServiceRootCmd.PersistentFlags().StringP("service", "s", "", "which service to run (hub,spoke,worker)")
 	ServiceRootCmd.PersistentFlags().String("log-level", "info", "log level to use")
 
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("service"), "service", "", "PLANNING_POCKER_SERVICE")
 	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("log-level"), "log.level", "info", "LOG_LEVEL")
 
 	// Health check

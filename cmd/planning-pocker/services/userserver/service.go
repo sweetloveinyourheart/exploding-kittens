@@ -27,7 +27,6 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 
 			// TODO: DB migration here
 			// TODO: Set up dependencies
-			log.Global().Info("USERSERVICE is running!")
 
 			app.Run()
 		},

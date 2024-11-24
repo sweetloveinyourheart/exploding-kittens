@@ -4,6 +4,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-test}_userserver
     hostname: userserver
     environment:
+      "PLANNING_POCKER_SERVICE": "userserver"
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
     ports:
