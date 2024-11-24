@@ -86,11 +86,3 @@ func Global() *Logger {
 func GlobalSugared() *SugaredLogger {
 	return S()
 }
-
-func Infof(logLine string, inputs ...interface{}) {
-	GlobalSugared().Infof(logLine, inputs...)
-}
-
-func Infoln(inputs ...interface{}) {
-	GlobalSugared().Infoln(inputs...)
-}
