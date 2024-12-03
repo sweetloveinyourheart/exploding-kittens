@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	pp_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
-	pp_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
+	pocker_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
+	pocker_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
 )
 
@@ -22,9 +22,9 @@ func init() {
 func main() {
 	cmdutil.ServiceRootCmd.Short = defaultShortDescription
 	commands := make([]*cobra.Command, 0)
-	commands = append(commands, pp_userserver.Command(cmdutil.ServiceRootCmd))
+	commands = append(commands, pocker_userserver.Command(cmdutil.ServiceRootCmd))
 
-	commands = append(commands, pp_utils.CheckCommand())
+	commands = append(commands, pocker_utils.CheckCommand())
 
 	cmdutil.InitializeService(commands...)
 }

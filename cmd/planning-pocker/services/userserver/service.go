@@ -1,4 +1,4 @@
-package pp_userserver
+package pocker_userserver
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 const serviceType = "userserver"
-const defDBName = "pp_userserver"
+const defDBName = "pocker_userserver"
 const envPrefix = "USERSERVER"
 
 func Command(rootCmd *cobra.Command) *cobra.Command {

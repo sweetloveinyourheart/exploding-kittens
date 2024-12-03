@@ -28,7 +28,7 @@
       defaultValue: 5052
       env:
       - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
-    defaultDatabaseName: pp_userserver
+    defaultDatabaseName: pocker_userserver
   config:
   - name: id
     usage: Unique identifier for this services

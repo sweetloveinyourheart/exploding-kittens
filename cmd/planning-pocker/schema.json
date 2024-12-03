@@ -37,7 +37,7 @@
         ]
       }
     ],
-    "defaultDatabaseName": "pp_userserver",
+    "defaultDatabaseName": "pocker_userserver",
     "Config": [
       {
         "name": "id",
