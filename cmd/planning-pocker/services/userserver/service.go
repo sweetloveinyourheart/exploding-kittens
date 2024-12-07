@@ -8,9 +8,11 @@ import (
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/config"
 	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
+	"github.com/sweetloveinyourheart/planning-poker/services/user"
 )
 
 const serviceType = "userserver"
+const dbTablePrefix = "pocker_userserver"
 const defDBName = "pocker_userserver"
 const envPrefix = "USERSERVER"
 
@@ -24,7 +26,8 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			// TODO: DB migration here
+			app.Migrations(user.FS, dbTablePrefix)
+
 			// TODO: Set up dependencies
 
 			app.Run()
@@ -49,6 +52,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	// config options
 	cmdutil.BoilerplateFlagsCore(userServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(userServerCommand, serviceType)
+	cmdutil.BoilerplateFlagsDB(userServerCommand, serviceType, envPrefix)
 
 	return userServerCommand
 }

@@ -30,6 +30,62 @@
       - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
     defaultDatabaseName: pocker_userserver
   config:
+  - name: db-migrations-url
+    usage: Database connection migrations URL
+    default: ""
+    valueType: string
+    path: userserver.db.migrations.url
+    env:
+    - USERSERVER_DB_MIGRATIONS_URL
+  - name: db-postgres-connection-max-idletime
+    usage: Max connection idle time in seconds
+    default: 180
+    valueType: int64
+    path: userserver.db.postgres.max_idletime
+    env:
+    - USERSERVER_DB_POSTGRES_CONNECTION_MAX_IDLETIME
+  - name: db-postgres-connection-max-lifetime
+    usage: Max connection lifetime in seconds
+    default: 300
+    valueType: int64
+    path: userserver.db.postgres.max_lifetime
+    env:
+    - USERSERVER_DB_POSTGRES_CONNECTION_MAX_LIFETIME
+  - name: db-postgres-max-idle-connections
+    usage: Maximum number of idle connections
+    default: 50
+    valueType: int64
+    path: userserver.db.postgres.max_idle_connections
+    env:
+    - USERSERVER_DB_POSTGRES_MAX_IDLE_CONNECTIONS
+  - name: db-postgres-max-open-connections
+    usage: Maximum number of connections
+    default: 500
+    valueType: int64
+    path: userserver.db.postgres.max_open_connections
+    env:
+    - USERSERVER_DB_POSTGRES_MAX_OPEN_CONNECTIONS
+  - name: db-postgres-timeout
+    usage: Timeout for postgres connection
+    default: 60
+    valueType: int64
+    path: userserver.db.postgres.timeout
+    env:
+    - USERSERVER_DB_POSTGRES_TIMEOUT
+  - name: db-read-url
+    usage: Database connection readonly URL
+    default: ""
+    valueType: string
+    path: userserver.db.read.url
+    env:
+    - USERSERVER_DB_READ_URL
+  - name: db-url
+    usage: Database connection URL
+    default: ""
+    valueType: string
+    path: userserver.db.url
+    env:
+    - USERSERVER_DB_URL
   - name: id
     usage: Unique identifier for this services
     default: ""
