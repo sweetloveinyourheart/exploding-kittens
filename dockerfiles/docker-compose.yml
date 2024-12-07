@@ -41,6 +41,7 @@ services:
       "PLANNING_POCKER_SERVICE": "userserver"
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
+      "USERSERVER_DB_URL": "postgres://root_admin:admin@123@pocker_database:5432/userserver?sslmode=disable"
     ports:
       - 8020:8020 # GRPC port
     networks:
