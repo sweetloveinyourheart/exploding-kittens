@@ -1,3 +1,4 @@
+# Commands for building application
 
 ROOT_DIR=$(PWD)
 

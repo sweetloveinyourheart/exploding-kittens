@@ -1,3 +1,5 @@
+# Commands for local development
+
 # Targets for local development and testing
 FULL_SERVER_STACK_COMPOSE_FILE := ./dockerfiles/docker-compose.yml
 
