@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/sweetloveinyourheart/planning-poker/pkg/db"
 	"github.com/sweetloveinyourheart/planning-poker/services/user/models"
 )
