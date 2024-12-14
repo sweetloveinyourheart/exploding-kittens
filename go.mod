@@ -1,6 +1,6 @@
 module github.com/sweetloveinyourheart/planning-poker
 
-go 1.23.2
+go 1.23.4
 
 require (
 	github.com/cockroachdb/errors v1.11.3
