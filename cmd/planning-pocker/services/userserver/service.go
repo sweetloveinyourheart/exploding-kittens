@@ -3,10 +3,13 @@ package pocker_userserver
 import (
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
 	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/planning-poker/pkg/config"
+	"github.com/sweetloveinyourheart/planning-poker/pkg/db"
 	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
 	"github.com/sweetloveinyourheart/planning-poker/services/user"
 )
@@ -28,7 +31,13 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 
 			app.Migrations(user.FS, dbTablePrefix)
 
-			// TODO: Set up dependencies
+			if err := setupDependencies(); err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
+
+			user.InitializeRepos(app.Ctx())
+
+			// TODO: Init GRPC Handler
 
 			app.Run()
 		},
@@ -55,4 +64,24 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	cmdutil.BoilerplateFlagsDB(userServerCommand, serviceType, envPrefix)
 
 	return userServerCommand
+}
+
+func setupDependencies() error {
+	dbConn, err := db.NewDbWithWait(config.Instance().GetString("clientserver.db.url"), db.DBOptions{
+		TimeoutSec:      config.Instance().GetInt("clientserver.db.postgres.timeout"),
+		MaxOpenConns:    config.Instance().GetInt("clientserver.db.postgres.max_open_connections"),
+		MaxIdleConns:    config.Instance().GetInt("clientserver.db.postgres.max_idle_connections"),
+		ConnMaxLifetime: config.Instance().GetInt("clientserver.db.postgres.max_lifetime"),
+		ConnMaxIdleTime: config.Instance().GetInt("clientserver.db.postgres.max_idletime"),
+		EnableTracing:   config.Instance().GetBool("clientserver.db.tracing"),
+	})
+	if err != nil {
+		return err
+	}
+
+	do.Provide(nil, func(i *do.Injector) (*pgxpool.Pool, error) {
+		return dbConn, nil
+	})
+
+	return nil
 }
