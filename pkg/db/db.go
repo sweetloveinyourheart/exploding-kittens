@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
