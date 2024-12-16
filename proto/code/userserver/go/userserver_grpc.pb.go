@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: user.proto
+// source: userserver.proto
 
 package grpc
 
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUser_FullMethodName = "/com.sweetloveinyourheart.pocker.user.UserService/GetUser"
+	UserService_GetUser_FullMethodName = "/com.sweetloveinyourheart.pocker.users.UserService/GetUser"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -108,7 +108,7 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "com.sweetloveinyourheart.pocker.user.UserService",
+	ServiceName: "com.sweetloveinyourheart.pocker.users.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -117,5 +117,5 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user.proto",
+	Metadata: "userserver.proto",
 }

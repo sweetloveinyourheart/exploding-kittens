@@ -4,6 +4,10 @@ plugins:
     out: code/userserver/go
     opt:
       - paths=source_relative
+  - name: connect-go
+    out: code/userserver/go
+    opt:
+      - paths=source_relative
   - name: go-grpc
     out: code/userserver/go
     opt:

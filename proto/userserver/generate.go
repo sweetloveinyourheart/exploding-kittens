@@ -1,4 +1,4 @@
-package grpc_user
+package grpc_userserver
 
 // Run code generation with: go generate ./...
 // gRPC documentation: https://grpc.io/
