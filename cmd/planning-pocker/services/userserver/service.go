@@ -18,6 +18,8 @@ import (
 	"github.com/sweetloveinyourheart/planning-pocker/services/user/actions"
 )
 
+const DEFAULT_USERSERVER_GRPC_PORT = 50051
+
 const serviceType = "userserver"
 const dbTablePrefix = "pocker_userserver"
 const defDBName = "pocker_userserver"
@@ -47,7 +49,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			path, handler := grpcconnect.NewUserServiceHandler(
 				actions,
 			)
-			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("clientserver.grpc.port"), serviceType)
+			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("userserver.grpc.port"), serviceType)
 
 			app.Run()
 		},
@@ -69,6 +71,8 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	}
 
 	// config options
+	config.Int64Default(userServerCommand, "userserver.grpc.port", "grpc-port", DEFAULT_USERSERVER_GRPC_PORT, "GRPC Port to listen on", "USERSERVER_GRPC_PORT")
+
 	cmdutil.BoilerplateFlagsCore(userServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(userServerCommand, serviceType)
 	cmdutil.BoilerplateFlagsDB(userServerCommand, serviceType, envPrefix)

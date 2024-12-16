@@ -86,6 +86,13 @@
     path: userserver.db.url
     env:
     - USERSERVER_DB_URL
+  - name: grpc-port
+    usage: GRPC Port to listen on
+    default: 50051
+    valueType: int64
+    path: userserver.grpc.port
+    env:
+    - USERSERVER_GRPC_PORT
   - name: id
     usage: Unique identifier for this services
     default: ""
