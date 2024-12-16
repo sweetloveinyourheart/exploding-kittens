@@ -8,8 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/sweetloveinyourheart/planning-poker/pkg/db"
-	"github.com/sweetloveinyourheart/planning-poker/services/user/models"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/db"
+	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
 )
 
 type UserRepository struct {

@@ -13,10 +13,10 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
-	"github.com/sweetloveinyourheart/planning-poker/pkg/config"
-	"github.com/sweetloveinyourheart/planning-poker/pkg/db"
-	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
-	"github.com/sweetloveinyourheart/planning-poker/pkg/stringsutil"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/db"
+	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/stringsutil"
 )
 
 type AppRun struct {

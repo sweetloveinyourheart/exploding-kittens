@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
+	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
 )
 
 const HealthCheckPortGRPC = 5051

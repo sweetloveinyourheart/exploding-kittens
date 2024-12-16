@@ -16,7 +16,7 @@ resetFiles "*.pb.go"
 resetFiles "*.connect.go"
 
 goGenerateCmd="go generate --tags generate ./..."
-goImportsCmd="go run golang.org/x/tools/cmd/goimports --local "github.com/sweetloveinyourheart/planning-poker" -w ./"
+goImportsCmd="go run golang.org/x/tools/cmd/goimports --local "github.com/sweetloveinyourheart/planning-pocker" -w ./"
 
 pocker-echo "Running goimports..."
 $goImportsCmd

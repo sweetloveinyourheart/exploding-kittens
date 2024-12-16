@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/sweetloveinyourheart/planning-poker/pkg/config"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
 )
 
 func generateSchema(rootCmd *cobra.Command) {

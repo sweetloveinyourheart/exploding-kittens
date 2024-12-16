@@ -5,12 +5,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	pocker_userserver "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/services/userserver"
-	pocker_utils "github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker/utils"
-	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
+	pocker_userserver "github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker/services/userserver"
+	pocker_utils "github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker/utils"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
 )
 
-//go:generate go run github.com/sweetloveinyourheart/planning-poker/cmd/planning-pocker generate
+//go:generate go run github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker generate
 
 func init() {
 	// Always use UTC for generated timestamps

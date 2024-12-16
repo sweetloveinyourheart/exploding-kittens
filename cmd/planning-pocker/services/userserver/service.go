@@ -7,11 +7,15 @@ import (
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
-	"github.com/sweetloveinyourheart/planning-poker/pkg/cmdutil"
-	"github.com/sweetloveinyourheart/planning-poker/pkg/config"
-	"github.com/sweetloveinyourheart/planning-poker/pkg/db"
-	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
-	"github.com/sweetloveinyourheart/planning-poker/services/user"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/db"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/grpc"
+	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
+
+	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	"github.com/sweetloveinyourheart/planning-pocker/services/user"
+	"github.com/sweetloveinyourheart/planning-pocker/services/user/actions"
 )
 
 const serviceType = "userserver"
@@ -37,7 +41,13 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 
 			user.InitializeRepos(app.Ctx())
 
-			// TODO: Init GRPC Handler
+			signingKey := config.Instance().GetString("userserver.secrets.token_signing_key")
+			actions := actions.NewActions(app.Ctx(), signingKey)
+
+			path, handler := grpcconnect.NewUserServiceHandler(
+				actions,
+			)
+			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("clientserver.grpc.port"), serviceType)
 
 			app.Run()
 		},
@@ -67,13 +77,13 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 }
 
 func setupDependencies() error {
-	dbConn, err := db.NewDbWithWait(config.Instance().GetString("clientserver.db.url"), db.DBOptions{
-		TimeoutSec:      config.Instance().GetInt("clientserver.db.postgres.timeout"),
-		MaxOpenConns:    config.Instance().GetInt("clientserver.db.postgres.max_open_connections"),
-		MaxIdleConns:    config.Instance().GetInt("clientserver.db.postgres.max_idle_connections"),
-		ConnMaxLifetime: config.Instance().GetInt("clientserver.db.postgres.max_lifetime"),
-		ConnMaxIdleTime: config.Instance().GetInt("clientserver.db.postgres.max_idletime"),
-		EnableTracing:   config.Instance().GetBool("clientserver.db.tracing"),
+	dbConn, err := db.NewDbWithWait(config.Instance().GetString("userserver.db.url"), db.DBOptions{
+		TimeoutSec:      config.Instance().GetInt("userserver.db.postgres.timeout"),
+		MaxOpenConns:    config.Instance().GetInt("userserver.db.postgres.max_open_connections"),
+		MaxIdleConns:    config.Instance().GetInt("userserver.db.postgres.max_idle_connections"),
+		ConnMaxLifetime: config.Instance().GetInt("userserver.db.postgres.max_lifetime"),
+		ConnMaxIdleTime: config.Instance().GetInt("userserver.db.postgres.max_idletime"),
+		EnableTracing:   config.Instance().GetBool("userserver.db.tracing"),
 	})
 	if err != nil {
 		return err

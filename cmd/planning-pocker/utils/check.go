@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 
-	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
+	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
 )
 
 var (

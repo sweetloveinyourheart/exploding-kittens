@@ -12,7 +12,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"go.uber.org/zap"
 
-	log "github.com/sweetloveinyourheart/planning-poker/pkg/logger"
+	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
 )
 
 // PerformMigrations will automatically connect to the database and perform any unapplied migrations from the passed in
