@@ -6,23 +6,24 @@ import (
 	"github.com/spf13/cobra"
 
 	pocker_gateway "github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker/services/gateway"
-	pocker_userserver "github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker/services/userserver"
 	pocker_utils "github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker/utils"
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
 )
 
-//go:generate go run github.com/sweetloveinyourheart/planning-pocker/cmd/planning-pocker generate
+const defaultShortDescription = "Planning Pocker API Gateway"
 
 func init() {
 	// Always use UTC for generated timestamps
 	time.Local = time.UTC
 }
 
-func main() {
-	commands := make([]*cobra.Command, 0)
+//go:generate go run github.com/sweetloveinyourheart/planning-pocker/cmd/core/gateway generate
 
-	commands = append(commands, pocker_userserver.Command(cmdutil.ServiceRootCmd))
+func main() {
+	cmdutil.ServiceRootCmd.Short = defaultShortDescription
+	commands := make([]*cobra.Command, 0)
 	commands = append(commands, pocker_gateway.Command(cmdutil.ServiceRootCmd))
+
 	commands = append(commands, pocker_utils.CheckCommand())
 
 	cmdutil.InitializeService(commands...)

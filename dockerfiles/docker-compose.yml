@@ -33,18 +33,42 @@ services:
       timeout: 4s
       retries: 30
 
+  gateway:
+    image: pocker:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_gateway
+    hostname: gateway
+    environment:
+      "PLANNING_POCKER_SERVICE": "gateway"
+      "API_GATEWAY_ID": "00000000-0000-0000-0000-000000000001"
+      "API_GATEWAY_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
+      "API_GATEWAY_HTTP_PORT": 9000
+    ports:
+      - 9000:9000 # HTTP port
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.23"
+    healthcheck:
+      test: [ "CMD-SHELL", "/app check http localhost:5052/healthz" ]
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully   
+
   userserver:
     image: pocker:latest
     container_name: ${COMPOSE_PROJECT_NAME:-test}_userserver
     hostname: userserver
     environment:
       "PLANNING_POCKER_SERVICE": "userserver"
-      "USERSERVER_ID": "00000000-0000-0000-0000-000000000001"
+      "USERSERVER_ID": "00000000-0000-0000-0000-000000000002"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "USERSERVER_DB_URL": "postgres://root_admin:admin@123@pocker_database:5432/userserver?sslmode=disable"
       "USERSERVER_GRPC_PORT": 50051
     ports:
-      - 8020:8020 # GRPC port
+      - 50051:50051 # GRPC port
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.16"
