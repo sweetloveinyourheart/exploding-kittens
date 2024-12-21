@@ -16,6 +16,7 @@ import (
 	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
 	"github.com/sweetloveinyourheart/planning-pocker/services/user"
 	"github.com/sweetloveinyourheart/planning-pocker/services/user/actions"
+	"github.com/sweetloveinyourheart/planning-pocker/services/user/repos"
 )
 
 const DEFAULT_USERSERVER_GRPC_PORT = 50051
@@ -93,8 +94,23 @@ func setupDependencies() error {
 		return err
 	}
 
-	do.Provide(nil, func(i *do.Injector) (*pgxpool.Pool, error) {
+	do.Provide[*pgxpool.Pool](nil, func(i *do.Injector) (*pgxpool.Pool, error) {
 		return dbConn, nil
+	})
+
+	userRepo := repos.NewUserRepository(dbConn)
+	do.Provide[repos.IUserRepository](nil, func(i *do.Injector) (repos.IUserRepository, error) {
+		return userRepo, nil
+	})
+
+	userCredentialRepo := repos.NewUserCredentialRepository(dbConn)
+	do.Provide[repos.IUserCredentialRepository](nil, func(i *do.Injector) (repos.IUserCredentialRepository, error) {
+		return userCredentialRepo, nil
+	})
+
+	userSessionRepo := repos.NewUserSessionRepository(dbConn)
+	do.Provide[repos.IUserSessionRepository](nil, func(i *do.Injector) (repos.IUserSessionRepository, error) {
+		return userSessionRepo, nil
 	})
 
 	return nil
