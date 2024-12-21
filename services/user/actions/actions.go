@@ -3,7 +3,6 @@ package actions
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/samber/do"
 
 	"github.com/sweetloveinyourheart/planning-pocker/services/user/repos"
@@ -18,11 +17,9 @@ type actions struct {
 }
 
 func NewActions(ctx context.Context, signingToken string) *actions {
-	dbConn := do.MustInvoke[*pgxpool.Pool](nil)
-
-	userRepo := repos.NewUserRepository(dbConn)
-	userCredentialRepo := repos.NewUserCredentialRepository(dbConn)
-	userSessionRepo := repos.NewUserSessionRepository(dbConn)
+	userRepo := do.MustInvoke[repos.IUserRepository](nil)
+	userCredentialRepo := do.MustInvoke[repos.IUserCredentialRepository](nil)
+	userSessionRepo := do.MustInvoke[repos.IUserSessionRepository](nil)
 
 	return &actions{
 		context:            ctx,
