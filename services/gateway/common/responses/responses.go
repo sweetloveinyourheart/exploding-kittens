@@ -24,6 +24,34 @@ func JSON(w http.ResponseWriter, status int, message string, data any) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// ###
+// ### Success responses
+// ###
+
+func OK(w http.ResponseWriter, data any, messages ...string) {
+	// Default message if no custom messages are provided
+	msg := "Success"
+	if len(messages) > 0 {
+		msg = strings.Join(messages, "; ")
+	}
+
+	JSON(w, 200, msg, data)
+}
+
+func Created(w http.ResponseWriter, data any, messages ...string) {
+	// Default message if no custom messages are provided
+	msg := "Created"
+	if len(messages) > 0 {
+		msg = strings.Join(messages, "; ")
+	}
+
+	JSON(w, 201, msg, data)
+}
+
+// ###
+// ### Client error responses
+// ###
+
 func BadRequestException(w http.ResponseWriter, messages ...string) {
 	// Default message if no custom messages are provided
 	msg := "Bad request"

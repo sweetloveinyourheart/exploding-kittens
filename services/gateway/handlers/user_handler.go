@@ -29,5 +29,5 @@ func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, 200, "Get user successfully", user)
+	responses.OK(w, user)
 }
