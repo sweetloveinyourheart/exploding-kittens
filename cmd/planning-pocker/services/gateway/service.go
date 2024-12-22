@@ -2,15 +2,17 @@ package pocker_gateway
 
 import (
 	"fmt"
-	"net/http"
+	goHTTP "net/http"
 
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/http"
 	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
 	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/routers"
 )
 
 const DEFAULT_GATEWAY_HTTP_PORT = 9000
@@ -31,6 +33,9 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			if err := setupDependencies(); err != nil {
 				log.GlobalSugared().Fatal(err)
 			}
+
+			muxRouters := routers.NewGatewayRouter(app.Ctx())
+			go http.ServeHTTP(app.Ctx(), muxRouters, config.Instance().GetUint64("gateway.http.port"), serviceType)
 
 			app.Run()
 		},
@@ -62,7 +67,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 
 func setupDependencies() error {
 	userServerClient := grpcconnect.NewUserServerClient(
-		http.DefaultClient,
+		goHTTP.DefaultClient,
 		config.Instance().GetString("gateway.userserver.url"),
 	)
 	do.Provide[grpcconnect.UserServerClient](nil, func(i *do.Injector) (grpcconnect.UserServerClient, error) {

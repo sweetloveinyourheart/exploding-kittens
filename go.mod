@@ -6,6 +6,7 @@ require (
 	connectrpc.com/connect v1.17.0
 	github.com/bufbuild/buf v1.47.2
 	github.com/cockroachdb/errors v1.11.3
+	github.com/go-playground/validator/v10 v10.23.0
 	github.com/goccy/go-yaml v1.14.3
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.11.1
@@ -62,7 +63,10 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/fgprof v0.9.5 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -74,6 +78,7 @@ require (
 	github.com/jdx/go-netrc v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
