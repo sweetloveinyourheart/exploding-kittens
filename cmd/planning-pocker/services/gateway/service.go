@@ -2,12 +2,15 @@ package pocker_gateway
 
 import (
 	"fmt"
+	"net/http"
 
+	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
 	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
 )
 
 const DEFAULT_GATEWAY_HTTP_PORT = 9000
@@ -22,6 +25,10 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			app, err := cmdutil.BoilerplateRun(serviceType)
 			if err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
+
+			if err := setupDependencies(); err != nil {
 				log.GlobalSugared().Fatal(err)
 			}
 
@@ -45,9 +52,22 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	}
 
 	// config options
-	config.Int64Default(gatewayCmd, "userserver.http.port", "http-port", DEFAULT_GATEWAY_HTTP_PORT, "HTTP Port to listen on", "API_GATEWAY_HTTP_PORT")
+	config.Int64Default(gatewayCmd, "gateway.http.port", "http-port", DEFAULT_GATEWAY_HTTP_PORT, "HTTP Port to listen on", "API_GATEWAY_HTTP_PORT")
+	config.StringDefault(gatewayCmd, "gateway.userserver.url", "userserver-url", "http://userserver:50051", "User Server connection URL", "GATEWAY_USERSERVER_URL")
 
 	cmdutil.BoilerplateFlagsCore(gatewayCmd, serviceType, envPrefix)
 
 	return gatewayCmd
+}
+
+func setupDependencies() error {
+	userServerClient := grpcconnect.NewUserServerClient(
+		http.DefaultClient,
+		config.Instance().GetString("gateway.userserver.url"),
+	)
+	do.Provide[grpcconnect.UserServerClient](nil, func(i *do.Injector) (grpcconnect.UserServerClient, error) {
+		return userServerClient, nil
+	})
+
+	return nil
 }

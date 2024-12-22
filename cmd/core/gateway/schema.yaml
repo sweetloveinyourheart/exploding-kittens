@@ -34,7 +34,7 @@
     usage: HTTP Port to listen on
     default: 9000
     valueType: int64
-    path: userserver.http.port
+    path: gateway.http.port
     env:
     - API_GATEWAY_HTTP_PORT
   - name: id
@@ -51,6 +51,13 @@
     path: gateway.secrets.token_signing_key
     env:
     - API_GATEWAY_SECRETS_TOKEN_SIGNING_KEY
+  - name: userserver-url
+    usage: User Server connection URL
+    default: http://userserver:50051
+    valueType: string
+    path: gateway.userserver.url
+    env:
+    - GATEWAY_USERSERVER_URL
   - name: healthcheck-host
     usage: Host to listen on for services that support a health check
     default: localhost
