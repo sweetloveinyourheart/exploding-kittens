@@ -28,7 +28,7 @@ func JSON(w http.ResponseWriter, status int, message string, data any) {
 // ### Success responses
 // ###
 
-func OK(w http.ResponseWriter, data any, messages ...string) {
+func Ok(w http.ResponseWriter, data any, messages ...string) {
 	// Default message if no custom messages are provided
 	msg := "Success"
 	if len(messages) > 0 {
