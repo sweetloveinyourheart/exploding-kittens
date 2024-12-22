@@ -4,7 +4,7 @@ option go_package = "github.com/sweetloveinyourheart/planning-pocker/proto/code/
 
 package com.sweetloveinyourheart.pocker.users;
 
-service UserService {
+service UserServer {
     // Get a user by user_id
     rpc GetUser (GetUserRequest) returns (GetUserResponse);
 }

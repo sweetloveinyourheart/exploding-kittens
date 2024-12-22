@@ -47,7 +47,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			signingKey := config.Instance().GetString("userserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)
 
-			path, handler := grpcconnect.NewUserServiceHandler(
+			path, handler := grpcconnect.NewUserServerHandler(
 				actions,
 			)
 			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("userserver.grpc.port"), serviceType)
