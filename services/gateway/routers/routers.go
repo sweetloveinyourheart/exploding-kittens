@@ -14,7 +14,7 @@ func NewGatewayRouter(ctx context.Context) *mux.Router {
 	mux := mux.NewRouter()
 
 	// Apply the error handler middleware
-	mux.Use(middlewares.ErrorHandler)
+	mux.Use(middlewares.ErrorMiddleware)
 
 	// Path prefix v1
 	router := mux.PathPrefix("/api/v1").Subrouter()

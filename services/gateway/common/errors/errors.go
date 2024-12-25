@@ -1,4 +1,4 @@
-package gateway_errors
+package errors
 
 import (
 	"net/http"

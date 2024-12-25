@@ -35,7 +35,7 @@ func Ok(w http.ResponseWriter, data any, messages ...string) {
 		msg = strings.Join(messages, "; ")
 	}
 
-	JSON(w, 200, msg, data)
+	JSON(w, http.StatusOK, msg, data)
 }
 
 func Created(w http.ResponseWriter, data any, messages ...string) {
@@ -45,49 +45,66 @@ func Created(w http.ResponseWriter, data any, messages ...string) {
 		msg = strings.Join(messages, "; ")
 	}
 
-	JSON(w, 201, msg, data)
+	JSON(w, http.StatusCreated, msg, data)
 }
 
 // ###
 // ### Client error responses
 // ###
 
-func BadRequestException(w http.ResponseWriter, messages ...string) {
+// BadRequestException sends a 400 JSON response with optional error messages.
+func BadRequestException(w http.ResponseWriter, errors ...error) {
 	// Default message if no custom messages are provided
 	msg := "Bad request"
-	if len(messages) > 0 {
-		msg = strings.Join(messages, "; ")
+	if len(errors) > 0 {
+		// Combine error messages into a single string
+		msg = strings.Join(getErrorMessages(errors), "; ")
 	}
 
-	JSON(w, 400, msg, nil)
+	JSON(w, http.StatusBadRequest, msg, nil)
 }
 
-func UnAuthorizedException(w http.ResponseWriter, messages ...string) {
+// UnauthorizedException sends a 401 JSON response with optional error messages.
+func UnauthorizedException(w http.ResponseWriter, errors ...error) {
 	// Default message if no custom messages are provided
 	msg := "Unauthorized"
-	if len(messages) > 0 {
-		msg = strings.Join(messages, "; ")
+	if len(errors) > 0 {
+		// Combine error messages into a single string
+		msg = strings.Join(getErrorMessages(errors), "; ")
 	}
 
-	JSON(w, 401, msg, nil)
+	JSON(w, http.StatusUnauthorized, msg, nil)
 }
 
-func ForbiddenException(w http.ResponseWriter, messages ...string) {
+// ForbiddenException sends a 403 JSON response with optional error messages.
+func ForbiddenException(w http.ResponseWriter, errors ...error) {
 	// Default message if no custom messages are provided
 	msg := "Forbidden resource"
-	if len(messages) > 0 {
-		msg = strings.Join(messages, "; ")
+	if len(errors) > 0 {
+		// Combine error messages into a single string
+		msg = strings.Join(getErrorMessages(errors), "; ")
 	}
 
-	JSON(w, 403, msg, nil)
+	JSON(w, http.StatusForbidden, msg, nil)
 }
 
-func NotFoundException(w http.ResponseWriter, messages ...string) {
+// NotFoundException sends a 404 JSON response with optional error messages.
+func NotFoundException(w http.ResponseWriter, errors ...error) {
 	// Default message if no custom messages are provided
 	msg := "Resource not found"
-	if len(messages) > 0 {
-		msg = strings.Join(messages, "; ")
+	if len(errors) > 0 {
+		// Combine error messages into a single string
+		msg = strings.Join(getErrorMessages(errors), "; ")
 	}
 
-	JSON(w, 404, msg, nil)
+	JSON(w, http.StatusNotFound, msg, nil)
+}
+
+// getErrorMessages extracts the error messages from a slice of errors.
+func getErrorMessages(errors []error) []string {
+	messages := make([]string, len(errors))
+	for i, err := range errors {
+		messages[i] = err.Error()
+	}
+	return messages
 }
