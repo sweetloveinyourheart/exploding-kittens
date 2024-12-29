@@ -31,17 +31,48 @@ func (as *ActionsSuite) Test_CreateNewUser_NoUsername() {
 	as.Nil(resp)
 }
 
+func (as *ActionsSuite) Test_CreateNewUser_UserIsExisting() {
+	as.setupEnvironment()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	as.mockUserRepository.On("GetUserByUsername", mock.Anything, mock.Anything).Return(models.User{Username: "John"}, true, nil)
+
+	newUser := &proto.CreateUserRequest{
+		Username:     "John",
+		FullName:     "John Due",
+		AuthProvider: proto.CreateUserRequest_GUEST,
+		Meta:         nil,
+	}
+
+	actions := actions.NewActions(ctx, "test")
+	resp, err := actions.CreateNewUser(
+		ctx,
+		connect.NewRequest(newUser),
+	)
+
+	as.Nil(resp)
+	as.Error(err)
+
+	as.mockUserRepository.AssertExpectations(as.T())
+}
+
 func (as *ActionsSuite) Test_CreateNewUser_Success() {
 	as.setupEnvironment()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	as.mockUserRepository.On("GetUserByUsername", mock.Anything, mock.Anything).Return(models.User{}, false, nil)
 	as.mockUserRepository.On("CreateUser", mock.Anything, mock.Anything).Return(nil)
+	as.mockUserCredentialRepository.On("CreateCredential", mock.Anything, mock.Anything).Return(nil)
 
 	newUser := &proto.CreateUserRequest{
-		Username: "John",
-		FullName: "John Due",
+		Username:     "John",
+		FullName:     "John Due",
+		AuthProvider: proto.CreateUserRequest_GUEST,
+		Meta:         nil,
 	}
 
 	actions := actions.NewActions(ctx, "test")
@@ -56,4 +87,5 @@ func (as *ActionsSuite) Test_CreateNewUser_Success() {
 	as.Equal(int32(models.USER_STATUS_ENABLED), resp.Msg.User.GetStatus())
 
 	as.mockUserRepository.AssertExpectations(as.T())
+	as.mockUserCredentialRepository.AssertExpectations(as.T())
 }

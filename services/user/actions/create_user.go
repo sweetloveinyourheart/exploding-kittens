@@ -40,9 +40,29 @@ func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[pr
 		return nil, grpc.InternalError(err)
 	}
 
+	// Create new user
 	err = a.userRepo.CreateUser(ctx, &newUser)
 	if err != nil {
 		log.Global().ErrorContext(ctx, "failed to create new user", zap.Error(err))
+		return nil, grpc.InternalError(err)
+	}
+
+	// Create new credential
+	newUserCredential := models.UserCredential{
+		UserID:       newUser.UserID,
+		AuthProvider: request.Msg.GetAuthProvider().String(),
+		Meta:         []byte(request.Msg.GetMeta()),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+	err = newUserCredential.Validate()
+	if err != nil {
+		return nil, grpc.InvalidArgumentError(err)
+	}
+
+	err = a.userCredentialRepo.CreateCredential(ctx, &newUserCredential)
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to create new user credential", zap.Error(err))
 		return nil, grpc.InternalError(err)
 	}
 

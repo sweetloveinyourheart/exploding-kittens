@@ -18,6 +18,12 @@ type ActionsSuite struct {
 	mockUserSessionRepository    *userserver_mock.MockUserSessionRepository
 }
 
+func (as *ActionsSuite) SetupTest() {
+	as.mockUserRepository = new(userserver_mock.MockUserRepository)
+	as.mockUserCredentialRepository = new(userserver_mock.MockUserCredentialRepository)
+	as.mockUserSessionRepository = new(userserver_mock.MockUserSessionRepository)
+}
+
 func TestActionsSuite(t *goTesting.T) {
 	as := &ActionsSuite{
 		Suite:                        testing.MakeSuite(t),
