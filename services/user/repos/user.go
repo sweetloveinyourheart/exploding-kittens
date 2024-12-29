@@ -26,14 +26,42 @@ func (ur *UserRepository) GetUserByID(ctx context.Context, userID uuid.UUID) (mo
 	var user models.User
 
 	query := `
-		SELECT user_id, first_name, last_name, status, created_at, updated_at
+		SELECT user_id, username, full_name, status, created_at, updated_at
 		FROM users
 		WHERE user_id = $1;
 	`
 	err := ur.Tx.QueryRow(ctx, query, userID).Scan(
 		&user.UserID,
-		&user.FirstName,
-		&user.LastName,
+		&user.Username,
+		&user.FullName,
+		&user.Status,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, pgx.ErrNoRows) {
+			return models.User{}, false, nil
+		}
+
+		return models.User{}, false, errors.WithStack(err)
+	}
+
+	return user, true, nil
+}
+
+func (ur *UserRepository) GetUserByUsername(ctx context.Context, username string) (models.User, bool, error) {
+	var user models.User
+
+	query := `
+		SELECT user_id, username, full_name, status, created_at, updated_at
+		FROM users
+		WHERE username = $1;
+	`
+	err := ur.Tx.QueryRow(ctx, query, username).Scan(
+		&user.UserID,
+		&user.Username,
+		&user.FullName,
 		&user.Status,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -58,8 +86,8 @@ func (ur *UserRepository) CreateUser(ctx context.Context, user *models.User) err
 	query := `
 		INSERT INTO users (
 			user_id,
-			first_name,
-			last_name,
+			username,
+			full_name,
 			status,
 			created_at,
 			updated_at
@@ -69,8 +97,8 @@ func (ur *UserRepository) CreateUser(ctx context.Context, user *models.User) err
 	_, err := ur.Tx.Exec(ctx,
 		query,
 		user.UserID,
-		user.FirstName,
-		user.LastName,
+		user.Username,
+		user.FullName,
 		user.Status,
 		user.CreatedAt,
 		user.UpdatedAt,
@@ -86,13 +114,13 @@ func (ur *UserRepository) UpdateUserData(ctx context.Context, user *models.User)
 
 	query := `
 		UPDATE users
-		SET first_name = $1, last_name = $2, status = $3, updated_at = $4
+		SET username = $1, full_name = $2, status = $3, updated_at = $4
 		WHERE user_id = $5;
 	`
 	_, err := ur.Tx.Exec(ctx,
 		query,
-		user.FirstName,
-		user.LastName,
+		user.Username,
+		user.FullName,
 		user.Status,
 		user.UpdatedAt,
 		user.UserID,

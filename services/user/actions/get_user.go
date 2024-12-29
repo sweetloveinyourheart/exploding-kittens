@@ -17,7 +17,7 @@ import (
 func (a *actions) GetUser(ctx context.Context, request *connect.Request[proto.GetUserRequest]) (response *connect.Response[proto.GetUserResponse], err error) {
 	userID, err := uuid.FromString(request.Msg.GetUserId())
 	if err != nil {
-		return nil, grpc.InvalidArgumentError(grpc.FieldViolation("user_id", fmt.Errorf("user_id is invalid")))
+		return nil, grpc.InvalidArgumentErrorWithField(grpc.FieldViolation("user_id", fmt.Errorf("user_id is invalid")))
 	}
 
 	user, ok, err := a.userRepo.GetUserByID(ctx, userID)
@@ -33,10 +33,10 @@ func (a *actions) GetUser(ctx context.Context, request *connect.Request[proto.Ge
 
 	return connect.NewResponse(&proto.GetUserResponse{
 		User: &proto.User{
-			UserId:    user.UserID.String(),
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Status:    int32(user.Status),
+			UserId:   user.UserID.String(),
+			Username: user.Username,
+			FullName: user.FullName,
+			Status:   int32(user.Status),
 		},
 	}), nil
 }

@@ -7,12 +7,14 @@ package com.sweetloveinyourheart.pocker.users;
 service UserServer {
     // Get a user by user_id
     rpc GetUser (GetUserRequest) returns (GetUserResponse);
+    // Create new user
+    rpc CreateNewUser (CreateUserRequest) returns (CreateUserResponse);
 }
 
 message User {
     string user_id = 1;
-    string first_name = 2;
-    string last_name = 3;
+    string username = 2;
+    string full_name = 3;
     int32 status = 4;
 }
 
@@ -21,5 +23,21 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
+    User user = 1;
+}
+
+message CreateUserRequest {
+    enum AuthProvider {
+        GUEST = 0; // Guest user
+        GOOGLE = 1; // Google SSO user
+    }
+
+    string username = 1;
+    string full_name = 2;
+    AuthProvider auth_provider = 3;
+    optional string meta = 4;
+}
+
+message CreateUserResponse {
     User user = 1;
 }

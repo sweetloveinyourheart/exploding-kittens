@@ -4,8 +4,8 @@
 CREATE TABLE public.users
 (
     user_id         UUID                        NOT NULL,
-    first_name      VARCHAR(255)                NOT NULL,
-    last_name       VARCHAR(255)                NOT NULL,
+    username        VARCHAR(255)                NOT NULL,
+    full_name            VARCHAR(255)                NOT NULL,
     status          INT                         NOT NULL,
     created_at      TIMESTAMP WITH TIME ZONE    NOT NULL,
     updated_at      TIMESTAMP WITH TIME ZONE    NOT NULL,

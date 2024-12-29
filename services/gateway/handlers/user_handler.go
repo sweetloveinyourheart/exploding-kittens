@@ -8,6 +8,7 @@ import (
 	grpc "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
 	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/requests"
 	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/responses"
+	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/schemas"
 )
 
 func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
@@ -24,4 +25,24 @@ func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.Ok(w, user)
+}
+
+func (h *handler) CreateNewGuestUser(w http.ResponseWriter, r *http.Request) {
+	newUser, err := requests.ParseBodyWithValidation[schemas.CreateNewGuestUserRequest](r)
+	if err != nil {
+		responses.BadRequestException(w, err)
+		return
+	}
+
+	resp, err := h.userServerClient.CreateNewUser(h.ctx, connect.NewRequest(&grpc.CreateUserRequest{
+		Username:     newUser.Username,
+		FullName:     newUser.FullName,
+		AuthProvider: grpc.CreateUserRequest_GUEST,
+	}))
+	if err != nil {
+		responses.BadRequestException(w, err)
+		return
+	}
+
+	responses.Ok(w, resp)
 }

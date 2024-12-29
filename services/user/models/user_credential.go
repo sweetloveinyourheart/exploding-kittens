@@ -8,6 +8,11 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+const (
+	USER_AUTH_PROVIDER_GUEST  = "USER_AUTH_PROVIDER_GUEST"
+	USER_AUTH_PROVIDER_GOOGLE = "USER_AUTH_PROVIDER_GOOGLE"
+)
+
 type UserCredential struct {
 	UserID       uuid.UUID `json:"user_id"`
 	AuthProvider string    `json:"auth_provider"`

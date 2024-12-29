@@ -35,18 +35,24 @@ const (
 const (
 	// UserServerGetUserProcedure is the fully-qualified name of the UserServer's GetUser RPC.
 	UserServerGetUserProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/GetUser"
+	// UserServerCreateNewUserProcedure is the fully-qualified name of the UserServer's CreateNewUser
+	// RPC.
+	UserServerCreateNewUserProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/CreateNewUser"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	userServerServiceDescriptor       = _go.File_userserver_proto.Services().ByName("UserServer")
-	userServerGetUserMethodDescriptor = userServerServiceDescriptor.Methods().ByName("GetUser")
+	userServerServiceDescriptor             = _go.File_userserver_proto.Services().ByName("UserServer")
+	userServerGetUserMethodDescriptor       = userServerServiceDescriptor.Methods().ByName("GetUser")
+	userServerCreateNewUserMethodDescriptor = userServerServiceDescriptor.Methods().ByName("CreateNewUser")
 )
 
 // UserServerClient is a client for the com.sweetloveinyourheart.pocker.users.UserServer service.
 type UserServerClient interface {
 	// Get a user by user_id
 	GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error)
+	// Create new user
+	CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error)
 }
 
 // NewUserServerClient constructs a client for the com.sweetloveinyourheart.pocker.users.UserServer
@@ -65,12 +71,19 @@ func NewUserServerClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(userServerGetUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		createNewUser: connect.NewClient[_go.CreateUserRequest, _go.CreateUserResponse](
+			httpClient,
+			baseURL+UserServerCreateNewUserProcedure,
+			connect.WithSchema(userServerCreateNewUserMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // userServerClient implements UserServerClient.
 type userServerClient struct {
-	getUser *connect.Client[_go.GetUserRequest, _go.GetUserResponse]
+	getUser       *connect.Client[_go.GetUserRequest, _go.GetUserResponse]
+	createNewUser *connect.Client[_go.CreateUserRequest, _go.CreateUserResponse]
 }
 
 // GetUser calls com.sweetloveinyourheart.pocker.users.UserServer.GetUser.
@@ -78,11 +91,18 @@ func (c *userServerClient) GetUser(ctx context.Context, req *connect.Request[_go
 	return c.getUser.CallUnary(ctx, req)
 }
 
+// CreateNewUser calls com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser.
+func (c *userServerClient) CreateNewUser(ctx context.Context, req *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error) {
+	return c.createNewUser.CallUnary(ctx, req)
+}
+
 // UserServerHandler is an implementation of the com.sweetloveinyourheart.pocker.users.UserServer
 // service.
 type UserServerHandler interface {
 	// Get a user by user_id
 	GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error)
+	// Create new user
+	CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error)
 }
 
 // NewUserServerHandler builds an HTTP handler from the service implementation. It returns the path
@@ -97,10 +117,18 @@ func NewUserServerHandler(svc UserServerHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(userServerGetUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServerCreateNewUserHandler := connect.NewUnaryHandler(
+		UserServerCreateNewUserProcedure,
+		svc.CreateNewUser,
+		connect.WithSchema(userServerCreateNewUserMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.pocker.users.UserServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServerGetUserProcedure:
 			userServerGetUserHandler.ServeHTTP(w, r)
+		case UserServerCreateNewUserProcedure:
+			userServerCreateNewUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -112,4 +140,8 @@ type UnimplementedUserServerHandler struct{}
 
 func (UnimplementedUserServerHandler) GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.GetUser is not implemented"))
+}
+
+func (UnimplementedUserServerHandler) CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser is not implemented"))
 }

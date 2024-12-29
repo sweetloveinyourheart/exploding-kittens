@@ -22,6 +22,7 @@ func NewGatewayRouter(ctx context.Context) *mux.Router {
 	// User routers
 	userRouter := router.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/{id}", handler.GetUserByID).Methods("GET")
+	userRouter.HandleFunc("/create-guest-user", handler.CreateNewGuestUser).Methods("POST")
 
 	return router
 }

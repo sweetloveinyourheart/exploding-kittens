@@ -18,6 +18,11 @@ func (m *MockUserRepository) GetUserByID(ctx context.Context, userID uuid.UUID) 
 	return args.Get(0).(models.User), args.Bool(1), args.Error(2)
 }
 
+func (m *MockUserRepository) GetUserByUsername(ctx context.Context, username string) (models.User, bool, error) {
+	args := m.Called(ctx, username)
+	return args.Get(0).(models.User), args.Bool(1), args.Error(2)
+}
+
 func (m *MockUserRepository) CreateUser(ctx context.Context, user *models.User) error {
 	args := m.Called(ctx, user)
 	return args.Error(0)

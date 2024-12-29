@@ -10,6 +10,7 @@ import (
 
 type IUserRepository interface {
 	GetUserByID(ctx context.Context, userID uuid.UUID) (models.User, bool, error)
+	GetUserByUsername(ctx context.Context, username string) (models.User, bool, error)
 	CreateUser(ctx context.Context, user *models.User) error
 	UpdateUserData(ctx context.Context, user *models.User) error
 }

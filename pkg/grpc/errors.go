@@ -13,7 +13,7 @@ func FieldViolation(field string, err error) *errdetails.BadRequest_FieldViolati
 	}
 }
 
-func InvalidArgumentError(violations ...*errdetails.BadRequest_FieldViolation) error {
+func InvalidArgumentErrorWithField(violations ...*errdetails.BadRequest_FieldViolation) error {
 	statusInvalid := connect.NewError(connect.CodeInvalidArgument, errors.New("invalid parameters"))
 	for _, violation := range violations {
 		if detail, detailErr := connect.NewErrorDetail(violation); detailErr == nil {
@@ -22,6 +22,13 @@ func InvalidArgumentError(violations ...*errdetails.BadRequest_FieldViolation) e
 	}
 
 	return statusInvalid
+}
+
+func InvalidArgumentError(err error) error {
+	if connectErr := new(connect.Error); errors.As(err, &connectErr) {
+		return err
+	}
+	return connect.NewError(connect.CodeInvalidArgument, err)
 }
 
 func InternalError(err error) error {
