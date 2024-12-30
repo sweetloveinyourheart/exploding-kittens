@@ -48,10 +48,15 @@ func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[pr
 	}
 
 	// Create new credential
+	var meta []byte
+	if request.Msg.GetMeta() != "" {
+		meta = []byte(request.Msg.GetMeta())
+	}
+
 	newUserCredential := models.UserCredential{
 		UserID:       newUser.UserID,
 		AuthProvider: request.Msg.GetAuthProvider().String(),
-		Meta:         []byte(request.Msg.GetMeta()),
+		Meta:         meta,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
