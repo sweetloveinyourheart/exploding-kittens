@@ -75,3 +75,12 @@ func SessionHash(userId uuid.UUID) (string, error) {
 	// Truncate string to 32 characters
 	return encodedHash[:32], nil
 }
+
+// Generate a random number for session ID
+func GenerateSessionID() (int64, error) {
+	sessionID, err := rand.Int(rand.Reader, big.NewInt(1<<62))
+	if err != nil {
+		return 0, err
+	}
+	return sessionID.Int64(), nil
+}

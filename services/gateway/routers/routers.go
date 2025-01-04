@@ -19,6 +19,10 @@ func NewGatewayRouter(ctx context.Context) *mux.Router {
 	// Path prefix v1
 	router := mux.PathPrefix("/api/v1").Subrouter()
 
+	// Authentication routers
+	authRouter := router.PathPrefix("/auth").Subrouter()
+	authRouter.HandleFunc("/guest-login", handler.GuestLogin).Methods("POST")
+
 	// User routers
 	userRouter := router.PathPrefix("/users").Subrouter()
 	userRouter.HandleFunc("/{id}", handler.GetUserByID).Methods("GET")

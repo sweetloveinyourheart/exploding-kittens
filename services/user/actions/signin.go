@@ -39,10 +39,16 @@ func (a *actions) SignIn(ctx context.Context, request *connect.Request[proto.Sig
 		return nil, grpc.InternalError(err)
 	}
 
+	sessionID, err := utils.GenerateSessionID()
+	if err != nil {
+		return nil, grpc.InternalError(err)
+	}
+
 	now := time.Now()
 	expiration := now.Add(time.Hour * 24)
 
 	session := models.UserSession{
+		SessionID:         sessionID,
 		Token:             sessionHash,
 		UserID:            userID,
 		SessionStart:      now,
