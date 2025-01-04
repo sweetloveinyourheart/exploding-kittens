@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go;grpc";
+
+package com.sweetloveinyourheart.kittens.clients;
+
+service ClientServer {
+    rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
+    rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
+}
+
+message User {
+    string user_id = 1;
+    string username = 2;
+    string full_name = 3;
+    int32 status = 4;
+}
+
+// Message for creating a new guest user
+message CreateNewGuestUserRequest {
+    string username = 1; // Required: Username of the guest user
+    string full_name = 2; // Required: Full name of the guest user
+}
+  
+  message CreateNewGuestUserResponse {
+    User user = 1; // The user basic info
+}
+  
+  // Message for guest login
+  message GuestLoginRequest {
+    string user_id = 1; // Required: UUID of the guest user
+}
+  
+  message GuestLoginResponse {
+    string user_id = 1; // The database id for this user (UUID).
+    string token = 2; // The session token for this user.
+}

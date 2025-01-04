@@ -73,10 +73,12 @@ func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[pr
 
 	return connect.NewResponse(&proto.CreateUserResponse{
 		User: &proto.User{
-			UserId:   newUser.UserID.String(),
-			Username: newUser.Username,
-			FullName: newUser.FullName,
-			Status:   int32(newUser.Status),
+			UserId:    newUser.UserID.String(),
+			Username:  newUser.Username,
+			FullName:  newUser.FullName,
+			Status:    int32(newUser.Status),
+			CreatedAt: newUser.CreatedAt.Unix(),
+			UpdatedAt: newUser.UpdatedAt.Unix(),
 		},
 	}), nil
 }
