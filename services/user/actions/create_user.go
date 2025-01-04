@@ -9,10 +9,10 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/grpc"
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
-	proto "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
 )
 
 func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[proto.CreateUserRequest]) (response *connect.Response[proto.CreateUserResponse], err error) {

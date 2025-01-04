@@ -1,4 +1,4 @@
-package pocker_userserver
+package kittens_userserver
 
 import (
 	"fmt"
@@ -7,23 +7,23 @@ import (
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/db"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/grpc"
-	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/actions"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/repos"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/actions"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/repos"
 )
 
 const DEFAULT_USERSERVER_GRPC_PORT = 50051
 
 const serviceType = "userserver"
-const dbTablePrefix = "pocker_userserver"
-const defDBName = "pocker_userserver"
+const dbTablePrefix = "kittens_userserver"
+const defDBName = "kittens_userserver"
 const envPrefix = "USERSERVER"
 
 func Command(rootCmd *cobra.Command) *cobra.Command {

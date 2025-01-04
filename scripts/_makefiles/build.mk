@@ -6,7 +6,7 @@ build: # Build everything
 	@make build-containers IMAGE_TAG=$(IMAGE_TAG)
 
 build-containers:
-	@make pocker-docker optionalReproFlag=$(optionalReproFlag)
+	@make kittens-docker optionalReproFlag=$(optionalReproFlag)
 
 # Base makefile target for building a binary
 GOOS_OVERRIDE ?= GOOS=linux
@@ -29,9 +29,9 @@ build-docker:
 	--build-arg GO_CONTAINER_IMAGE=$(GO_CONTAINER_IMAGE) \
 	$(additionalDockerArgs)
 
-pocker-build:
-	@make build-binary directory=cmd/planning-pocker executablePath=cmd/planning-pocker/planning-pocker
+kittens-build:
+	@make build-binary directory=cmd/exploding-kittens executablePath=cmd/exploding-kittens/exploding-kittens
 
-pocker-docker:
-	@make pocker-build $(optionalReproFlag)
-	@make build-docker buildPlatform=$(buildPlatorm) target=pocker
+kittens-docker:
+	@make kittens-build $(optionalReproFlag)
+	@make build-docker buildPlatform=$(buildPlatorm) target=kittens

@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
 func ServeHTTP(ctx context.Context, handler *mux.Router, port uint64, serviceName string) {

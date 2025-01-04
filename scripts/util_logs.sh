@@ -8,13 +8,13 @@ gray='\033[0;90m'
 cyan='\033[0;36m'
 nc='\033[0m' # No Color, use this to terminate color sequences
 
-pocker-timestamp() {
+kittens-timestamp() {
     date +"%H:%M:%S"
     return 0
 }
 
-pocker-echo() {
-    local timestamp=$(pocker-timestamp)
+kittens-echo() {
+    local timestamp=$(kittens-timestamp)
     local callLocation=$(caller)
     local callLocationFile=$(echo $callLocation | cut -d' ' -f2)
     local callLocationLine=$(echo $callLocation | cut -d' ' -f1)
@@ -22,8 +22,8 @@ pocker-echo() {
     return 0
 }
 
-pocker-echo-red() {
-    local timestamp=$(pocker-timestamp)
+kittens-echo-red() {
+    local timestamp=$(kittens-timestamp)
     local callLocation=$(caller)
     local callLocationFile=$(echo $callLocation | cut -d' ' -f2)
     local callLocationLine=$(echo $callLocation | cut -d' ' -f1)
@@ -31,8 +31,8 @@ pocker-echo-red() {
     return 0
 }
 
-pocker-echo-yellow() {
-    local timestamp=$(pocker-timestamp)
+kittens-echo-yellow() {
+    local timestamp=$(kittens-timestamp)
     local callLocation=$(caller)
     local callLocationFile=$(echo $callLocation | cut -d' ' -f2)
     local callLocationLine=$(echo $callLocation | cut -d' ' -f1)
@@ -40,8 +40,8 @@ pocker-echo-yellow() {
     return 0
 }
 
-pocker-echo-green() {
-    local timestamp=$(pocker-timestamp)
+kittens-echo-green() {
+    local timestamp=$(kittens-timestamp)
     local callLocation=$(caller)
     local callLocationFile=$(echo $callLocation | cut -d' ' -f2)
     local callLocationLine=$(echo $callLocation | cut -d' ' -f1)
@@ -49,8 +49,8 @@ pocker-echo-green() {
     return 0
 }
 
-pocker-echo-blue() {
-    local timestamp=$(pocker-timestamp)
+kittens-echo-blue() {
+    local timestamp=$(kittens-timestamp)
     local callLocation=$(caller)
     local callLocationFile=$(echo $callLocation | cut -d' ' -f2)
     local callLocationLine=$(echo $callLocation | cut -d' ' -f1)

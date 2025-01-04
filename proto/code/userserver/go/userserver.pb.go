@@ -232,7 +232,7 @@ type CreateUserRequest struct {
 
 	Username     string                         `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	FullName     string                         `protobuf:"bytes,2,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	AuthProvider CreateUserRequest_AuthProvider `protobuf:"varint,3,opt,name=auth_provider,json=authProvider,proto3,enum=com.sweetloveinyourheart.pocker.users.CreateUserRequest_AuthProvider" json:"auth_provider,omitempty"`
+	AuthProvider CreateUserRequest_AuthProvider `protobuf:"varint,3,opt,name=auth_provider,json=authProvider,proto3,enum=com.sweetloveinyourheart.kittens.users.CreateUserRequest_AuthProvider" json:"auth_provider,omitempty"`
 	Meta         *string                        `protobuf:"bytes,4,opt,name=meta,proto3,oneof" json:"meta,omitempty"`
 }
 
@@ -511,12 +511,13 @@ var file_userserver_proto_rawDesc = []byte{
 	0x1a, 0x35, 0x2e, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x77, 0x65, 0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65,
 	0x69, 0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2e, 0x70, 0x6f, 0x63, 0x6b,
 	0x65, 0x72, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x49, 0x6e, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x4f, 0x5a, 0x4d, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x51, 0x5a, 0x4f, 0x67, 0x69, 0x74, 0x68, 0x75,
 	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x77, 0x65, 0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65, 0x69,
-	0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2f, 0x70, 0x6c, 0x61, 0x6e, 0x6e,
-	0x69, 0x6e, 0x67, 0x2d, 0x70, 0x6f, 0x63, 0x6b, 0x65, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x63, 0x6f, 0x64, 0x65, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
-	0x2f, 0x67, 0x6f, 0x3b, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2f, 0x65, 0x78, 0x70, 0x6c, 0x6f,
+	0x64, 0x69, 0x6e, 0x67, 0x2d, 0x6b, 0x69, 0x74, 0x74, 0x65, 0x6e, 0x73, 0x2f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x64, 0x65, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2f, 0x67, 0x6f, 0x3b, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -534,25 +535,25 @@ func file_userserver_proto_rawDescGZIP() []byte {
 var file_userserver_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_userserver_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_userserver_proto_goTypes = []any{
-	(CreateUserRequest_AuthProvider)(0), // 0: com.sweetloveinyourheart.pocker.users.CreateUserRequest.AuthProvider
-	(*User)(nil),                        // 1: com.sweetloveinyourheart.pocker.users.User
-	(*GetUserRequest)(nil),              // 2: com.sweetloveinyourheart.pocker.users.GetUserRequest
-	(*GetUserResponse)(nil),             // 3: com.sweetloveinyourheart.pocker.users.GetUserResponse
-	(*CreateUserRequest)(nil),           // 4: com.sweetloveinyourheart.pocker.users.CreateUserRequest
-	(*CreateUserResponse)(nil),          // 5: com.sweetloveinyourheart.pocker.users.CreateUserResponse
-	(*SignInRequest)(nil),               // 6: com.sweetloveinyourheart.pocker.users.SignInRequest
-	(*SignInResponse)(nil),              // 7: com.sweetloveinyourheart.pocker.users.SignInResponse
+	(CreateUserRequest_AuthProvider)(0), // 0: com.sweetloveinyourheart.kittens.users.CreateUserRequest.AuthProvider
+	(*User)(nil),                        // 1: com.sweetloveinyourheart.kittens.users.User
+	(*GetUserRequest)(nil),              // 2: com.sweetloveinyourheart.kittens.users.GetUserRequest
+	(*GetUserResponse)(nil),             // 3: com.sweetloveinyourheart.kittens.users.GetUserResponse
+	(*CreateUserRequest)(nil),           // 4: com.sweetloveinyourheart.kittens.users.CreateUserRequest
+	(*CreateUserResponse)(nil),          // 5: com.sweetloveinyourheart.kittens.users.CreateUserResponse
+	(*SignInRequest)(nil),               // 6: com.sweetloveinyourheart.kittens.users.SignInRequest
+	(*SignInResponse)(nil),              // 7: com.sweetloveinyourheart.kittens.users.SignInResponse
 }
 var file_userserver_proto_depIdxs = []int32{
-	1, // 0: com.sweetloveinyourheart.pocker.users.GetUserResponse.user:type_name -> com.sweetloveinyourheart.pocker.users.User
-	0, // 1: com.sweetloveinyourheart.pocker.users.CreateUserRequest.auth_provider:type_name -> com.sweetloveinyourheart.pocker.users.CreateUserRequest.AuthProvider
-	1, // 2: com.sweetloveinyourheart.pocker.users.CreateUserResponse.user:type_name -> com.sweetloveinyourheart.pocker.users.User
-	2, // 3: com.sweetloveinyourheart.pocker.users.UserServer.GetUser:input_type -> com.sweetloveinyourheart.pocker.users.GetUserRequest
-	4, // 4: com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser:input_type -> com.sweetloveinyourheart.pocker.users.CreateUserRequest
-	6, // 5: com.sweetloveinyourheart.pocker.users.UserServer.SignIn:input_type -> com.sweetloveinyourheart.pocker.users.SignInRequest
-	3, // 6: com.sweetloveinyourheart.pocker.users.UserServer.GetUser:output_type -> com.sweetloveinyourheart.pocker.users.GetUserResponse
-	5, // 7: com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser:output_type -> com.sweetloveinyourheart.pocker.users.CreateUserResponse
-	7, // 8: com.sweetloveinyourheart.pocker.users.UserServer.SignIn:output_type -> com.sweetloveinyourheart.pocker.users.SignInResponse
+	1, // 0: com.sweetloveinyourheart.kittens.users.GetUserResponse.user:type_name -> com.sweetloveinyourheart.kittens.users.User
+	0, // 1: com.sweetloveinyourheart.kittens.users.CreateUserRequest.auth_provider:type_name -> com.sweetloveinyourheart.kittens.users.CreateUserRequest.AuthProvider
+	1, // 2: com.sweetloveinyourheart.kittens.users.CreateUserResponse.user:type_name -> com.sweetloveinyourheart.kittens.users.User
+	2, // 3: com.sweetloveinyourheart.kittens.users.UserServer.GetUser:input_type -> com.sweetloveinyourheart.kittens.users.GetUserRequest
+	4, // 4: com.sweetloveinyourheart.kittens.users.UserServer.CreateNewUser:input_type -> com.sweetloveinyourheart.kittens.users.CreateUserRequest
+	6, // 5: com.sweetloveinyourheart.kittens.users.UserServer.SignIn:input_type -> com.sweetloveinyourheart.kittens.users.SignInRequest
+	3, // 6: com.sweetloveinyourheart.kittens.users.UserServer.GetUser:output_type -> com.sweetloveinyourheart.kittens.users.GetUserResponse
+	5, // 7: com.sweetloveinyourheart.kittens.users.UserServer.CreateNewUser:output_type -> com.sweetloveinyourheart.kittens.users.CreateUserResponse
+	7, // 8: com.sweetloveinyourheart.kittens.users.UserServer.SignIn:output_type -> com.sweetloveinyourheart.kittens.users.SignInResponse
 	6, // [6:9] is the sub-list for method output_type
 	3, // [3:6] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

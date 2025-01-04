@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
 )
 
 type MockUserSessionRepository struct {

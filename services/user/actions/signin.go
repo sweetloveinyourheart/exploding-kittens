@@ -10,11 +10,11 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/grpc"
-	proto "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/utils"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/utils"
 )
 
 func (a *actions) SignIn(ctx context.Context, request *connect.Request[proto.SignInRequest]) (response *connect.Response[proto.SignInResponse], err error) {

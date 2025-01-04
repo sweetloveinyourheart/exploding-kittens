@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/errors"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/common/errors"
 )
 
 func ErrorMiddleware(next http.Handler) http.Handler {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do"
 
-	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 )
 
 type handler struct {

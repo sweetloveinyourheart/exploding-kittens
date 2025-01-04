@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-option go_package = "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go;grpc";
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go;grpc";
 
-package com.sweetloveinyourheart.pocker.users;
+package com.sweetloveinyourheart.kittens.users;
 
 service UserServer {
     // Get a user by user_id

@@ -5,10 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	grpc "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/requests"
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/responses"
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/schemas"
+	grpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/common/requests"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/common/responses"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/schemas"
 )
 
 func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request) {

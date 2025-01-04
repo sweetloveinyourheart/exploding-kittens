@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserServer_GetUser_FullMethodName       = "/com.sweetloveinyourheart.pocker.users.UserServer/GetUser"
-	UserServer_CreateNewUser_FullMethodName = "/com.sweetloveinyourheart.pocker.users.UserServer/CreateNewUser"
-	UserServer_SignIn_FullMethodName        = "/com.sweetloveinyourheart.pocker.users.UserServer/SignIn"
+	UserServer_GetUser_FullMethodName       = "/com.sweetloveinyourheart.kittens.users.UserServer/GetUser"
+	UserServer_CreateNewUser_FullMethodName = "/com.sweetloveinyourheart.kittens.users.UserServer/CreateNewUser"
+	UserServer_SignIn_FullMethodName        = "/com.sweetloveinyourheart.kittens.users.UserServer/SignIn"
 )
 
 // UserServerClient is the client API for UserServer service.
@@ -180,7 +180,7 @@ func _UserServer_SignIn_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserServer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "com.sweetloveinyourheart.pocker.users.UserServer",
+	ServiceName: "com.sweetloveinyourheart.kittens.users.UserServer",
 	HandlerType: (*UserServerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

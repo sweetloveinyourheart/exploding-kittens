@@ -1,4 +1,4 @@
-package pocker_utils
+package kittens_utils
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
 var (

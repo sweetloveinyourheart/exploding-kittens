@@ -7,9 +7,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	proto "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/actions"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/actions"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
 )
 
 func (as *ActionsSuite) Test_GetUserByID_NoUserWasFound() {

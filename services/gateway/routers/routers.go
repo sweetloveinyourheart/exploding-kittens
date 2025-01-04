@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/handlers"
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/middlewares"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/handlers"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/middlewares"
 )
 
 func NewGatewayRouter(ctx context.Context) *mux.Router {

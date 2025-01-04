@@ -9,7 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/common/validations"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/common/validations"
 )
 
 // GetVar extracts a variable from the request and returns an error if not found.

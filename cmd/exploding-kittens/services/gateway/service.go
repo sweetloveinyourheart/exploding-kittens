@@ -1,4 +1,4 @@
-package pocker_gateway
+package kittens_gateway
 
 import (
 	"fmt"
@@ -7,12 +7,12 @@ import (
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/cmdutil"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/http"
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
-	"github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go/grpcconnect"
-	"github.com/sweetloveinyourheart/planning-pocker/services/gateway/routers"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/http"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/gateway/routers"
 )
 
 const DEFAULT_GATEWAY_HTTP_PORT = 9000

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
 )
 
 type IUserRepository interface {

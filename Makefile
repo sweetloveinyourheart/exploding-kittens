@@ -5,7 +5,7 @@ GO_CONTAINER_IMAGE=golang:1.23.2-alpine
 
 POSTGRES_CONTAINER_IMAGE=postgres:17.2-alpine3.19
 
-COMPOSE_PROJECT_NAME=pocker
+COMPOSE_PROJECT_NAME=kittens
 
 include $(PWD)/scripts/_makefiles/build.mk
 include $(PWD)/scripts/_makefiles/develop.mk

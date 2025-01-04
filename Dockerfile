@@ -34,13 +34,13 @@ RUN addgroup -S app
 RUN adduser -S -G app app
 
 #=======================================================
-# PLANNING POCKER - Gather, set permissions, and build the pocker image
+# EXPLODING KITTENS - Gather, set permissions, and build the kittens image
 #=======================================================
-FROM gather-files-base AS gather-pocker
-COPY cmd/planning-pocker/planning-pocker /cmd/planning-pocker/planning-pocker
-RUN chown -R app:app /cmd/planning-pocker/planning-pocker
+FROM gather-files-base AS gather-kittens
+COPY cmd/exploding-kittens/exploding-kittens /cmd/exploding-kittens/exploding-kittens
+RUN chown -R app:app /cmd/exploding-kittens/exploding-kittens
 
-FROM appcontainer AS pocker
-COPY --from=gather-pocker /cmd/planning-pocker/planning-pocker /app
+FROM appcontainer AS kittens
+COPY --from=gather-kittens /cmd/exploding-kittens/exploding-kittens /app
 USER app
 CMD [ "./app" ]

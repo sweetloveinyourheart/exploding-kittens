@@ -5,7 +5,7 @@ import (
 
 	"github.com/samber/do"
 
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/repos"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/repos"
 )
 
 type actions struct {

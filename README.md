@@ -1,2 +1,2 @@
-# Agile Planning Pocker
-Planning Poker is a collaborative estimation technique, often used in agile teams for estimating tasks.
+# Agile EXPLODING KITTENS
+EXPLODING Poker is a collaborative estimation technique, often used in agile teams for estimating tasks.

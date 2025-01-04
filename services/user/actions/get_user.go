@@ -9,9 +9,9 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/grpc"
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
-	proto "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
 )
 
 func (a *actions) GetUser(ctx context.Context, request *connect.Request[proto.GetUserRequest]) (response *connect.Response[proto.GetUserResponse], err error) {

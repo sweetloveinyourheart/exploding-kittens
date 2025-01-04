@@ -7,13 +7,13 @@ services:
       fs_test_net:
         ipv4_address: "172.16.244.7"
     depends_on:
-      pocker_database:
+      kittens_database:
         condition: service_healthy
 
-  pocker_database:
+  kittens_database:
     image: ${POSTGRES_CONTAINER_IMAGE}
     container_name: ${COMPOSE_PROJECT_NAME:-test}_database
-    hostname: pocker_database
+    hostname: kittens_database
     environment:
       "POSTGRES_DB": "postgres"
       "POSTGRES_USER": "root_admin"
@@ -34,11 +34,11 @@ services:
       retries: 30
 
   gateway:
-    image: pocker:latest
+    image: kittens:latest
     container_name: ${COMPOSE_PROJECT_NAME:-test}_gateway
     hostname: gateway
     environment:
-      "PLANNING_POCKER_SERVICE": "gateway"
+      "EXPLODING_KITTENS_SERVICE": "gateway"
       "API_GATEWAY_ID": "00000000-0000-0000-0000-000000000001"
       "API_GATEWAY_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "API_GATEWAY_HTTP_PORT": 9000
@@ -58,14 +58,14 @@ services:
         condition: service_completed_successfully   
 
   userserver:
-    image: pocker:latest
+    image: kittens:latest
     container_name: ${COMPOSE_PROJECT_NAME:-test}_userserver
     hostname: userserver
     environment:
-      "PLANNING_POCKER_SERVICE": "userserver"
+      "EXPLODING_KITTENS_SERVICE": "userserver"
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000002"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
-      "USERSERVER_DB_URL": "postgres://root_admin:admin@123@pocker_database:5432/userserver?sslmode=disable"
+      "USERSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/userserver?sslmode=disable"
       "USERSERVER_GRPC_PORT": 50051
     ports:
       - 50051:50051 # GRPC port

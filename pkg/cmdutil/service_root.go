@@ -8,11 +8,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	fields "github.com/sweetloveinyourheart/planning-pocker/pkg/config"
+	fields "github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 )
 
 const rootCmdName = "app"
-const defaultShortDescription = "Unified planning pocker service launcher"
+const defaultShortDescription = "Unified EXPLODING kittens service launcher"
 
 var (
 	cfgFile        string
@@ -67,11 +67,11 @@ func InitializeService(command ...*cobra.Command) {
 	}
 
 	// Common
-	ServiceRootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.planning-poker/app.yaml)")
+	ServiceRootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.EXPLODING-poker/app.yaml)")
 	ServiceRootCmd.PersistentFlags().StringP("service", "s", "", "which service to run")
 	ServiceRootCmd.PersistentFlags().String("log-level", "info", "log level to use")
 
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("service"), "service", "", "PLANNING_POCKER_SERVICE")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("service"), "service", "", "EXPLODING_KITTENS_SERVICE")
 	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("log-level"), "log.level", "info", "LOG_LEVEL")
 
 	// Health check
@@ -79,9 +79,9 @@ func InitializeService(command ...*cobra.Command) {
 	ServiceRootCmd.PersistentFlags().Int64("healthcheck-web-port", HealthCheckPortHTTP, "Port to listen on for services that support a health check")
 	ServiceRootCmd.PersistentFlags().String("healthcheck-host", "localhost", "Host to listen on for services that support a health check")
 
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-port"), "healthcheck.port", HealthCheckPortGRPC, "PLANNING_POCKER_HEALTHCHECK_PORT")
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-web-port"), "healthcheck.web.port", HealthCheckPortHTTP, "PLANNING_POCKER_HEALTHCHECK_WEB_PORT")
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-host"), "healthcheck.host", "localhost", "PLANNING_POCKER_HEALTHCHECK_HOST")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-port"), "healthcheck.port", HealthCheckPortGRPC, "EXPLODING_KITTENS_HEALTHCHECK_PORT")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-web-port"), "healthcheck.web.port", HealthCheckPortHTTP, "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-host"), "healthcheck.host", "localhost", "EXPLODING_KITTENS_HEALTHCHECK_HOST")
 
 	for _, c := range command {
 		ServiceRootCmd.AddCommand(c)
@@ -101,16 +101,16 @@ func InitializeService(command ...*cobra.Command) {
 
 func initConfig() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	viper.SetEnvPrefix("PLANNING_POCKER")
+	viper.SetEnvPrefix("EXPLODING_KITTENS")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.SetConfigName("pocker")
+		viper.SetConfigName("kittens")
 		viper.SetConfigType("yaml")
-		viper.AddConfigPath("/etc/planning-pocker")
-		viper.AddConfigPath("$HOME/.planning-pocker")
-		viper.AddConfigPath("./cmd/planning-pocker")
+		viper.AddConfigPath("/etc/exploding-kittens")
+		viper.AddConfigPath("$HOME/.exploding-kittens")
+		viper.AddConfigPath("./cmd/exploding-kittens")
 		viper.AddConfigPath(".")
 	}
 }

@@ -16,7 +16,7 @@
         "configName": "healthcheck.port",
         "defaultValue": 5051,
         "env": [
-          "PLANNING_POCKER_HEALTHCHECK_PORT"
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
         ]
       },
       {
@@ -33,11 +33,11 @@
         "configName": "healthcheck.web.port",
         "defaultValue": 5052,
         "env": [
-          "PLANNING_POCKER_HEALTHCHECK_WEB_PORT"
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
         ]
       }
     ],
-    "defaultDatabaseName": "pocker_userserver",
+    "defaultDatabaseName": "kittens_userserver",
     "Config": [
       {
         "name": "db-migrations-url",
@@ -156,7 +156,7 @@
         "valueType": "string",
         "path": "healthcheck.host",
         "env": [
-          "PLANNING_POCKER_HEALTHCHECK_HOST"
+          "EXPLODING_KITTENS_HEALTHCHECK_HOST"
         ]
       },
       {
@@ -166,7 +166,7 @@
         "valueType": "int",
         "path": "healthcheck.port",
         "env": [
-          "PLANNING_POCKER_HEALTHCHECK_PORT"
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
         ]
       },
       {
@@ -176,7 +176,7 @@
         "valueType": "int",
         "path": "healthcheck.web.port",
         "env": [
-          "PLANNING_POCKER_HEALTHCHECK_WEB_PORT"
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
         ]
       },
       {
@@ -196,7 +196,7 @@
         "valueType": "string",
         "path": "service",
         "env": [
-          "PLANNING_POCKER_SERVICE"
+          "EXPLODING_KITTENS_SERVICE"
         ]
       }
     ]

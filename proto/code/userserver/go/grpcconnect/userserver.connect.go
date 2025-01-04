@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	_go "github.com/sweetloveinyourheart/planning-pocker/proto/code/userserver/go"
+	_go "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go"
 	http "net/http"
 	strings "strings"
 )
@@ -22,7 +22,7 @@ const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// UserServerName is the fully-qualified name of the UserServer service.
-	UserServerName = "com.sweetloveinyourheart.pocker.users.UserServer"
+	UserServerName = "com.sweetloveinyourheart.kittens.users.UserServer"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -34,12 +34,12 @@ const (
 // period.
 const (
 	// UserServerGetUserProcedure is the fully-qualified name of the UserServer's GetUser RPC.
-	UserServerGetUserProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/GetUser"
+	UserServerGetUserProcedure = "/com.sweetloveinyourheart.kittens.users.UserServer/GetUser"
 	// UserServerCreateNewUserProcedure is the fully-qualified name of the UserServer's CreateNewUser
 	// RPC.
-	UserServerCreateNewUserProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/CreateNewUser"
+	UserServerCreateNewUserProcedure = "/com.sweetloveinyourheart.kittens.users.UserServer/CreateNewUser"
 	// UserServerSignInProcedure is the fully-qualified name of the UserServer's SignIn RPC.
-	UserServerSignInProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/SignIn"
+	UserServerSignInProcedure = "/com.sweetloveinyourheart.kittens.users.UserServer/SignIn"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -50,7 +50,7 @@ var (
 	userServerSignInMethodDescriptor        = userServerServiceDescriptor.Methods().ByName("SignIn")
 )
 
-// UserServerClient is a client for the com.sweetloveinyourheart.pocker.users.UserServer service.
+// UserServerClient is a client for the com.sweetloveinyourheart.kittens.users.UserServer service.
 type UserServerClient interface {
 	// Get a user by user_id
 	GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error)
@@ -60,7 +60,7 @@ type UserServerClient interface {
 	SignIn(context.Context, *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error)
 }
 
-// NewUserServerClient constructs a client for the com.sweetloveinyourheart.pocker.users.UserServer
+// NewUserServerClient constructs a client for the com.sweetloveinyourheart.kittens.users.UserServer
 // service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
 // gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
 // the connect.WithGRPC() or connect.WithGRPCWeb() options.
@@ -98,22 +98,22 @@ type userServerClient struct {
 	signIn        *connect.Client[_go.SignInRequest, _go.SignInResponse]
 }
 
-// GetUser calls com.sweetloveinyourheart.pocker.users.UserServer.GetUser.
+// GetUser calls com.sweetloveinyourheart.kittens.users.UserServer.GetUser.
 func (c *userServerClient) GetUser(ctx context.Context, req *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error) {
 	return c.getUser.CallUnary(ctx, req)
 }
 
-// CreateNewUser calls com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser.
+// CreateNewUser calls com.sweetloveinyourheart.kittens.users.UserServer.CreateNewUser.
 func (c *userServerClient) CreateNewUser(ctx context.Context, req *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error) {
 	return c.createNewUser.CallUnary(ctx, req)
 }
 
-// SignIn calls com.sweetloveinyourheart.pocker.users.UserServer.SignIn.
+// SignIn calls com.sweetloveinyourheart.kittens.users.UserServer.SignIn.
 func (c *userServerClient) SignIn(ctx context.Context, req *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error) {
 	return c.signIn.CallUnary(ctx, req)
 }
 
-// UserServerHandler is an implementation of the com.sweetloveinyourheart.pocker.users.UserServer
+// UserServerHandler is an implementation of the com.sweetloveinyourheart.kittens.users.UserServer
 // service.
 type UserServerHandler interface {
 	// Get a user by user_id
@@ -148,7 +148,7 @@ func NewUserServerHandler(svc UserServerHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(userServerSignInMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	return "/com.sweetloveinyourheart.pocker.users.UserServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/com.sweetloveinyourheart.kittens.users.UserServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServerGetUserProcedure:
 			userServerGetUserHandler.ServeHTTP(w, r)
@@ -166,13 +166,13 @@ func NewUserServerHandler(svc UserServerHandler, opts ...connect.HandlerOption) 
 type UnimplementedUserServerHandler struct{}
 
 func (UnimplementedUserServerHandler) GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.GetUser is not implemented"))
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.users.UserServer.GetUser is not implemented"))
 }
 
 func (UnimplementedUserServerHandler) CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser is not implemented"))
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.users.UserServer.CreateNewUser is not implemented"))
 }
 
 func (UnimplementedUserServerHandler) SignIn(context.Context, *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.SignIn is not implemented"))
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.users.UserServer.SignIn is not implemented"))
 }

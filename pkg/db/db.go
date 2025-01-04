@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
 type DBOptions struct {

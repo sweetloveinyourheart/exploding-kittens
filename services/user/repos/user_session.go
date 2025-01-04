@@ -3,8 +3,8 @@ package repos
 import (
 	"context"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/db"
-	"github.com/sweetloveinyourheart/planning-pocker/services/user/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/user/models"
 )
 
 type UserSessionRepository struct {

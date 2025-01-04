@@ -11,7 +11,7 @@ import (
 
 	"github.com/rs/cors"
 
-	log "github.com/sweetloveinyourheart/planning-pocker/pkg/logger"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
 func ServeBuf(ctx context.Context, path string, rpcHandler http.Handler, port uint64, serviceName string) {

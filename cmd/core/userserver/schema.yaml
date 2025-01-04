@@ -14,7 +14,7 @@
       configName: healthcheck.port
       defaultValue: 5051
       env:
-      - PLANNING_POCKER_HEALTHCHECK_PORT
+      - EXPLODING_KITTENS_HEALTHCHECK_PORT
     - name: healthcheck-web
       wireProtocol: tcp
       protocol: http
@@ -27,8 +27,8 @@
       configName: healthcheck.web.port
       defaultValue: 5052
       env:
-      - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
-    defaultDatabaseName: pocker_userserver
+      - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT
+    defaultDatabaseName: kittens_userserver
   config:
   - name: db-migrations-url
     usage: Database connection migrations URL
@@ -113,21 +113,21 @@
     valueType: string
     path: healthcheck.host
     env:
-    - PLANNING_POCKER_HEALTHCHECK_HOST
+    - EXPLODING_KITTENS_HEALTHCHECK_HOST
   - name: healthcheck-port
     usage: Port to listen on for services that support a health check
     default: 5051
     valueType: int
     path: healthcheck.port
     env:
-    - PLANNING_POCKER_HEALTHCHECK_PORT
+    - EXPLODING_KITTENS_HEALTHCHECK_PORT
   - name: healthcheck-web-port
     usage: Port to listen on for services that support a health check
     default: 5052
     valueType: int
     path: healthcheck.web.port
     env:
-    - PLANNING_POCKER_HEALTHCHECK_WEB_PORT
+    - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT
   - name: log-level
     usage: log level to use
     default: info
@@ -141,4 +141,4 @@
     valueType: string
     path: service
     env:
-    - PLANNING_POCKER_SERVICE
+    - EXPLODING_KITTENS_SERVICE

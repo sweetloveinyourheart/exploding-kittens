@@ -1,4 +1,4 @@
-module github.com/sweetloveinyourheart/planning-pocker
+module github.com/sweetloveinyourheart/exploding-kittens
 
 go 1.23.4
 

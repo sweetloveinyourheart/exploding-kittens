@@ -4,10 +4,10 @@
 FULL_SERVER_STACK_COMPOSE_FILE := ./dockerfiles/docker-compose.yml
 
 base-compose-up:
-	@source ./scripts/util.sh && pocker-compose-up "$(COMPOSE_FILE)"
+	@source ./scripts/util.sh && kittens-compose-up "$(COMPOSE_FILE)"
 
 base-compose-down:
-	@source ./scripts/util.sh && pocker-compose-down "$(COMPOSE_FILE)"
+	@source ./scripts/util.sh && kittens-compose-down "$(COMPOSE_FILE)"
 
 compose-up: # Start the full-server stack
 	@make base-compose-up COMPOSE_FILE=$(FULL_SERVER_STACK_COMPOSE_FILE)

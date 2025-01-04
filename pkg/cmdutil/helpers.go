@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 )
 
 func generateSchema(rootCmd *cobra.Command) {
@@ -33,7 +33,7 @@ func generateSchema(rootCmd *cobra.Command) {
 
 	if _, err := os.Stat("./go.mod"); err == nil {
 		paths = []string{
-			path.Join(".", "cmd", "planning-pocker", "schema"),
+			path.Join(".", "cmd", "exploding-kittens", "schema"),
 		}
 	} else {
 		paths = []string{
