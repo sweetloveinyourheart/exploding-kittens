@@ -44,3 +44,10 @@ func NotFoundError(err error) error {
 	}
 	return connect.NewError(connect.CodeNotFound, errors.Newf("not found: %s", err))
 }
+
+func UnauthenticatedError(err error) error {
+	if connectErr := new(connect.Error); errors.As(err, &connectErr) {
+		return err
+	}
+	return connect.NewError(connect.CodeUnauthenticated, errors.Newf("unauthenticated: %s", err))
+}
