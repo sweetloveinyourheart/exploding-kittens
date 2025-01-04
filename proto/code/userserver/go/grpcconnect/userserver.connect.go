@@ -38,6 +38,8 @@ const (
 	// UserServerCreateNewUserProcedure is the fully-qualified name of the UserServer's CreateNewUser
 	// RPC.
 	UserServerCreateNewUserProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/CreateNewUser"
+	// UserServerSignInProcedure is the fully-qualified name of the UserServer's SignIn RPC.
+	UserServerSignInProcedure = "/com.sweetloveinyourheart.pocker.users.UserServer/SignIn"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -45,6 +47,7 @@ var (
 	userServerServiceDescriptor             = _go.File_userserver_proto.Services().ByName("UserServer")
 	userServerGetUserMethodDescriptor       = userServerServiceDescriptor.Methods().ByName("GetUser")
 	userServerCreateNewUserMethodDescriptor = userServerServiceDescriptor.Methods().ByName("CreateNewUser")
+	userServerSignInMethodDescriptor        = userServerServiceDescriptor.Methods().ByName("SignIn")
 )
 
 // UserServerClient is a client for the com.sweetloveinyourheart.pocker.users.UserServer service.
@@ -53,6 +56,8 @@ type UserServerClient interface {
 	GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error)
 	// Create new user
 	CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error)
+	// Sign in
+	SignIn(context.Context, *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error)
 }
 
 // NewUserServerClient constructs a client for the com.sweetloveinyourheart.pocker.users.UserServer
@@ -77,6 +82,12 @@ func NewUserServerClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(userServerCreateNewUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		signIn: connect.NewClient[_go.SignInRequest, _go.SignInResponse](
+			httpClient,
+			baseURL+UserServerSignInProcedure,
+			connect.WithSchema(userServerSignInMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -84,6 +95,7 @@ func NewUserServerClient(httpClient connect.HTTPClient, baseURL string, opts ...
 type userServerClient struct {
 	getUser       *connect.Client[_go.GetUserRequest, _go.GetUserResponse]
 	createNewUser *connect.Client[_go.CreateUserRequest, _go.CreateUserResponse]
+	signIn        *connect.Client[_go.SignInRequest, _go.SignInResponse]
 }
 
 // GetUser calls com.sweetloveinyourheart.pocker.users.UserServer.GetUser.
@@ -96,6 +108,11 @@ func (c *userServerClient) CreateNewUser(ctx context.Context, req *connect.Reque
 	return c.createNewUser.CallUnary(ctx, req)
 }
 
+// SignIn calls com.sweetloveinyourheart.pocker.users.UserServer.SignIn.
+func (c *userServerClient) SignIn(ctx context.Context, req *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error) {
+	return c.signIn.CallUnary(ctx, req)
+}
+
 // UserServerHandler is an implementation of the com.sweetloveinyourheart.pocker.users.UserServer
 // service.
 type UserServerHandler interface {
@@ -103,6 +120,8 @@ type UserServerHandler interface {
 	GetUser(context.Context, *connect.Request[_go.GetUserRequest]) (*connect.Response[_go.GetUserResponse], error)
 	// Create new user
 	CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error)
+	// Sign in
+	SignIn(context.Context, *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error)
 }
 
 // NewUserServerHandler builds an HTTP handler from the service implementation. It returns the path
@@ -123,12 +142,20 @@ func NewUserServerHandler(svc UserServerHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(userServerCreateNewUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServerSignInHandler := connect.NewUnaryHandler(
+		UserServerSignInProcedure,
+		svc.SignIn,
+		connect.WithSchema(userServerSignInMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.pocker.users.UserServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServerGetUserProcedure:
 			userServerGetUserHandler.ServeHTTP(w, r)
 		case UserServerCreateNewUserProcedure:
 			userServerCreateNewUserHandler.ServeHTTP(w, r)
+		case UserServerSignInProcedure:
+			userServerSignInHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -144,4 +171,8 @@ func (UnimplementedUserServerHandler) GetUser(context.Context, *connect.Request[
 
 func (UnimplementedUserServerHandler) CreateNewUser(context.Context, *connect.Request[_go.CreateUserRequest]) (*connect.Response[_go.CreateUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.CreateNewUser is not implemented"))
+}
+
+func (UnimplementedUserServerHandler) SignIn(context.Context, *connect.Request[_go.SignInRequest]) (*connect.Response[_go.SignInResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.pocker.users.UserServer.SignIn is not implemented"))
 }

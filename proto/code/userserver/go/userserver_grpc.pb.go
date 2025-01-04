@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	UserServer_GetUser_FullMethodName       = "/com.sweetloveinyourheart.pocker.users.UserServer/GetUser"
 	UserServer_CreateNewUser_FullMethodName = "/com.sweetloveinyourheart.pocker.users.UserServer/CreateNewUser"
+	UserServer_SignIn_FullMethodName        = "/com.sweetloveinyourheart.pocker.users.UserServer/SignIn"
 )
 
 // UserServerClient is the client API for UserServer service.
@@ -31,6 +32,8 @@ type UserServerClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	// Create new user
 	CreateNewUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
+	// Sign in
+	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 }
 
 type userServerClient struct {
@@ -61,6 +64,16 @@ func (c *userServerClient) CreateNewUser(ctx context.Context, in *CreateUserRequ
 	return out, nil
 }
 
+func (c *userServerClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInResponse)
+	err := c.cc.Invoke(ctx, UserServer_SignIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServerServer is the server API for UserServer service.
 // All implementations should embed UnimplementedUserServerServer
 // for forward compatibility.
@@ -69,6 +82,8 @@ type UserServerServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	// Create new user
 	CreateNewUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+	// Sign in
+	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 }
 
 // UnimplementedUserServerServer should be embedded to have
@@ -83,6 +98,9 @@ func (UnimplementedUserServerServer) GetUser(context.Context, *GetUserRequest) (
 }
 func (UnimplementedUserServerServer) CreateNewUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewUser not implemented")
+}
+func (UnimplementedUserServerServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
 func (UnimplementedUserServerServer) testEmbeddedByValue() {}
 
@@ -140,6 +158,24 @@ func _UserServer_CreateNewUser_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServer_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServerServer).SignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServer_SignIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServerServer).SignIn(ctx, req.(*SignInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServer_ServiceDesc is the grpc.ServiceDesc for UserServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -154,6 +190,10 @@ var UserServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateNewUser",
 			Handler:    _UserServer_CreateNewUser_Handler,
+		},
+		{
+			MethodName: "SignIn",
+			Handler:    _UserServer_SignIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

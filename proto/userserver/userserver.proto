@@ -9,6 +9,8 @@ service UserServer {
     rpc GetUser (GetUserRequest) returns (GetUserResponse);
     // Create new user
     rpc CreateNewUser (CreateUserRequest) returns (CreateUserResponse);
+    // Sign in
+    rpc SignIn (SignInRequest) returns (SignInResponse);
 }
 
 message User {
@@ -40,4 +42,13 @@ message CreateUserRequest {
 
 message CreateUserResponse {
     User user = 1;
+}
+
+message SignInRequest {
+    string user_id = 1;
+}
+  
+message SignInResponse {
+    string user_id = 1; // The database id for this user (UUID).
+    string token = 2; // The session token for this user.
 }

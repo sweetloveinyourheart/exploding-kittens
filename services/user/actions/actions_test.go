@@ -6,6 +6,7 @@ import (
 	"github.com/samber/do"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/sweetloveinyourheart/planning-pocker/pkg/config"
 	"github.com/sweetloveinyourheart/planning-pocker/pkg/testing"
 	"github.com/sweetloveinyourheart/planning-pocker/services/user/repos"
 	userserver_mock "github.com/sweetloveinyourheart/planning-pocker/services/user/repos/mock"
@@ -47,4 +48,6 @@ func (as *ActionsSuite) setupEnvironment() {
 	do.Override[repos.IUserSessionRepository](nil, func(i *do.Injector) (repos.IUserSessionRepository, error) {
 		return as.mockUserSessionRepository, nil
 	})
+
+	config.Instance().Set("userserver.secrets.token_signing_key", "testkey")
 }

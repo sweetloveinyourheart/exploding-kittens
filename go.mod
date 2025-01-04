@@ -8,6 +8,7 @@ require (
 	github.com/cockroachdb/errors v1.11.3
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/goccy/go-yaml v1.14.3
+	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/cors v1.11.1
 	github.com/samber/lo v1.47.0
@@ -164,7 +165,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/crypto v0.29.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.31.0
