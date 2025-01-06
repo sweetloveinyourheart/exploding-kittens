@@ -38,6 +38,13 @@ func InternalError(err error) error {
 	return connect.NewError(connect.CodeInternal, err)
 }
 
+func AlreadyExistsError(err error) error {
+	if connectErr := new(connect.Error); errors.As(err, &connectErr) {
+		return err
+	}
+	return connect.NewError(connect.CodeAlreadyExists, err)
+}
+
 func NotFoundError(err error) error {
 	if connectErr := new(connect.Error); errors.As(err, &connectErr) {
 		return err

@@ -37,7 +37,7 @@ func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[pr
 	if found {
 		err = errors.New("user already exists !")
 		log.Global().ErrorContext(ctx, err.Error(), zap.Error(err))
-		return nil, grpc.InternalError(err)
+		return nil, grpc.AlreadyExistsError(err)
 	}
 
 	// Create new user
