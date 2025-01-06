@@ -1,5 +1,152 @@
 [
   {
+    "name": "clientserver",
+    "shortName": "Run as clientserver service",
+    "long": "",
+    "ports": [
+      {
+        "name": "clientserver",
+        "wireProtocol": "tcp",
+        "protocol": "grpc",
+        "public": true,
+        "defaultRoutes": null,
+        "flagName": "grpc-port",
+        "flagUsage": "GRPC Port to listen on",
+        "configName": "clientserver.grpc.port",
+        "defaultValue": 50051,
+        "env": [
+          "CLIENTSERVER_GRPC_PORT"
+        ]
+      }
+    ],
+    "healthCheckPorts": [
+      {
+        "name": "healthcheck-grpc",
+        "wireProtocol": "tcp",
+        "protocol": "grpc",
+        "public": false,
+        "defaultRoutes": null,
+        "flagName": "healthcheck-port",
+        "flagUsage": "Port to listen on for services that support a health check",
+        "configName": "healthcheck.port",
+        "defaultValue": 5051,
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
+        ]
+      },
+      {
+        "name": "healthcheck-web",
+        "wireProtocol": "tcp",
+        "protocol": "http",
+        "public": false,
+        "defaultRoutes": [
+          "/healthz",
+          "/readyz"
+        ],
+        "flagName": "healthcheck-web-port",
+        "flagUsage": "Port to listen on for services that support a health check",
+        "configName": "healthcheck.web.port",
+        "defaultValue": 5052,
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
+        ]
+      }
+    ],
+    "defaultDatabaseName": "",
+    "Config": [
+      {
+        "name": "grpc-port",
+        "usage": "GRPC Port to listen on",
+        "default": 50051,
+        "valueType": "int64",
+        "path": "clientserver.grpc.port",
+        "env": [
+          "CLIENTSERVER_GRPC_PORT"
+        ]
+      },
+      {
+        "name": "id",
+        "usage": "Unique identifier for this services",
+        "default": "",
+        "valueType": "string",
+        "path": "clientserver.id",
+        "env": [
+          "CLIENTSERVER_ID"
+        ]
+      },
+      {
+        "name": "token-signing-key",
+        "usage": "Signing key used for service to service tokens",
+        "default": "",
+        "valueType": "string",
+        "path": "clientserver.secrets.token_signing_key",
+        "env": [
+          "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY"
+        ]
+      },
+      {
+        "name": "userserver-url",
+        "usage": "USERSERVER connection URL",
+        "default": "http://userserver:50052",
+        "valueType": "string",
+        "path": "clientserver.userserver.url",
+        "env": [
+          "CLIENTSERVER_USERSERVER_URL"
+        ]
+      },
+      {
+        "name": "healthcheck-host",
+        "usage": "Host to listen on for services that support a health check",
+        "default": "localhost",
+        "valueType": "string",
+        "path": "healthcheck.host",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_HOST"
+        ]
+      },
+      {
+        "name": "healthcheck-port",
+        "usage": "Port to listen on for services that support a health check",
+        "default": 5051,
+        "valueType": "int",
+        "path": "healthcheck.port",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
+        ]
+      },
+      {
+        "name": "healthcheck-web-port",
+        "usage": "Port to listen on for services that support a health check",
+        "default": 5052,
+        "valueType": "int",
+        "path": "healthcheck.web.port",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
+        ]
+      },
+      {
+        "name": "log-level",
+        "usage": "log level to use",
+        "default": "info",
+        "valueType": "string",
+        "path": "log.level",
+        "env": [
+          "LOG_LEVEL"
+        ]
+      },
+      {
+        "name": "service",
+        "usage": "which service to run",
+        "default": "",
+        "valueType": "string",
+        "path": "service",
+        "env": [
+          "EXPLODING_KITTENS_SERVICE"
+        ]
+      }
+    ]
+  },
+  {
     "name": "userserver",
     "shortName": "Run as userserver service",
     "long": "",
@@ -122,7 +269,7 @@
       {
         "name": "grpc-port",
         "usage": "GRPC Port to listen on",
-        "default": 50051,
+        "default": 50052,
         "valueType": "int64",
         "path": "userserver.grpc.port",
         "env": [

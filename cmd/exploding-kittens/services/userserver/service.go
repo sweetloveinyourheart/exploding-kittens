@@ -19,7 +19,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/user/repos"
 )
 
-const DEFAULT_USERSERVER_GRPC_PORT = 50051
+const DEFAULT_USERSERVER_GRPC_PORT = 50052
 
 const serviceType = "userserver"
 const dbTablePrefix = "kittens_userserver"

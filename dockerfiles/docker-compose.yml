@@ -33,6 +33,30 @@ services:
       timeout: 4s
       retries: 30   
 
+  clientserver:
+    image: kittens:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_clientserver
+    hostname: clientserver
+    environment:
+      "EXPLODING_KITTENS_SERVICE": "clientserver"
+      "CLIENTSERVER_ID": "00000000-0000-0000-0000-000000000002"
+      "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
+      "CLIENTSERVER_GRPC_PORT": 50051
+    ports:
+      - 50051:50051 # GRPC port
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.10"
+    healthcheck:
+      test: [ "CMD-SHELL", "/app check http localhost:5052/healthz" ]
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully 
+
   userserver:
     image: kittens:latest
     container_name: ${COMPOSE_PROJECT_NAME:-test}_userserver
@@ -42,9 +66,9 @@ services:
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000002"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "USERSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/userserver?sslmode=disable"
-      "USERSERVER_GRPC_PORT": 50051
+      "USERSERVER_GRPC_PORT": 50052
     ports:
-      - 50051:50051 # GRPC port
+      - 50052:50052 # GRPC port
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.16"

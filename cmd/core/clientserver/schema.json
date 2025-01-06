@@ -1,9 +1,24 @@
 [
   {
-    "name": "userserver",
-    "shortName": "Run as userserver service",
+    "name": "clientserver",
+    "shortName": "Run as clientserver service",
     "long": "",
-    "ports": null,
+    "ports": [
+      {
+        "name": "clientserver",
+        "wireProtocol": "tcp",
+        "protocol": "grpc",
+        "public": true,
+        "defaultRoutes": null,
+        "flagName": "grpc-port",
+        "flagUsage": "GRPC Port to listen on",
+        "configName": "clientserver.grpc.port",
+        "defaultValue": 50051,
+        "env": [
+          "CLIENTSERVER_GRPC_PORT"
+        ]
+      }
+    ],
     "healthCheckPorts": [
       {
         "name": "healthcheck-grpc",
@@ -37,96 +52,16 @@
         ]
       }
     ],
-    "defaultDatabaseName": "kittens_userserver",
+    "defaultDatabaseName": "",
     "Config": [
-      {
-        "name": "db-migrations-url",
-        "usage": "Database connection migrations URL",
-        "default": "",
-        "valueType": "string",
-        "path": "userserver.db.migrations.url",
-        "env": [
-          "USERSERVER_DB_MIGRATIONS_URL"
-        ]
-      },
-      {
-        "name": "db-postgres-connection-max-idletime",
-        "usage": "Max connection idle time in seconds",
-        "default": 180,
-        "valueType": "int64",
-        "path": "userserver.db.postgres.max_idletime",
-        "env": [
-          "USERSERVER_DB_POSTGRES_CONNECTION_MAX_IDLETIME"
-        ]
-      },
-      {
-        "name": "db-postgres-connection-max-lifetime",
-        "usage": "Max connection lifetime in seconds",
-        "default": 300,
-        "valueType": "int64",
-        "path": "userserver.db.postgres.max_lifetime",
-        "env": [
-          "USERSERVER_DB_POSTGRES_CONNECTION_MAX_LIFETIME"
-        ]
-      },
-      {
-        "name": "db-postgres-max-idle-connections",
-        "usage": "Maximum number of idle connections",
-        "default": 50,
-        "valueType": "int64",
-        "path": "userserver.db.postgres.max_idle_connections",
-        "env": [
-          "USERSERVER_DB_POSTGRES_MAX_IDLE_CONNECTIONS"
-        ]
-      },
-      {
-        "name": "db-postgres-max-open-connections",
-        "usage": "Maximum number of connections",
-        "default": 500,
-        "valueType": "int64",
-        "path": "userserver.db.postgres.max_open_connections",
-        "env": [
-          "USERSERVER_DB_POSTGRES_MAX_OPEN_CONNECTIONS"
-        ]
-      },
-      {
-        "name": "db-postgres-timeout",
-        "usage": "Timeout for postgres connection",
-        "default": 60,
-        "valueType": "int64",
-        "path": "userserver.db.postgres.timeout",
-        "env": [
-          "USERSERVER_DB_POSTGRES_TIMEOUT"
-        ]
-      },
-      {
-        "name": "db-read-url",
-        "usage": "Database connection readonly URL",
-        "default": "",
-        "valueType": "string",
-        "path": "userserver.db.read.url",
-        "env": [
-          "USERSERVER_DB_READ_URL"
-        ]
-      },
-      {
-        "name": "db-url",
-        "usage": "Database connection URL",
-        "default": "",
-        "valueType": "string",
-        "path": "userserver.db.url",
-        "env": [
-          "USERSERVER_DB_URL"
-        ]
-      },
       {
         "name": "grpc-port",
         "usage": "GRPC Port to listen on",
-        "default": 50052,
+        "default": 50051,
         "valueType": "int64",
-        "path": "userserver.grpc.port",
+        "path": "clientserver.grpc.port",
         "env": [
-          "USERSERVER_GRPC_PORT"
+          "CLIENTSERVER_GRPC_PORT"
         ]
       },
       {
@@ -134,9 +69,9 @@
         "usage": "Unique identifier for this services",
         "default": "",
         "valueType": "string",
-        "path": "userserver.id",
+        "path": "clientserver.id",
         "env": [
-          "USERSERVER_ID"
+          "CLIENTSERVER_ID"
         ]
       },
       {
@@ -144,9 +79,19 @@
         "usage": "Signing key used for service to service tokens",
         "default": "",
         "valueType": "string",
-        "path": "userserver.secrets.token_signing_key",
+        "path": "clientserver.secrets.token_signing_key",
         "env": [
-          "USERSERVER_SECRETS_TOKEN_SIGNING_KEY"
+          "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY"
+        ]
+      },
+      {
+        "name": "userserver-url",
+        "usage": "USERSERVER connection URL",
+        "default": "http://userserver:50052",
+        "valueType": "string",
+        "path": "clientserver.userserver.url",
+        "env": [
+          "CLIENTSERVER_USERSERVER_URL"
         ]
       },
       {
