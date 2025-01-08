@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"net/http"
 
+	"connectrpc.com/connect"
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go/grpcconnect"
 
+	auth_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/auth"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	userServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 
@@ -43,8 +46,17 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)
 
+			opt := connect.WithInterceptors(
+				interceptors.CommonConnectInterceptors(
+					serviceType,
+					signingKey,
+					interceptors.ConnectAuthHandler(signingKey),
+					auth_interceptors.WithOverride(actions),
+				)...,
+			)
 			path, handler := grpcconnect.NewClientServerHandler(
 				actions,
+				opt,
 			)
 			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("clientserver.grpc.port"), serviceType)
 

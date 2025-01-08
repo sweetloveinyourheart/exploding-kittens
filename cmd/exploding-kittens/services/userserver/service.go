@@ -3,6 +3,7 @@ package kittens_userserver
 import (
 	"fmt"
 
+	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
@@ -11,9 +12,12 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 
+	auth_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/auth"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/services/user"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/user/actions"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/user/repos"
@@ -47,8 +51,17 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			signingKey := config.Instance().GetString("userserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)
 
+			opt := connect.WithInterceptors(
+				interceptors.CommonConnectInterceptors(
+					serviceType,
+					signingKey,
+					interceptors.ConnectServerAuthHandler(signingKey),
+					auth_interceptors.WithOverride(actions),
+				)...,
+			)
 			path, handler := grpcconnect.NewUserServerHandler(
 				actions,
+				opt,
 			)
 			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("userserver.grpc.port"), serviceType)
 
