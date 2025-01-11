@@ -63,7 +63,7 @@
     env:
     - CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY
   - name: userserver-url
-    usage: USERSERVER connection URL
+    usage: Userserver connection URL
     default: http://userserver:50052
     valueType: string
     path: clientserver.userserver.url
