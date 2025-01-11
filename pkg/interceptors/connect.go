@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"connectrpc.com/connect"
+
 	auth_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/auth"
 	client_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/client"
 )
