@@ -10,7 +10,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 )
 
-const defaultShortDescription = "Exploding Kittens User Server"
+const defaultShortDescription = "Exploding Kittens Client Server"
 
 func init() {
 	// Always use UTC for generated timestamps

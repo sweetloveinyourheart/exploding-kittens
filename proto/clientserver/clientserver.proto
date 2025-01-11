@@ -22,16 +22,16 @@ message CreateNewGuestUserRequest {
     string full_name = 2; // Required: Full name of the guest user
 }
   
-  message CreateNewGuestUserResponse {
+message CreateNewGuestUserResponse {
     User user = 1; // The user basic info
 }
   
-  // Message for guest login
-  message GuestLoginRequest {
+// Message for guest login
+message GuestLoginRequest {
     string user_id = 1; // Required: UUID of the guest user
 }
   
-  message GuestLoginResponse {
+message GuestLoginResponse {
     string user_id = 1; // The database id for this user (UUID).
     string token = 2; // The session token for this user.
 }
