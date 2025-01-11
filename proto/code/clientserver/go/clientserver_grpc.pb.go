@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ClientServer_CreateNewGuestUser_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
 	ClientServer_GuestLogin_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -29,6 +31,7 @@ const (
 type ClientServerClient interface {
 	CreateNewGuestUser(ctx context.Context, in *CreateNewGuestUserRequest, opts ...grpc.CallOption) (*CreateNewGuestUserResponse, error)
 	GuestLogin(ctx context.Context, in *GuestLoginRequest, opts ...grpc.CallOption) (*GuestLoginResponse, error)
+	GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
 }
 
 type clientServerClient struct {
@@ -59,12 +62,23 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, in *GuestLoginReque
 	return out, nil
 }
 
+func (c *clientServerClient) GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PlayerProfileResponse)
+	err := c.cc.Invoke(ctx, ClientServer_GetPlayerProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
 type ClientServerServer interface {
 	CreateNewGuestUser(context.Context, *CreateNewGuestUserRequest) (*CreateNewGuestUserResponse, error)
 	GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error)
+	GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -79,6 +93,9 @@ func (UnimplementedClientServerServer) CreateNewGuestUser(context.Context, *Crea
 }
 func (UnimplementedClientServerServer) GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GuestLogin not implemented")
+}
+func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPlayerProfile not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -136,6 +153,24 @@ func _ClientServer_GuestLogin_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GetPlayerProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GetPlayerProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GetPlayerProfile(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -150,6 +185,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GuestLogin",
 			Handler:    _ClientServer_GuestLogin_Handler,
+		},
+		{
+			MethodName: "GetPlayerProfile",
+			Handler:    _ClientServer_GetPlayerProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go;grpc";
 
 package com.sweetloveinyourheart.kittens.clients;
@@ -7,6 +9,7 @@ package com.sweetloveinyourheart.kittens.clients;
 service ClientServer {
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
+    rpc GetPlayerProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
 }
 
 message User {
@@ -34,4 +37,9 @@ message GuestLoginRequest {
 message GuestLoginResponse {
     string user_id = 1; // The database id for this user (UUID).
     string token = 2; // The session token for this user.
+}
+
+// Message for player profile
+message PlayerProfileResponse {
+    User user = 1;
 }

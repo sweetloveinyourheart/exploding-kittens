@@ -97,10 +97,17 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 }
 
 func setupDependencies() error {
+	signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
+
 	userServerClient := userServerConnect.NewUserServerClient(
 		http.DefaultClient,
 		config.Instance().GetString("clientserver.userserver.url"),
+		connect.WithInterceptors(interceptors.CommonConnectClientInterceptors(
+			serviceType,
+			signingKey,
+		)...),
 	)
+
 	do.Provide[userServerConnect.UserServerClient](nil, func(i *do.Injector) (userServerConnect.UserServerClient, error) {
 		return userServerClient, nil
 	})

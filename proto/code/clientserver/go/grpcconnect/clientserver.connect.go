@@ -9,6 +9,7 @@ import (
 	context "context"
 	errors "errors"
 	_go "github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -38,6 +39,9 @@ const (
 	ClientServerCreateNewGuestUserProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
 	// ClientServerGuestLoginProcedure is the fully-qualified name of the ClientServer's GuestLogin RPC.
 	ClientServerGuestLoginProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	// ClientServerGetPlayerProfileProcedure is the fully-qualified name of the ClientServer's
+	// GetPlayerProfile RPC.
+	ClientServerGetPlayerProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -45,6 +49,7 @@ var (
 	clientServerServiceDescriptor                  = _go.File_clientserver_proto.Services().ByName("ClientServer")
 	clientServerCreateNewGuestUserMethodDescriptor = clientServerServiceDescriptor.Methods().ByName("CreateNewGuestUser")
 	clientServerGuestLoginMethodDescriptor         = clientServerServiceDescriptor.Methods().ByName("GuestLogin")
+	clientServerGetPlayerProfileMethodDescriptor   = clientServerServiceDescriptor.Methods().ByName("GetPlayerProfile")
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -52,6 +57,7 @@ var (
 type ClientServerClient interface {
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
+	GetPlayerProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -77,6 +83,12 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerGuestLoginMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getPlayerProfile: connect.NewClient[emptypb.Empty, _go.PlayerProfileResponse](
+			httpClient,
+			baseURL+ClientServerGetPlayerProfileProcedure,
+			connect.WithSchema(clientServerGetPlayerProfileMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -84,6 +96,7 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 type clientServerClient struct {
 	createNewGuestUser *connect.Client[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse]
 	guestLogin         *connect.Client[_go.GuestLoginRequest, _go.GuestLoginResponse]
+	getPlayerProfile   *connect.Client[emptypb.Empty, _go.PlayerProfileResponse]
 }
 
 // CreateNewGuestUser calls
@@ -97,11 +110,17 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, req *connect.Reques
 	return c.guestLogin.CallUnary(ctx, req)
 }
 
+// GetPlayerProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile.
+func (c *clientServerClient) GetPlayerProfile(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+	return c.getPlayerProfile.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
+	GetPlayerProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -122,12 +141,20 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerGuestLoginMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerGetPlayerProfileHandler := connect.NewUnaryHandler(
+		ClientServerGetPlayerProfileProcedure,
+		svc.GetPlayerProfile,
+		connect.WithSchema(clientServerGetPlayerProfileMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClientServerCreateNewGuestUserProcedure:
 			clientServerCreateNewGuestUserHandler.ServeHTTP(w, r)
 		case ClientServerGuestLoginProcedure:
 			clientServerGuestLoginHandler.ServeHTTP(w, r)
+		case ClientServerGetPlayerProfileProcedure:
+			clientServerGetPlayerProfileHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +170,8 @@ func (UnimplementedClientServerHandler) CreateNewGuestUser(context.Context, *con
 
 func (UnimplementedClientServerHandler) GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GuestLogin is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) GetPlayerProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile is not implemented"))
 }
