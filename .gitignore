@@ -27,3 +27,6 @@ go.work.sum
 # Development
 .gobincache
 .gobincache/
+
+# OS files
+.DS_Store
