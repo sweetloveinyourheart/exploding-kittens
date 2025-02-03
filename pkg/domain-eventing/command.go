@@ -1,6 +1,11 @@
 package eventing
 
-import "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
+import (
+	"fmt"
+	"sync"
+
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
+)
 
 // Command is a domain command that is sent to a Dispatcher.
 //
@@ -24,3 +29,38 @@ type Command interface {
 
 	Validate() error
 }
+
+type GenericCommand[T any] interface {
+	Command
+	*T
+}
+
+// RegisterCommand registers an command factory for a type. The factory is
+// used to create concrete command types.
+//
+// An example would be:
+//
+//	RegisterCommand(func() Command { return &MyCommand{} })
+func RegisterCommand[T any, PT GenericCommand[T]]() {
+	var cmd PT = new(T)
+	if cmd == nil {
+		panic("eventing: created command is nil")
+	}
+
+	commandType := cmd.CommandType()
+	if commandType == common.CommandType("") {
+		panic("eventing: attempt to register empty command type")
+	}
+
+	commandsMu.Lock()
+	defer commandsMu.Unlock()
+
+	if _, ok := commands[commandType]; ok {
+		panic(fmt.Sprintf("eventing: registering duplicate types for %q", commandType))
+	}
+
+	commands[commandType] = func() Command { return PT(new(T)) }
+}
+
+var commands = make(map[common.CommandType]func() Command)
+var commandsMu sync.RWMutex
