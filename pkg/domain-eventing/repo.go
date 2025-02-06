@@ -1,6 +1,21 @@
 package eventing
 
-import "context"
+import (
+	"context"
+
+	"github.com/cockroachdb/errors"
+)
+
+var (
+	// ErrEntityNotFound is when a entity could not be found.
+	ErrEntityNotFound = errors.New("could not find entity")
+	// ErrEntityHasNoVersion is when an entity has no version number.
+	ErrEntityHasNoVersion = errors.New("entity has no version")
+	// ErrIncorrectEntityVersion is when an entity has an incorrect version.
+	ErrIncorrectEntityVersion = errors.New("incorrect entity version")
+	// ErrModelIsMissing is when a playerWagersEntry has no model (model is nil, encountered while debugging).
+	ErrModelIsMissing = errors.New("playerWagersEntry model is nil")
+)
 
 // ReadRepo is a read repository for entities.
 type ReadRepo[T any, PT GenericEntity[T]] interface {

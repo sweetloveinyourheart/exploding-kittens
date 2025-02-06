@@ -2,6 +2,7 @@ package eventing
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -26,6 +27,40 @@ func ForAggregate(aggregateType common.AggregateType, aggregateID string, versio
 	}
 }
 
+func ForSequence(priorSequence uint64, sequence uint64) EventOption {
+	return func(e common.Event) {
+		if evt, ok := e.(*event); ok {
+			evt.previousSequence = priorSequence
+			evt.sequence = sequence
+			evt.sequenced = true
+		}
+	}
+}
+
+// WithMetadata adds metadata when creating an event.
+// The values types must be supported by the event marshalers in use.
+func WithMetadata(metadata map[string]interface{}) EventOption {
+	return func(e common.Event) {
+		if evt, ok := e.(*event); ok {
+			if evt.metadata == nil {
+				evt.metadata = metadata
+			} else {
+				for k, v := range metadata {
+					evt.metadata[k] = v
+				}
+			}
+		}
+	}
+}
+
+func AsUnregistered() EventOption {
+	return func(e common.Event) {
+		if evt, ok := e.(*event); ok {
+			evt.unregistered = true
+		}
+	}
+}
+
 // WithSubject sets the subject of the event.
 func WithSubject(subject common.EventSubject) EventOption {
 	return func(e common.Event) {
@@ -33,6 +68,24 @@ func WithSubject(subject common.EventSubject) EventOption {
 			evt.subject = subject.(*eventSubject)
 		}
 	}
+}
+
+func WithSequence(e common.Event, priorSequence uint64, sequence uint64) common.Event {
+	if evt, ok := e.(*event); ok {
+		evt.previousSequence = priorSequence
+		evt.sequence = sequence
+		evt.sequenced = true
+		return evt
+	}
+	return e
+}
+
+func ReplaceSubject(e common.Event, subject common.EventSubject) common.Event {
+	if evt, ok := e.(*event); ok {
+		evt.subject = subject.(*eventSubject)
+		return evt
+	}
+	return e
 }
 
 // NewEvent creates a new event with a type and data, setting its timestamp.
@@ -53,6 +106,56 @@ func NewEvent(eventType common.EventType, data any, timestamp time.Time, options
 	}
 
 	return e
+}
+
+func NewEventFromRaw(ctx context.Context, eventType common.EventType, rawData []byte, timestamp time.Time, options ...EventOption) (common.Event, error) {
+	e := &event{
+		eventType: eventType,
+		timestamp: timestamp,
+	}
+
+	for _, option := range options {
+		if option == nil {
+			continue
+		}
+
+		option(e)
+	}
+
+	// Create an event of the correct type and decode from raw JSON.
+	var eventData any = rawData
+	var sub common.EventSubject
+
+	if !e.Unregistered() && len(rawData) > 0 {
+		var err error
+		if eventData, sub, err = CreateEventData(ctx, eventType); err != nil {
+			return nil, errors.WithStack(fmt.Errorf("could not create event data: %w %t", err, e.Unregistered()))
+		}
+
+		if err := json.Unmarshal(rawData, eventData); err != nil {
+			return nil, errors.WithStack(fmt.Errorf("could not unmarshal event data: %w %t", err, e.Unregistered()))
+		}
+
+		e.data = eventData
+		e.subject = sub.(*eventSubject)
+	} else if e.Unregistered() && len(rawData) > 0 {
+		e.data = eventData
+		if subjFact, ok := ctx.Value(eventSubjectKey).(*eventSubject); ok {
+			e.subject = subjFact
+		} else {
+			e.subject = defaultSubject
+		}
+	} else {
+		eventData = nil
+		e.data = eventData
+		if subjFact, ok := ctx.Value(eventSubjectKey).(*eventSubject); ok {
+			e.subject = subjFact
+		} else {
+			e.subject = defaultSubject
+		}
+	}
+
+	return e, nil
 }
 
 // event is an internal representation of an event, returned when the aggregate
