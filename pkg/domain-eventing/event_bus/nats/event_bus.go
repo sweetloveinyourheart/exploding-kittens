@@ -13,6 +13,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
+	"go.uber.org/zap"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	codecJson "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/codec/json"
@@ -23,7 +25,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/ephemeral"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/sequenced"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
-	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )

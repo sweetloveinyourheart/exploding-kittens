@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/util/wait"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/oplock"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
-	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 // ErrNilAggregateStore is when a dispatcher is created with a nil aggregate store.

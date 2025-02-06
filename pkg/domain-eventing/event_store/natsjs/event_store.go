@@ -11,6 +11,9 @@ import (
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
+	"go.uber.org/zap"
+	"golang.org/x/sync/singleflight"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	codecJson "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/codec/json"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -19,8 +22,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/oplock"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
-	"go.uber.org/zap"
-	"golang.org/x/sync/singleflight"
 )
 
 type EventStore struct {

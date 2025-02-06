@@ -44,14 +44,6 @@ const (
 	ClientServerGetPlayerProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	clientServerServiceDescriptor                  = _go.File_clientserver_proto.Services().ByName("ClientServer")
-	clientServerCreateNewGuestUserMethodDescriptor = clientServerServiceDescriptor.Methods().ByName("CreateNewGuestUser")
-	clientServerGuestLoginMethodDescriptor         = clientServerServiceDescriptor.Methods().ByName("GuestLogin")
-	clientServerGetPlayerProfileMethodDescriptor   = clientServerServiceDescriptor.Methods().ByName("GetPlayerProfile")
-)
-
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
 // service.
 type ClientServerClient interface {
@@ -70,23 +62,24 @@ type ClientServerClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ClientServerClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	clientServerMethods := _go.File_clientserver_proto.Services().ByName("ClientServer").Methods()
 	return &clientServerClient{
 		createNewGuestUser: connect.NewClient[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse](
 			httpClient,
 			baseURL+ClientServerCreateNewGuestUserProcedure,
-			connect.WithSchema(clientServerCreateNewGuestUserMethodDescriptor),
+			connect.WithSchema(clientServerMethods.ByName("CreateNewGuestUser")),
 			connect.WithClientOptions(opts...),
 		),
 		guestLogin: connect.NewClient[_go.GuestLoginRequest, _go.GuestLoginResponse](
 			httpClient,
 			baseURL+ClientServerGuestLoginProcedure,
-			connect.WithSchema(clientServerGuestLoginMethodDescriptor),
+			connect.WithSchema(clientServerMethods.ByName("GuestLogin")),
 			connect.WithClientOptions(opts...),
 		),
 		getPlayerProfile: connect.NewClient[emptypb.Empty, _go.PlayerProfileResponse](
 			httpClient,
 			baseURL+ClientServerGetPlayerProfileProcedure,
-			connect.WithSchema(clientServerGetPlayerProfileMethodDescriptor),
+			connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -129,22 +122,23 @@ type ClientServerHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	clientServerMethods := _go.File_clientserver_proto.Services().ByName("ClientServer").Methods()
 	clientServerCreateNewGuestUserHandler := connect.NewUnaryHandler(
 		ClientServerCreateNewGuestUserProcedure,
 		svc.CreateNewGuestUser,
-		connect.WithSchema(clientServerCreateNewGuestUserMethodDescriptor),
+		connect.WithSchema(clientServerMethods.ByName("CreateNewGuestUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerGuestLoginHandler := connect.NewUnaryHandler(
 		ClientServerGuestLoginProcedure,
 		svc.GuestLogin,
-		connect.WithSchema(clientServerGuestLoginMethodDescriptor),
+		connect.WithSchema(clientServerMethods.ByName("GuestLogin")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerGetPlayerProfileHandler := connect.NewUnaryHandler(
 		ClientServerGetPlayerProfileProcedure,
 		svc.GetPlayerProfile,
-		connect.WithSchema(clientServerGetPlayerProfileMethodDescriptor),
+		connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

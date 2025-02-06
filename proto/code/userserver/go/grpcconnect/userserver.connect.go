@@ -42,14 +42,6 @@ const (
 	UserServerSignInProcedure = "/com.sweetloveinyourheart.kittens.users.UserServer/SignIn"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	userServerServiceDescriptor             = _go.File_userserver_proto.Services().ByName("UserServer")
-	userServerGetUserMethodDescriptor       = userServerServiceDescriptor.Methods().ByName("GetUser")
-	userServerCreateNewUserMethodDescriptor = userServerServiceDescriptor.Methods().ByName("CreateNewUser")
-	userServerSignInMethodDescriptor        = userServerServiceDescriptor.Methods().ByName("SignIn")
-)
-
 // UserServerClient is a client for the com.sweetloveinyourheart.kittens.users.UserServer service.
 type UserServerClient interface {
 	// Get a user by user_id
@@ -69,23 +61,24 @@ type UserServerClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewUserServerClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) UserServerClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	userServerMethods := _go.File_userserver_proto.Services().ByName("UserServer").Methods()
 	return &userServerClient{
 		getUser: connect.NewClient[_go.GetUserRequest, _go.GetUserResponse](
 			httpClient,
 			baseURL+UserServerGetUserProcedure,
-			connect.WithSchema(userServerGetUserMethodDescriptor),
+			connect.WithSchema(userServerMethods.ByName("GetUser")),
 			connect.WithClientOptions(opts...),
 		),
 		createNewUser: connect.NewClient[_go.CreateUserRequest, _go.CreateUserResponse](
 			httpClient,
 			baseURL+UserServerCreateNewUserProcedure,
-			connect.WithSchema(userServerCreateNewUserMethodDescriptor),
+			connect.WithSchema(userServerMethods.ByName("CreateNewUser")),
 			connect.WithClientOptions(opts...),
 		),
 		signIn: connect.NewClient[_go.SignInRequest, _go.SignInResponse](
 			httpClient,
 			baseURL+UserServerSignInProcedure,
-			connect.WithSchema(userServerSignInMethodDescriptor),
+			connect.WithSchema(userServerMethods.ByName("SignIn")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -130,22 +123,23 @@ type UserServerHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewUserServerHandler(svc UserServerHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	userServerMethods := _go.File_userserver_proto.Services().ByName("UserServer").Methods()
 	userServerGetUserHandler := connect.NewUnaryHandler(
 		UserServerGetUserProcedure,
 		svc.GetUser,
-		connect.WithSchema(userServerGetUserMethodDescriptor),
+		connect.WithSchema(userServerMethods.ByName("GetUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	userServerCreateNewUserHandler := connect.NewUnaryHandler(
 		UserServerCreateNewUserProcedure,
 		svc.CreateNewUser,
-		connect.WithSchema(userServerCreateNewUserMethodDescriptor),
+		connect.WithSchema(userServerMethods.ByName("CreateNewUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	userServerSignInHandler := connect.NewUnaryHandler(
 		UserServerSignInProcedure,
 		svc.SignIn,
-		connect.WithSchema(userServerSignInMethodDescriptor),
+		connect.WithSchema(userServerMethods.ByName("SignIn")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/com.sweetloveinyourheart.kittens.users.UserServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )
 

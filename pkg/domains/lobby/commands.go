@@ -2,6 +2,7 @@ package lobby
 
 import (
 	"github.com/gofrs/uuid"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"

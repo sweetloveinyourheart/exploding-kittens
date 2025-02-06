@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 
 	"github.com/gofrs/uuid"

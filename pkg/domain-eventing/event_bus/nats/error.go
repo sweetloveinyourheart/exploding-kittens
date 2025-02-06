@@ -5,8 +5,9 @@ import (
 	"os"
 	"strings"
 
-	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"go.uber.org/zap"
+
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
 func HandleError(ctx context.Context, err error) {

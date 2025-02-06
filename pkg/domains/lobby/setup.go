@@ -8,6 +8,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"

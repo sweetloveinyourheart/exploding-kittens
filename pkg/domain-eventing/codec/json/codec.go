@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
-	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
+
+	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )
 
 // EventCodec is a codec for marshaling and unmarshaling events

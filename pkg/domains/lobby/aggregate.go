@@ -6,6 +6,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"

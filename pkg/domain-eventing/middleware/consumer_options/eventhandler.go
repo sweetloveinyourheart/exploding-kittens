@@ -2,6 +2,7 @@ package consumeroptions
 
 import (
 	"github.com/nats-io/nats.go/jetstream"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 )
 
