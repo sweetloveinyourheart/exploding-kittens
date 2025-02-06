@@ -1,10 +1,10 @@
 module github.com/sweetloveinyourheart/exploding-kittens
 
-go 1.23.4
+go 1.23.5
 
 require (
 	connectrpc.com/connect v1.18.1
-	github.com/bufbuild/buf v1.47.2
+	github.com/bufbuild/buf v1.50.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/goccy/go-yaml v1.15.17
 	github.com/golang-jwt/jwt/v4 v4.5.1
@@ -28,13 +28,13 @@ require (
 )
 
 require (
-	buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.35.1-20241031151143-70f632351282.1 // indirect
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.1-20240920164238-5a7b106cbb87.1 // indirect
-	buf.build/gen/go/bufbuild/registry/connectrpc/go v1.17.0-20241025140216-aa40f2c93090.1 // indirect
-	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.35.1-20241025140216-aa40f2c93090.1 // indirect
-	buf.build/gen/go/pluginrpc/pluginrpc/protocolbuffers/go v1.35.1-20241007202033-cf42259fcbfc.1 // indirect
+	buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.36.3-20241031151143-70f632351282.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.3-20241127180247-a33202765966.1 // indirect
+	buf.build/gen/go/bufbuild/registry/connectrpc/go v1.18.1-20250106231242-56271afbd6ce.1 // indirect
+	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.36.3-20250106231242-56271afbd6ce.1 // indirect
+	buf.build/gen/go/pluginrpc/pluginrpc/protocolbuffers/go v1.36.3-20241007202033-cf42259fcbfc.1 // indirect
 	buf.build/go/bufplugin v0.6.0 // indirect
-	buf.build/go/protoyaml v0.2.0 // indirect
+	buf.build/go/protoyaml v0.3.1 // indirect
 	buf.build/go/spdx v0.2.0 // indirect
 	cel.dev/expr v0.19.2 // indirect
 	connectrpc.com/otelconnect v0.7.1 // indirect
@@ -46,8 +46,8 @@ require (
 	github.com/Microsoft/hcsshim v0.12.9 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
-	github.com/bufbuild/protoplugin v0.0.0-20240911180120-7bb73e41a54a // indirect
-	github.com/bufbuild/protovalidate-go v0.7.3-0.20241015162221-1446f1e1d576 // indirect
+	github.com/bufbuild/protoplugin v0.0.0-20250106231243-3a819552c9d9 // indirect
+	github.com/bufbuild/protovalidate-go v0.8.2 // indirect
 	github.com/containerd/cgroups/v3 v3.0.5 // indirect
 	github.com/containerd/containerd v1.7.25 // indirect
 	github.com/containerd/continuity v0.4.5 // indirect
