@@ -8,4 +8,4 @@ const LobbyRoot = "lobby"
 
 const LobbyStream = ServicePrefix + "-" + LobbyRoot
 
-var ConnectionPool = connectionPoolKey("edgeConnectionPool")
+var ConnectionPool = connectionPoolKey("connectionPool")

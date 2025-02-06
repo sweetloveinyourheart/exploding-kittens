@@ -190,10 +190,6 @@ func (b *EventBus) HandleEvent(ctx context.Context, event common.Event) error {
 		return errors.WithStack(errors.Wrap(ctx.Err(), fmt.Sprintf("context error, unable to publish; %s", b.busName)))
 	}
 
-	//tables.tables.table_created
-	//tables.tables.table_deleted
-	//subject := fmt.Sprintf("%s.%s.%s.%s", b.streamName, event.AggregateType(), event.AggregateID(), event.EventType())
-	//tables.tables.uuid
 	subject := fmt.Sprintf("%s.%s", b.streamName, event.Subject(ctx).Subject())
 
 	data, err := b.codec.MarshalEvent(ctx, event)

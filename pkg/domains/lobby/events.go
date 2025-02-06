@@ -9,7 +9,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )
 
-// registerEvents registers the event types for the PlayActivity domain
+// registerEvents registers the event types for the lobby domain
 func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.SubjectFunc, subjTokenPos int, tokensFunc eventing.TokensFunc) {
 	args := make([]eventing.EventRegistrationOption, 0)
 	args = append(args, eventing.WithRegisterSubjectRootFunc(subjRootFunc))

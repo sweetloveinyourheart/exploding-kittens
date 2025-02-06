@@ -13,8 +13,8 @@ var (
 	ErrEntityHasNoVersion = errors.New("entity has no version")
 	// ErrIncorrectEntityVersion is when an entity has an incorrect version.
 	ErrIncorrectEntityVersion = errors.New("incorrect entity version")
-	// ErrModelIsMissing is when a playerWagersEntry has no model (model is nil, encountered while debugging).
-	ErrModelIsMissing = errors.New("playerWagersEntry model is nil")
+	// ErrModelIsMissing is when there has no model (model is nil, encountered while debugging).
+	ErrModelIsMissing = errors.New("model is nil")
 )
 
 // ReadRepo is a read repository for entities.

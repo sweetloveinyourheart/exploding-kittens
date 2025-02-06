@@ -28,7 +28,7 @@ func AddNATSLobbyCommandHandlers(ctx context.Context, appID string, commandBus *
 	}
 
 	var eventBus eventing.EventBus
-	natsBus, err := natsEventBus.NewEventBus(connPool, fmt.Sprintf("%s-edge-play-command-read", appID), natsEventBus.WithStreamName(constants.LobbyStream), natsEventBus.WithCodec(customCodec{}))
+	natsBus, err := natsEventBus.NewEventBus(connPool, fmt.Sprintf("%s-lobby-command-read", appID), natsEventBus.WithStreamName(constants.LobbyStream), natsEventBus.WithCodec(customCodec{}))
 	if err != nil {
 		return err
 	}

@@ -44,14 +44,14 @@ func init() {
 		if event == nil {
 			return []common.EventSubjectToken{
 				eventing.NewEventSubjectToken("aggregate_type", "Aggregate Type", AggregateType, 0),
-				eventing.NewEventSubjectToken("studio_table_id", "Studio Table ID", uuid.Nil, 1),
-				eventing.NewEventSubjectToken("aggregate_id", "Edge Table ID", uuid.Nil, 2),
+				eventing.NewEventSubjectToken("lobby_id", "Lobby ID", uuid.Nil, 1),
+				eventing.NewEventSubjectToken("aggregate_id", "Aggregate ID", uuid.Nil, 2),
 			}
 		}
 		if a, ok := event.Data().(lobbyIDer); ok {
 			return []common.EventSubjectToken{
 				eventing.NewEventSubjectToken("aggregate_type", "Aggregate Type", AggregateType, 0),
-				eventing.NewEventSubjectToken("studio_table_id", "Studio Table ID", a.GetLobbyID(), 1),
+				eventing.NewEventSubjectToken("lobby_id", "Lobby ID", a.GetLobbyID(), 1),
 				eventing.NewEventSubjectToken("aggregate_id", "Aggregate ID", event.AggregateID(), 2),
 			}
 		}
