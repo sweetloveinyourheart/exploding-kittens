@@ -110,8 +110,6 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			LobbyName:    cmd.LobbyName,
 			HostUserID:   cmd.HostUserID,
 			Participants: []uuid.UUID{},
-			CreatedAt:    timeutil.NowRoundedForGranularity(),
-			UpdatedAt:    timeutil.NowRoundedForGranularity(),
 		}, TimeNow())
 
 	default:

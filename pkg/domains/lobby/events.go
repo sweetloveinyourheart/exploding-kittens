@@ -1,8 +1,6 @@
 package lobby
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
@@ -29,8 +27,6 @@ type LobbyCreated struct {
 	LobbyName    string      `json:"lobby_name"`
 	HostUserID   uuid.UUID   `json:"host_user_id"`
 	Participants []uuid.UUID `json:"participants"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
 func (p *LobbyCreated) EventType() common.EventType { return "LOBBY_CREATED" }
@@ -44,7 +40,3 @@ func (p *LobbyCreated) GetLobbyName() string { return p.LobbyName }
 func (p *LobbyCreated) GetHostUserID() uuid.UUID { return p.HostUserID }
 
 func (p *LobbyCreated) GetParticipants() []uuid.UUID { return p.Participants }
-
-func (p *LobbyCreated) GetCreatedAt() time.Time { return p.CreatedAt }
-
-func (p *LobbyCreated) GetUpdatedAt() time.Time { return p.UpdatedAt }

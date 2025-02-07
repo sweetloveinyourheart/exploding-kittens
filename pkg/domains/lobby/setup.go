@@ -8,6 +8,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
+	"github.com/samber/lo"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
@@ -16,10 +17,59 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	natsEventBus "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_handler/projector"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_store/natsjs"
 	consumeroptions "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/consumer_options"
 	contexthook "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/context_hook"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/ephemeral"
+	natsRepo "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/repo/natsjs_eventsourced"
 )
+
+func CreateNATSRepoLobbies(ctx context.Context, appID string, mw ...eventing.EventHandlerMiddleware) (eventing.ReadRepo[Lobby, *Lobby], error) {
+	connPool, err := do.InvokeNamed[*pool.ConnPool](nil, string(constants.ConnectionPool))
+	if err != nil {
+		return nil, err
+	}
+	rng := lo.RandomString(8, lo.LettersCharset)
+	appID = fmt.Sprintf("%s_lobby_repo_%s", appID, rng)
+
+	neb, err := natsEventBus.NewEventBus(connPool, appID, natsEventBus.WithStreamName(constants.LobbyStream))
+	if err != nil {
+		return nil, err
+	}
+
+	natsEventBus.BusErrors(ctx, neb)
+
+	entityProjector := NewProjector()
+
+	// Create repo for projector
+	var domainRepo eventing.ReadWriteRepo[Lobby, *Lobby]
+	domainRepo, err = natsRepo.NewRepo[Lobby, *Lobby](ctx,
+		constants.LobbyStream,
+		SubjectFactory,
+		entityProjector,
+		natsRepo.WithEventBus(neb))
+	if err != nil {
+		return nil, err
+	}
+
+	// Create projector
+	var domainProjector eventing.EventHandler
+	domainProjector = projector.NewEventHandler[Lobby, *Lobby](entityProjector, domainRepo)
+
+	domainProjector = ephemeral.NewMiddleware()(domainProjector)
+	domainProjector = consumeroptions.NewDeliveryPolicyMiddleware(jetstream.DeliverNewPolicy, 0)(domainProjector)
+	for _, m := range mw {
+		domainProjector = m(domainProjector)
+	}
+
+	err = neb.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), domainProjector)
+	if err != nil {
+		return nil, err
+	}
+
+	return domainRepo, nil
+}
 
 func AddNATSLobbyCommandHandlers(ctx context.Context, appID string, commandBus *bus.CommandHandler, mw ...eventing.CommandHandlerMiddleware) error {
 	connPool, err := do.InvokeNamed[*pool.ConnPool](nil, string(constants.ConnectionPool))

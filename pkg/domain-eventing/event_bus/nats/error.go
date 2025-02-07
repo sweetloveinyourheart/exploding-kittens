@@ -7,6 +7,8 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/cockroachdb/errors"
+
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
@@ -27,4 +29,22 @@ func HandleError(ctx context.Context, err error) {
 	} else {
 		log.Global().ErrorContext(ctx, "nats(bus) error", zap.String("type", "nats"), zap.Error(err))
 	}
+}
+
+func BusErrors(ctx context.Context, eventBus *EventBus) {
+	busName := eventBus.busName
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				_ = eventBus.Close()
+				return
+			case err, ok := <-eventBus.Errors():
+				HandleError(ctx, errors.Wrap(err, busName))
+				if !ok {
+					return
+				}
+			}
+		}
+	}()
 }
