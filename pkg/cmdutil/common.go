@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 
 	_ "golang.org/x/tools/go/packages"
@@ -24,6 +26,17 @@ import (
 
 const HealthCheckPortGRPC = 5051
 const HealthCheckPortHTTP = 5052
+
+func WaitForNatsConnection(wait time.Duration, connection *nats.Conn) error {
+	timeout := time.Now().Add(wait)
+	for time.Now().Before(timeout) {
+		if connection.IsConnected() {
+			return nil
+		}
+		time.Sleep(25 * time.Millisecond)
+	}
+	return errors.New("timeout waiting for nats connection")
+}
 
 func StartHealthServices(ctx context.Context, serviceName string, grpcPort int, webPort int) chan bool {
 	readyHTTP := make(chan bool)

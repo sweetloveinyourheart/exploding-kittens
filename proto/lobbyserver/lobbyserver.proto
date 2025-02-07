@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/lobbyserver/go;grpc";
+
+package com.sweetloveinyourheart.kittens.lobbies;
+
+service LobbyServer {
+    // Get lobby data
+    rpc GetLobbyData(GetLobbyDataRequest) returns (GetLobbyDataResponse) {}
+}
+
+message GetLobbyDataRequest {
+    string lobby_id = 1;
+}
+
+message GetLobbyDataResponse {
+    string lobby_id = 1;
+    string lobby_code = 2;
+    string lobby_name = 3;
+    string host_user_id = 4;
+    repeated string participants = 5;
+    int64 created_at = 6;
+    int64 updated_at = 7;
+}

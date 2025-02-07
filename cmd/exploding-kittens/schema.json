@@ -147,6 +147,258 @@
     ]
   },
   {
+    "name": "lobbyserver",
+    "shortName": "Run as lobbyserver service",
+    "long": "",
+    "ports": null,
+    "healthCheckPorts": [
+      {
+        "name": "healthcheck-grpc",
+        "wireProtocol": "tcp",
+        "protocol": "grpc",
+        "public": false,
+        "defaultRoutes": null,
+        "flagName": "healthcheck-port",
+        "flagUsage": "Port to listen on for services that support a health check",
+        "configName": "healthcheck.port",
+        "defaultValue": 5051,
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
+        ]
+      },
+      {
+        "name": "healthcheck-web",
+        "wireProtocol": "tcp",
+        "protocol": "http",
+        "public": false,
+        "defaultRoutes": [
+          "/healthz",
+          "/readyz"
+        ],
+        "flagName": "healthcheck-web-port",
+        "flagUsage": "Port to listen on for services that support a health check",
+        "configName": "healthcheck.web.port",
+        "defaultValue": 5052,
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
+        ]
+      }
+    ],
+    "defaultDatabaseName": "kittens_lobbyserver",
+    "Config": [
+      {
+        "name": "db-migrations-url",
+        "usage": "Database connection migrations URL",
+        "default": "",
+        "valueType": "string",
+        "path": "lobbyserver.db.migrations.url",
+        "env": [
+          "LOBBYSERVER_DB_MIGRATIONS_URL"
+        ]
+      },
+      {
+        "name": "db-postgres-connection-max-idletime",
+        "usage": "Max connection idle time in seconds",
+        "default": 180,
+        "valueType": "int64",
+        "path": "lobbyserver.db.postgres.max_idletime",
+        "env": [
+          "LOBBYSERVER_DB_POSTGRES_CONNECTION_MAX_IDLETIME"
+        ]
+      },
+      {
+        "name": "db-postgres-connection-max-lifetime",
+        "usage": "Max connection lifetime in seconds",
+        "default": 300,
+        "valueType": "int64",
+        "path": "lobbyserver.db.postgres.max_lifetime",
+        "env": [
+          "LOBBYSERVER_DB_POSTGRES_CONNECTION_MAX_LIFETIME"
+        ]
+      },
+      {
+        "name": "db-postgres-max-idle-connections",
+        "usage": "Maximum number of idle connections",
+        "default": 50,
+        "valueType": "int64",
+        "path": "lobbyserver.db.postgres.max_idle_connections",
+        "env": [
+          "LOBBYSERVER_DB_POSTGRES_MAX_IDLE_CONNECTIONS"
+        ]
+      },
+      {
+        "name": "db-postgres-max-open-connections",
+        "usage": "Maximum number of connections",
+        "default": 500,
+        "valueType": "int64",
+        "path": "lobbyserver.db.postgres.max_open_connections",
+        "env": [
+          "LOBBYSERVER_DB_POSTGRES_MAX_OPEN_CONNECTIONS"
+        ]
+      },
+      {
+        "name": "db-postgres-timeout",
+        "usage": "Timeout for postgres connection",
+        "default": 60,
+        "valueType": "int64",
+        "path": "lobbyserver.db.postgres.timeout",
+        "env": [
+          "LOBBYSERVER_DB_POSTGRES_TIMEOUT"
+        ]
+      },
+      {
+        "name": "db-read-url",
+        "usage": "Database connection readonly URL",
+        "default": "",
+        "valueType": "string",
+        "path": "lobbyserver.db.read.url",
+        "env": [
+          "LOBBYSERVER_DB_READ_URL"
+        ]
+      },
+      {
+        "name": "db-url",
+        "usage": "Database connection URL",
+        "default": "",
+        "valueType": "string",
+        "path": "lobbyserver.db.url",
+        "env": [
+          "LOBBYSERVER_DB_URL"
+        ]
+      },
+      {
+        "name": "grpc-port",
+        "usage": "GRPC Port to listen on",
+        "default": 50052,
+        "valueType": "int64",
+        "path": "lobbyserver.grpc.port",
+        "env": [
+          "LOBBYSERVER_GRPC_PORT"
+        ]
+      },
+      {
+        "name": "id",
+        "usage": "Unique identifier for this services",
+        "default": "",
+        "valueType": "string",
+        "path": "lobbyserver.id",
+        "env": [
+          "LOBBYSERVER_ID"
+        ]
+      },
+      {
+        "name": "nats-consumer-replicas",
+        "usage": "Number of times to replicate consumers",
+        "default": 1,
+        "valueType": "int64",
+        "path": "lobbyserver.nats.consumer.replicas",
+        "env": [
+          "LOBBYSERVER_NATS_CONSUMER_REPLICAS"
+        ]
+      },
+      {
+        "name": "nats-consumer-storage",
+        "usage": "Storage type to use for consumers",
+        "default": "memory",
+        "valueType": "string",
+        "path": "lobbyserver.nats.consumer.storage",
+        "env": [
+          "LOBBYSERVER_NATS_CONSUMER_STORAGE"
+        ]
+      },
+      {
+        "name": "nats-stream-replicas",
+        "usage": "Number of times to replicate steams",
+        "default": 1,
+        "valueType": "int64",
+        "path": "lobbyserver.nats.stream.replicas",
+        "env": [
+          "LOBBYSERVER_NATS_STREAM_REPLICAS"
+        ]
+      },
+      {
+        "name": "nats-stream-storage",
+        "usage": "Storage type to use for streams",
+        "default": "memory",
+        "valueType": "string",
+        "path": "lobbyserver.nats.stream.storage",
+        "env": [
+          "LOBBYSERVER_NATS_STREAM_STORAGE"
+        ]
+      },
+      {
+        "name": "nats-url",
+        "usage": "Comma separated list of NATS endpoints",
+        "default": "nats:4222",
+        "valueType": "string",
+        "path": "lobbyserver.nats.edge.url",
+        "env": [
+          "LOBBYSERVER_NATS_URL"
+        ]
+      },
+      {
+        "name": "token-signing-key",
+        "usage": "Signing key used for service to service tokens",
+        "default": "",
+        "valueType": "string",
+        "path": "lobbyserver.secrets.token_signing_key",
+        "env": [
+          "LOBBYSERVER_SECRETS_TOKEN_SIGNING_KEY"
+        ]
+      },
+      {
+        "name": "healthcheck-host",
+        "usage": "Host to listen on for services that support a health check",
+        "default": "localhost",
+        "valueType": "string",
+        "path": "healthcheck.host",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_HOST"
+        ]
+      },
+      {
+        "name": "healthcheck-port",
+        "usage": "Port to listen on for services that support a health check",
+        "default": 5051,
+        "valueType": "int",
+        "path": "healthcheck.port",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_PORT"
+        ]
+      },
+      {
+        "name": "healthcheck-web-port",
+        "usage": "Port to listen on for services that support a health check",
+        "default": 5052,
+        "valueType": "int",
+        "path": "healthcheck.web.port",
+        "env": [
+          "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT"
+        ]
+      },
+      {
+        "name": "log-level",
+        "usage": "log level to use",
+        "default": "info",
+        "valueType": "string",
+        "path": "log.level",
+        "env": [
+          "LOG_LEVEL"
+        ]
+      },
+      {
+        "name": "service",
+        "usage": "which service to run",
+        "default": "",
+        "valueType": "string",
+        "path": "service",
+        "env": [
+          "EXPLODING_KITTENS_SERVICE"
+        ]
+      }
+    ]
+  },
+  {
     "name": "userserver",
     "shortName": "Run as userserver service",
     "long": "",
