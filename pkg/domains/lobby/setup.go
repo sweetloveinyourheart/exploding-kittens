@@ -3,6 +3,7 @@ package lobby
 import (
 	"context"
 	"fmt"
+
 	"time"
 
 	"github.com/nats-io/nats.go/jetstream"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	aggregateCommandHandler "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
@@ -77,15 +79,13 @@ func AddNATSLobbyCommandHandlers(ctx context.Context, appID string, commandBus *
 		return err
 	}
 
-	var eventBus eventing.EventBus
 	natsBus, err := natsEventBus.NewEventBus(connPool, fmt.Sprintf("%s-lobby-command-read", appID), natsEventBus.WithStreamName(constants.LobbyStream), natsEventBus.WithCodec(customCodec{}))
 	if err != nil {
 		return err
 	}
 
 	// Create in memory store for aggregate
-	var eventStore eventing.EventStore
-	hookHandler := contexthook.NewMiddleware()(eventBus)
+	hookHandler := contexthook.NewMiddleware()(natsBus)
 	natsEventStore, err := natsjs.NewEventStore(ctx, constants.LobbyStream, SubjectFactory, natsjs.WithEventHandler(hookHandler), natsjs.WithEventBus(natsBus))
 	if err != nil {
 		return err
@@ -95,10 +95,10 @@ func AddNATSLobbyCommandHandlers(ctx context.Context, appID string, commandBus *
 		for {
 			select {
 			case <-ctx.Done():
-				_ = eventBus.Close()
+				_ = natsBus.Close()
 				_ = natsEventStore.Close()
 				return
-			case err, ok := <-eventBus.Errors():
+			case err, ok := <-natsBus.Errors():
 				natsEventBus.HandleError(ctx, err)
 				if !ok {
 					_ = natsEventStore.Close()
@@ -115,14 +115,12 @@ func AddNATSLobbyCommandHandlers(ctx context.Context, appID string, commandBus *
 		MaxDeliver:        10,
 		InactiveThreshold: 60 * time.Minute,
 	})(natsEventStore)
-	err = eventBus.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), wrappedEventStore)
+	err = natsBus.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), wrappedEventStore)
 	if err != nil {
 		return err
 	}
 
-	eventStore = natsEventStore
-
-	aggregateStore, err := aggregate.NewAggregateStore(eventStore, aggregate.WithSequencedStore())
+	aggregateStore, err := aggregate.NewAggregateStore(natsEventStore, aggregate.WithSequencedStore())
 	if err != nil {
 		return err
 	}

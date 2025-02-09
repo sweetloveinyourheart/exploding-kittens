@@ -9,6 +9,33 @@ services:
     depends_on:
       kittens_database:
         condition: service_healthy
+      kittens_nats:
+        condition: service_healthy
+
+  kittens_nats:
+    hostname: nats
+    image: ${NATS_CONTAINER_IMAGE}
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_nats
+    entrypoint: "nats-server --jetstream --name nats --http_port 8222"
+    ports:
+      - "4223:4222"
+      - "8223:8222"
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.41"
+    healthcheck:
+      test: >-
+        wget
+        --no-verbose
+        --tries=1
+        --spider
+        http://localhost:8222/healthz
+        ||
+        exit 1
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
 
   kittens_database:
     image: ${POSTGRES_CONTAINER_IMAGE}

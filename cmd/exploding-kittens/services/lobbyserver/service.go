@@ -112,7 +112,7 @@ func setupDependencies() error {
 		return err
 	}
 
-	busConnection, err := nats.Connect(config.Instance().GetString("lobbyserver.nats..url"),
+	busConnection, err := nats.Connect(config.Instance().GetString("lobbyserver.nats.url"),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1),
 		nats.Name("kittens/lobbyserver/1.0/single"),
@@ -127,7 +127,7 @@ func setupDependencies() error {
 		return errors.WithStack(errors.Wrap(err, "failed to connect to  nats"))
 	}
 
-	connPool := pool.New(100, config.Instance().GetString("lobbyserver.nats..url"),
+	connPool := pool.New(100, config.Instance().GetString("lobbyserver.nats.url"),
 		nats.NoEcho(),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1),

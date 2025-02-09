@@ -132,7 +132,7 @@
     usage: Comma separated list of NATS endpoints
     default: nats:4222
     valueType: string
-    path: lobbyserver.nats.edge.url
+    path: lobbyserver.nats.url
     env:
     - LOBBYSERVER_NATS_URL
   - name: token-signing-key

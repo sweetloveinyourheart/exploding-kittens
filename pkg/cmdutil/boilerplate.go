@@ -103,7 +103,7 @@ func BoilerplateFlagsDB(command *cobra.Command, serviceType string, envPrefix st
 func BoilerplateFlagsNatsEdge(command *cobra.Command, serviceType string, envPrefix string) {
 	_, serviceKey := st(serviceType)
 
-	config.StringDefault(command, fmt.Sprintf("%s.nats.edge.url", serviceKey), "nats-url", "nats:4222", "Comma separated list of NATS endpoints", fmt.Sprintf("%s_NATS_URL", envPrefix))
+	config.StringDefault(command, fmt.Sprintf("%s.nats.url", serviceKey), "nats-url", "nats:4222", "Comma separated list of NATS endpoints", fmt.Sprintf("%s_NATS_URL", envPrefix))
 	boilerplateFlagsNatsCore(command, serviceType, envPrefix)
 }
 
