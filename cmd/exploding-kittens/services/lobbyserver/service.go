@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
@@ -17,11 +16,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
-	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/lobbyserver/go/grpcconnect"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby/actions"
 
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
@@ -49,23 +44,9 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			lobby.InitializeRepos(app.Ctx())
-
-			signingKey := config.Instance().GetString("lobbyserver.secrets.token_signing_key")
-			actions := actions.NewActions(app.Ctx(), signingKey)
-
-			opt := connect.WithInterceptors(
-				interceptors.CommonConnectInterceptors(
-					serviceType,
-					signingKey,
-					interceptors.ConnectServerAuthHandler(signingKey),
-				)...,
-			)
-			path, handler := grpcconnect.NewLobbyServerHandler(
-				actions,
-				opt,
-			)
-			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("lobbyserver.grpc.port"), serviceType)
+			if err := lobby.InitializeRepos(app.Ctx()); err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
 
 			app.Run()
 		},
