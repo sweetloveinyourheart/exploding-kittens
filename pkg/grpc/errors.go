@@ -58,3 +58,23 @@ func UnauthenticatedError(err error) error {
 	}
 	return connect.NewError(connect.CodeUnauthenticated, errors.Newf("unauthenticated: %s", err))
 }
+
+func PreconditionFailure(typ string, subject string, desc string) *errdetails.PreconditionFailure_Violation {
+	return &errdetails.PreconditionFailure_Violation{
+		Type:        typ,
+		Subject:     subject,
+		Description: desc,
+	}
+}
+
+func PreconditionError(violations ...*errdetails.PreconditionFailure_Violation) error {
+	statusFailed := connect.NewError(connect.CodeFailedPrecondition, errors.New("invalid request"))
+
+	for _, violation := range violations {
+		if detail, detailErr := connect.NewErrorDetail(violation); detailErr == nil {
+			statusFailed.AddDetail(detail)
+		}
+	}
+
+	return statusFailed
+}

@@ -5,11 +5,15 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
+	"github.com/nats-io/nats.go"
+	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go/grpcconnect"
@@ -41,7 +45,9 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			client.InitializeRepos(app.Ctx())
+			if err := client.InitializeRepos(app.Ctx()); err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
 
 			signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)
@@ -99,6 +105,16 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 func setupDependencies() error {
 	signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
 
+	connPool := pool.New(100, config.Instance().GetString("lobbyserver.nats.url"),
+		nats.NoEcho(),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/lobbyserver/1.0"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}),
+	)
+
 	userServerClient := userServerConnect.NewUserServerClient(
 		http.DefaultClient,
 		config.Instance().GetString("clientserver.userserver.url"),
@@ -111,6 +127,11 @@ func setupDependencies() error {
 	do.Provide[userServerConnect.UserServerClient](nil, func(i *do.Injector) (userServerConnect.UserServerClient, error) {
 		return userServerClient, nil
 	})
+
+	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
+		func(i *do.Injector) (*pool.ConnPool, error) {
+			return connPool, nil
+		})
 
 	return nil
 }

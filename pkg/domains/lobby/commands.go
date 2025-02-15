@@ -41,6 +41,10 @@ func (c *CreateLobby) Validate() error {
 		return &common.CommandFieldError{Field: "lobby_id", Details: "empty field"}
 	}
 
+	if stringsutil.IsBlank(c.LobbyName) {
+		return &common.CommandFieldError{Field: "lobby_name", Details: "empty field"}
+	}
+
 	if stringsutil.IsBlank(c.LobbyCode) {
 		return &common.CommandFieldError{Field: "lobby_code", Details: "empty field"}
 	}

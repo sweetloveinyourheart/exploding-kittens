@@ -10,6 +10,8 @@ service ClientServer {
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
     rpc GetPlayerProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
+    
+    rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
 }
 
 message User {
@@ -42,4 +44,12 @@ message GuestLoginResponse {
 // Message for player profile
 message PlayerProfileResponse {
     User user = 1;
+}
+
+message CreateLobbyRequest {
+    string lobby_name = 1;
+}
+
+message CreateLobbyResponse {
+    string lobby_id = 1;
 }

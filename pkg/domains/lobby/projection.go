@@ -131,6 +131,7 @@ func (p *LobbyProjector) handleLobbyEvent(ctx context.Context, event common.Even
 	switch event.EventType() {
 	case EventTypeLobbyCreated:
 		eventHandler = p.handleLobbyCreated
+	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
 		}

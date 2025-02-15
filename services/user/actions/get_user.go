@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"connectrpc.com/connect"
@@ -23,7 +24,7 @@ func (a *actions) GetUser(ctx context.Context, request *connect.Request[proto.Ge
 	user, ok, err := a.userRepo.GetUserByID(ctx, userID)
 	if !ok {
 		log.Global().WarnContext(ctx, "no user was found", zap.Any("userID", userID))
-		return nil, err
+		return nil, grpc.NotFoundError(errors.New("no user was found"))
 	}
 
 	if err != nil {

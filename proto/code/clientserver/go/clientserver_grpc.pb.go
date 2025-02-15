@@ -23,6 +23,7 @@ const (
 	ClientServer_CreateNewGuestUser_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
 	ClientServer_GuestLogin_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
 	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
+	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -32,6 +33,7 @@ type ClientServerClient interface {
 	CreateNewGuestUser(ctx context.Context, in *CreateNewGuestUserRequest, opts ...grpc.CallOption) (*CreateNewGuestUserResponse, error)
 	GuestLogin(ctx context.Context, in *GuestLoginRequest, opts ...grpc.CallOption) (*GuestLoginResponse, error)
 	GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
+	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
 }
 
 type clientServerClient struct {
@@ -72,6 +74,16 @@ func (c *clientServerClient) GetPlayerProfile(ctx context.Context, in *emptypb.E
 	return out, nil
 }
 
+func (c *clientServerClient) CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateLobbyResponse)
+	err := c.cc.Invoke(ctx, ClientServer_CreateLobby_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -79,6 +91,7 @@ type ClientServerServer interface {
 	CreateNewGuestUser(context.Context, *CreateNewGuestUserRequest) (*CreateNewGuestUserResponse, error)
 	GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error)
 	GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
+	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -96,6 +109,9 @@ func (UnimplementedClientServerServer) GuestLogin(context.Context, *GuestLoginRe
 }
 func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPlayerProfile not implemented")
+}
+func (UnimplementedClientServerServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLobby not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -171,6 +187,24 @@ func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_CreateLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLobbyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).CreateLobby(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_CreateLobby_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).CreateLobby(ctx, req.(*CreateLobbyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -189,6 +223,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPlayerProfile",
 			Handler:    _ClientServer_GetPlayerProfile_Handler,
+		},
+		{
+			MethodName: "CreateLobby",
+			Handler:    _ClientServer_CreateLobby_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
