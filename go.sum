@@ -296,6 +296,12 @@ github.com/jhump/protoreflect/v2 v2.0.0-beta.2/go.mod h1:4tnOYkB/mq7QTyS3YKtVtNr
 github.com/jinzhu/copier v0.4.0 h1:w3ciUoD19shMCRargcpm0cm91ytaBhDvuRpz1ODO/U8=
 github.com/jinzhu/copier v0.4.0/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
+github.com/juju/clock v0.0.0-20220203021603-d9deb868a28a h1:Az/6CM/P5guGHNy7r6TkOCctv3lDmN3W1uhku7QMupk=
+github.com/juju/clock v0.0.0-20220203021603-d9deb868a28a/go.mod h1:GZ/FY8Cqw3KHG6DwRVPUKbSPTAwyrU28xFi5cqZnLsc=
+github.com/juju/errors v0.0.0-20220203013757-bd733f3c86b9 h1:EJHbsNpQyupmMeWTq7inn+5L/WZ7JfzCVPJ+DP9McCQ=
+github.com/juju/errors v0.0.0-20220203013757-bd733f3c86b9/go.mod h1:TRm7EVGA3mQOqSVcBySRY7a9Y1/gyVhh/WTCnc5sD4U=
+github.com/juju/pubsub/v2 v2.0.0 h1:VQoLx4PTch4+S53clrq1wzkpByrTQFGFrrponRW2Dp8=
+github.com/juju/pubsub/v2 v2.0.0/go.mod h1:/QkpC3pjCk5Jj2EqlHjRLfvHkuTH+B1KhSG24OIdUks=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
@@ -493,6 +499,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
+github.com/zmwangx/debounce v1.0.0 h1:Dyf+WfLESjc2bqFKHgI1dZTW9oh6CJm8SBDkhXrwLB4=
+github.com/zmwangx/debounce v1.0.0/go.mod h1:U+/QHt+bSMdUh8XKOb6U+MQV5Ew4eS8M3ua5WJ7Ns6I=
 go.lsp.dev/jsonrpc2 v0.10.0 h1:Pr/YcXJoEOTMc/b6OTmcR1DPJ3mSWl/SWiU1Cct6VmI=
 go.lsp.dev/jsonrpc2 v0.10.0/go.mod h1:fmEzIdXPi/rf6d4uFcayi8HpFP1nBF99ERP1htC72Ac=
 go.lsp.dev/pkg v0.0.0-20210717090340-384b27a52fb2 h1:hCzQgh6UcwbKgNSRurYWSqh8MufqRRPODRBblutn4TE=

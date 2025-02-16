@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -29,4 +30,21 @@ func GenerateRandomCode(length int) (string, error) {
 		b[i] = charset[r.Intn(len(charset))]
 	}
 	return string(b), nil
+}
+
+// ConvertUUIDsToStrings converts a slice of UUIDs to a slice of their string representations.
+//
+// Parameters:
+//
+//	uuids []uuid.UUID - A slice of UUIDs to be converted.
+//
+// Returns:
+//
+//	[]string - A slice containing the string representations of the provided UUIDs.
+func ConvertUUIDsToStrings(uuids []uuid.UUID) []string {
+	strings := make([]string, len(uuids))
+	for i, u := range uuids {
+		strings[i] = u.String()
+	}
+	return strings
 }

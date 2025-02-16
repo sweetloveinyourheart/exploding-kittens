@@ -12,7 +12,10 @@ service ClientServer {
     rpc GetPlayerProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
     
     rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
+    rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
 }
+
+// ========= User ==========
 
 message User {
     string user_id = 1;
@@ -46,10 +49,28 @@ message PlayerProfileResponse {
     User user = 1;
 }
 
+// ========= Lobby ==========
+
+message Lobby {
+    string lobby_id = 1;
+    string lobby_code = 2;
+    string lobby_name = 3;
+    string host_user_id = 4;
+    repeated string participants = 5;
+}
+
 message CreateLobbyRequest {
     string lobby_name = 1;
 }
 
 message CreateLobbyResponse {
     string lobby_id = 1;
+}
+
+message GetLobbyRequest {
+    string lobby_id = 1;
+}
+
+message GetLobbyReply {
+    Lobby lobby = 1;
 }

@@ -84,6 +84,8 @@ require (
 	github.com/imdario/mergo v0.3.4 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jdx/go-netrc v1.0.0 // indirect
+	github.com/juju/clock v0.0.0-20220203021603-d9deb868a28a // indirect
+	github.com/juju/errors v0.0.0-20220203013757-bd733f3c86b9 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -166,6 +168,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3 // indirect
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/jinzhu/copier v0.4.0
+	github.com/juju/pubsub/v2 v2.0.0
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
@@ -182,6 +185,7 @@ require (
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/zmwangx/debounce v1.0.0
 	go.opentelemetry.io/otel/log v0.10.0 // indirect
 	go.opentelemetry.io/otel/metric v1.34.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
