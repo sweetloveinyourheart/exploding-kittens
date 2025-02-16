@@ -97,6 +97,8 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 		}
 	}
 
+	sendData()
+
 	debounced, control := debounce.Throttle(sendData, 500*time.Millisecond)
 	keepAlive := time.NewTimer(KeepAliveTimeout)
 	defer func() {

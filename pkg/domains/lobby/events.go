@@ -21,6 +21,10 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 // EventTypeLobbyCreated is the event type for when a lobby is created
 var EventTypeLobbyCreated = (&LobbyCreated{}).EventType()
 
+var AllEventTypes = []common.EventType{
+	EventTypeLobbyCreated,
+}
+
 type LobbyCreated struct {
 	LobbyID      uuid.UUID   `json:"lobby_id"`
 	LobbyCode    string      `json:"lobby_code"`

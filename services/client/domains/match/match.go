@@ -10,5 +10,8 @@ func MatchLobbyID(lobbyID uuid.UUID) Matcher {
 	return func(subject string) bool {
 		return lobbyID.String() == subject
 	}
+}
 
+type LobbyIDer interface {
+	GetLobbyId() uuid.UUID
 }
