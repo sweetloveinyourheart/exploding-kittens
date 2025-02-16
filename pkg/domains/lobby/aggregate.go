@@ -71,6 +71,7 @@ type Aggregate struct {
 	*aggregate.AggregateBase
 
 	currentLobbyID uuid.UUID
+	actived        bool
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -94,6 +95,11 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if !a.currentLobbyID.IsNil() {
 			return ErrLobbyInWaitingMode
 		}
+	case *JoinLobby:
+	case *LeaveLobby:
+		if !a.actived {
+			return ErrLobbyNotAvailable
+		}
 	default:
 		// All other events require the aggregate to be created.
 	}
@@ -110,6 +116,16 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			LobbyName:    cmd.LobbyName,
 			HostUserID:   cmd.HostUserID,
 			Participants: []uuid.UUID{},
+		}, TimeNow())
+	case *JoinLobby:
+		a.AppendEvent(EventTypeLobbyJoined, &LobbyJoined{
+			LobbyID: cmd.LobbyID,
+			UserID:  cmd.UserID,
+		}, TimeNow())
+	case *LeaveLobby:
+		a.AppendEvent(EventTypeLobbyLeft, &LobbyLeft{
+			LobbyID: cmd.LobbyID,
+			UserID:  cmd.UserID,
 		}, TimeNow())
 
 	default:
@@ -144,6 +160,11 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		}
 
 		a.currentLobbyID = data.LobbyID
+		a.actived = true
+
+	case EventTypeLobbyJoined:
+	case EventTypeLobbyLeft:
+		a.actived = true
 
 	default:
 		return errors.WithStack(fmt.Errorf("could not apply event: %s", event.EventType()))

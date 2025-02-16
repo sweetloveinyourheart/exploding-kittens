@@ -25,6 +25,8 @@ const (
 	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
 	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
+	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
+	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -36,6 +38,8 @@ type ClientServerClient interface {
 	GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
 	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
 	StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error)
+	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
+	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
 }
 
 type clientServerClient struct {
@@ -105,6 +109,26 @@ func (c *clientServerClient) StreamLobby(ctx context.Context, in *GetLobbyReques
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ClientServer_StreamLobbyClient = grpc.ServerStreamingClient[GetLobbyReply]
 
+func (c *clientServerClient) JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinLobbyResponse)
+	err := c.cc.Invoke(ctx, ClientServer_JoinLobby_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaveLobbyResponse)
+	err := c.cc.Invoke(ctx, ClientServer_LeaveLobby_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -114,6 +138,8 @@ type ClientServerServer interface {
 	GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
 	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
 	StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error
+	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
+	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -137,6 +163,12 @@ func (UnimplementedClientServerServer) CreateLobby(context.Context, *CreateLobby
 }
 func (UnimplementedClientServerServer) StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamLobby not implemented")
+}
+func (UnimplementedClientServerServer) JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinLobby not implemented")
+}
+func (UnimplementedClientServerServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaveLobby not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -241,6 +273,42 @@ func _ClientServer_StreamLobby_Handler(srv interface{}, stream grpc.ServerStream
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ClientServer_StreamLobbyServer = grpc.ServerStreamingServer[GetLobbyReply]
 
+func _ClientServer_JoinLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinLobbyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).JoinLobby(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_JoinLobby_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).JoinLobby(ctx, req.(*JoinLobbyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveLobbyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).LeaveLobby(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_LeaveLobby_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).LeaveLobby(ctx, req.(*LeaveLobbyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -263,6 +331,14 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateLobby",
 			Handler:    _ClientServer_CreateLobby_Handler,
+		},
+		{
+			MethodName: "JoinLobby",
+			Handler:    _ClientServer_JoinLobby_Handler,
+		},
+		{
+			MethodName: "LeaveLobby",
+			Handler:    _ClientServer_LeaveLobby_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

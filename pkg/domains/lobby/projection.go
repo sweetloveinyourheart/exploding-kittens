@@ -14,10 +14,14 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 
 type AllEventsProjector interface {
 	HandleLobbyCreated(ctx context.Context, event common.Event, data *LobbyCreated, entity *Lobby) (*Lobby, error)
+	HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined, entity *Lobby) (*Lobby, error)
+	HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error)
 }
 
 type eventsProjector interface {
 	handleLobbyCreated(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
+	handleLobbyJoined(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
+	handleLobbyLeft(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 }
 
 // LobbyProjector is an event handler for Projections in the Lobby domain.
@@ -131,6 +135,10 @@ func (p *LobbyProjector) handleLobbyEvent(ctx context.Context, event common.Even
 	switch event.EventType() {
 	case EventTypeLobbyCreated:
 		eventHandler = p.handleLobbyCreated
+	case EventTypeLobbyJoined:
+		eventHandler = p.handleLobbyJoined
+	case EventTypeLobbyLeft:
+		eventHandler = p.handleLobbyLeft
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -161,6 +169,50 @@ func (p *LobbyProjector) handleLobbyCreated(ctx context.Context, event common.Ev
 		HandleLobbyCreated(ctx context.Context, event common.Event, data *LobbyCreated) error
 	}); ok {
 		return entity, handler.HandleLobbyCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleLobbyJoined handles user joins a lobby events.
+func (p *LobbyProjector) handleLobbyJoined(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error) {
+	data, ok := event.Data().(*LobbyJoined)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleLobbyJoined"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined, entity *Lobby) (*Lobby, error)
+	}); ok {
+		return handler.HandleLobbyJoined(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined) error
+	}); ok {
+		return entity, handler.HandleLobbyJoined(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleLobbyLeft handles user leaves a lobby events.
+func (p *LobbyProjector) handleLobbyLeft(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error) {
+	data, ok := event.Data().(*LobbyLeft)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleLobbyLeft"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error)
+	}); ok {
+		return handler.HandleLobbyLeft(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft) error
+	}); ok {
+		return entity, handler.HandleLobbyLeft(ctx, event, data)
 	}
 
 	return entity, nil

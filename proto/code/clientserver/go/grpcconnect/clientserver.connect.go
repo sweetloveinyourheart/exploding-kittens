@@ -48,6 +48,10 @@ const (
 	// ClientServerStreamLobbyProcedure is the fully-qualified name of the ClientServer's StreamLobby
 	// RPC.
 	ClientServerStreamLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
+	// ClientServerJoinLobbyProcedure is the fully-qualified name of the ClientServer's JoinLobby RPC.
+	ClientServerJoinLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
+	// ClientServerLeaveLobbyProcedure is the fully-qualified name of the ClientServer's LeaveLobby RPC.
+	ClientServerLeaveLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -58,6 +62,8 @@ type ClientServerClient interface {
 	GetPlayerProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
+	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
+	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -102,6 +108,18 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("StreamLobby")),
 			connect.WithClientOptions(opts...),
 		),
+		joinLobby: connect.NewClient[_go.JoinLobbyRequest, _go.JoinLobbyResponse](
+			httpClient,
+			baseURL+ClientServerJoinLobbyProcedure,
+			connect.WithSchema(clientServerMethods.ByName("JoinLobby")),
+			connect.WithClientOptions(opts...),
+		),
+		leaveLobby: connect.NewClient[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse](
+			httpClient,
+			baseURL+ClientServerLeaveLobbyProcedure,
+			connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -112,6 +130,8 @@ type clientServerClient struct {
 	getPlayerProfile   *connect.Client[emptypb.Empty, _go.PlayerProfileResponse]
 	createLobby        *connect.Client[_go.CreateLobbyRequest, _go.CreateLobbyResponse]
 	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
+	joinLobby          *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
+	leaveLobby         *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
 }
 
 // CreateNewGuestUser calls
@@ -140,6 +160,16 @@ func (c *clientServerClient) StreamLobby(ctx context.Context, req *connect.Reque
 	return c.streamLobby.CallServerStream(ctx, req)
 }
 
+// JoinLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby.
+func (c *clientServerClient) JoinLobby(ctx context.Context, req *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error) {
+	return c.joinLobby.CallUnary(ctx, req)
+}
+
+// LeaveLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby.
+func (c *clientServerClient) LeaveLobby(ctx context.Context, req *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error) {
+	return c.leaveLobby.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
@@ -148,6 +178,8 @@ type ClientServerHandler interface {
 	GetPlayerProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
+	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
+	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -187,6 +219,18 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("StreamLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerJoinLobbyHandler := connect.NewUnaryHandler(
+		ClientServerJoinLobbyProcedure,
+		svc.JoinLobby,
+		connect.WithSchema(clientServerMethods.ByName("JoinLobby")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerLeaveLobbyHandler := connect.NewUnaryHandler(
+		ClientServerLeaveLobbyProcedure,
+		svc.LeaveLobby,
+		connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClientServerCreateNewGuestUserProcedure:
@@ -199,6 +243,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerCreateLobbyHandler.ServeHTTP(w, r)
 		case ClientServerStreamLobbyProcedure:
 			clientServerStreamLobbyHandler.ServeHTTP(w, r)
+		case ClientServerJoinLobbyProcedure:
+			clientServerJoinLobbyHandler.ServeHTTP(w, r)
+		case ClientServerLeaveLobbyProcedure:
+			clientServerLeaveLobbyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -226,4 +274,12 @@ func (UnimplementedClientServerHandler) CreateLobby(context.Context, *connect.Re
 
 func (UnimplementedClientServerHandler) StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby is not implemented"))
 }

@@ -41,10 +41,10 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 	lobbyState, err := domains.LobbyRepo.Find(ctx, request.Msg.GetLobbyId())
 	if err != nil {
 		if errors.Is(err, eventing.ErrEntityNotFound) {
-			return grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "no such lobby, configuration not found"))
+			return grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "no such lobby"))
 		}
 
-		return grpc.InternalError(err)
+		return grpc.NotFoundError(err)
 	}
 
 	mux := &sync.Mutex{}
@@ -55,7 +55,7 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 		lobbyState, err := domains.LobbyRepo.Find(ctx, request.Msg.GetLobbyId())
 		if err != nil {
 			if errors.Is(err, eventing.ErrEntityNotFound) {
-				streamError = grpc.PreconditionError(grpc.PreconditionFailure("state", "table_id", "no such table, edge configuration not found"))
+				streamError = grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "no such lobby"))
 				cancel()
 				return
 			}

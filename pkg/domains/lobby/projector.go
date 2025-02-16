@@ -47,3 +47,20 @@ func (p *Projector) HandleLobbyCreated(ctx context.Context, event common.Event, 
 
 	return entity, nil
 }
+
+func (p *Projector) HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined, entity *Lobby) (*Lobby, error) {
+	entity.Participants = append(entity.Participants, data.GetUserID())
+
+	return entity, nil
+}
+
+func (p *Projector) HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error) {
+	for i, participant := range entity.Participants {
+		if participant == data.GetUserID() {
+			entity.Participants = append(entity.Participants[:i], entity.Participants[i+1:]...)
+			break
+		}
+	}
+
+	return entity, nil
+}
