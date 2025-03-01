@@ -30,41 +30,37 @@ import (
 )
 
 var (
-	eventTypeHdr         = "ld-evt-type"
-	eventTimeHdr         = "ld-evt-time"
-	eventCodecHdr        = "ld-evt-codec"
-	EventUnregisteredHdr = "ld-evt-unregistered"
+	eventTypeHdr         = "kt-evt-type"
+	eventTimeHdr         = "kt-evt-time"
+	eventCodecHdr        = "kt-evt-codec"
+	EventUnregisteredHdr = "kt-evt-unregistered"
 	eventTimeFormat      = time.RFC3339Nano
 
-	eventTimezoneHdr     = "ld-evt-timezone"
-	eventServerIDHdr     = "ld-evt-server-id"
-	eventJurisdictionHdr = "ld-evt-jurisdiction"
-	eventSourceHdr       = "ld-evt-source"
+	eventServerIDHdr = "kt-evt-server-id"
+	eventSourceHdr   = "kt-evt-source"
 )
 
 // EventBus is a NATS JetStream event bus that delegates handling of published
 // events to all matching registered handlers.
 type EventBus struct {
-	appID         string
-	streamName    string
-	typeInSubject bool
-	busName       string
-	pool          *pool.ConnPool
-	conn          *nats.Conn
-	jetstream     jetstream.JetStream
-	stream        jetstream.Stream
-	connOpts      []nats.Option
-	streamConfig  *jetstream.StreamConfig
-	registered    map[common.EventHandlerType]struct{}
-	registeredMu  sync.RWMutex
-	errCh         chan error
-	cctx          context.Context
-	cancel        context.CancelFunc
-	wg            sync.WaitGroup
-	codec         eventing.EventCodec
-	serviceID     string
-	source        string
-	unsubscribe   []func()
+	appID        string
+	streamName   string
+	busName      string
+	pool         *pool.ConnPool
+	conn         *nats.Conn
+	jetstream    jetstream.JetStream
+	stream       jetstream.Stream
+	streamConfig *jetstream.StreamConfig
+	registered   map[common.EventHandlerType]struct{}
+	registeredMu sync.RWMutex
+	errCh        chan error
+	cctx         context.Context
+	cancel       context.CancelFunc
+	wg           sync.WaitGroup
+	codec        eventing.EventCodec
+	serviceID    string
+	source       string
+	unsubscribe  []func()
 }
 
 // NewEventBus creates an EventBus, with optional settings.

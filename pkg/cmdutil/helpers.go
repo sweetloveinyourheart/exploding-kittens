@@ -16,6 +16,157 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 )
 
+var README_HEADER = ``
+var README_FOOTER = fmt.Sprintf(`
+## Configuration Paths
+
+ - /etc/exploding-kittens/schema.yaml
+ - $HOME/.exploding-kittens/schema.yaml
+ - ./schema.yaml
+
+### Common
+
+## Testing
+%s
+`, "```go test ./cmd/exploding-kittens/```")
+
+func generateDocs(cmd *cobra.Command) {
+	out := new(bytes.Buffer)
+	err := genMarkdownCustom(cmd, out, func(s string) string { return s })
+	if err != nil {
+		golog.Fatal(err)
+	}
+
+	filePath := path.Join(".", "README.md")
+	if _, err := os.Stat("./go.mod"); err == nil {
+		filePath = path.Join(".", "cmd", "exploding-kittens", "README.md")
+	}
+	err = os.WriteFile(filePath, out.Bytes(), 0644)
+	if err != nil {
+		golog.Fatal(err)
+	}
+}
+
+func genMarkdownCustom(rootCmd *cobra.Command, w io.Writer, linkHandler func(string) string) error {
+	cmds := append([]*cobra.Command{rootCmd}, rootCmd.Commands()...)
+	if _, err := w.Write([]byte(README_HEADER)); err != nil {
+		return err
+	}
+	for i, cmd := range cmds {
+		cmd.InitDefaultHelpCmd()
+		cmd.InitDefaultHelpFlag()
+
+		buf := new(bytes.Buffer)
+		name := cmd.CommandPath()
+
+		if i == 0 {
+			if _, err := buf.WriteString("# " + name + "\n\n"); err != nil {
+				return err
+			}
+		} else {
+			if _, err := buf.WriteString("## " + name + "\n\n"); err != nil {
+				return err
+			}
+		}
+
+		if _, err := buf.WriteString(cmd.Short + "\n\n"); err != nil {
+			return err
+		}
+		if len(cmd.Long) > 0 {
+			if _, err := buf.WriteString("### Synopsis\n\n"); err != nil {
+				return err
+			}
+			if _, err := buf.WriteString(cmd.Long + "\n\n"); err != nil {
+				return err
+			}
+		}
+
+		if cmd.Runnable() {
+			if _, err := buf.WriteString(fmt.Sprintf("```\n%s\n```\n\n", cmd.UseLine())); err != nil {
+				return err
+			}
+		}
+
+		if len(cmd.Example) > 0 {
+			if _, err := buf.WriteString("### Examples\n\n"); err != nil {
+				return err
+			}
+			if _, err := buf.WriteString(fmt.Sprintf("```\n%s\n```\n\n", cmd.Example)); err != nil {
+				return err
+			}
+		}
+
+		flags := cmd.NonInheritedFlags()
+		flags.SetOutput(buf)
+		if flags.HasAvailableFlags() {
+			if _, err := buf.WriteString("### Options\n\n```\n"); err != nil {
+				return err
+			}
+			flags.PrintDefaults()
+			if _, err := buf.WriteString("```\n\n"); err != nil {
+				return err
+			}
+
+			if _, err := buf.WriteString("### Environment Variables\n\n"); err != nil {
+				return err
+			}
+			flags.VisitAll(func(flag *pflag.Flag) {
+				binding, ok := config.Registry[flag]
+				if !ok {
+					return
+				}
+				for _, envVar := range binding.Env {
+					if _, err := buf.Write([]byte(fmt.Sprintf("- %s :: `%s` %s\n", envVar, binding.Aliases[0], binding.Usage))); err != nil {
+						return
+					}
+				}
+			})
+			if _, err := buf.WriteString("```\n\n"); err != nil {
+				return err
+			}
+		}
+
+		parentFlags := cmd.InheritedFlags()
+		parentFlags.SetOutput(buf)
+		if parentFlags.HasAvailableFlags() {
+			if _, err := buf.WriteString("### Options inherited from parent commands\n\n```\n"); err != nil {
+				return err
+			}
+			parentFlags.PrintDefaults()
+			if _, err := buf.WriteString("```\n\n"); err != nil {
+				return err
+			}
+
+			if _, err := buf.WriteString("### Environment Variables inherited from parent commands\n\n"); err != nil {
+				return err
+			}
+			parentFlags.VisitAll(func(flag *pflag.Flag) {
+				binding, ok := config.Registry[flag]
+				if !ok {
+					return
+				}
+				for _, envVar := range binding.Env {
+					if _, err := buf.Write([]byte(fmt.Sprintf("- %s :: `%s` %s\n", envVar, binding.Aliases[0], binding.Usage))); err != nil {
+						return
+					}
+				}
+			})
+			if _, err := buf.WriteString("```\n\n"); err != nil {
+				return err
+			}
+		}
+
+		_, err := buf.WriteTo(w)
+		if err != nil {
+			return err
+		}
+	}
+	if _, err := w.Write([]byte(README_FOOTER)); err != nil {
+		return err
+	}
+	return nil
+}
+
 func generateSchema(rootCmd *cobra.Command) {
 	outJSON := new(bytes.Buffer)
 	err := genSchema(rootCmd, outJSON, "json")

@@ -150,8 +150,6 @@ func (l *Logger) logFields(
 		return fields
 	}
 
-	// TODO: append fields from context here
-
 	span := trace.SpanFromContext(ctx)
 	if !span.IsRecording() {
 		return fields
@@ -534,8 +532,6 @@ func (s *SugaredLogger) logKVs(
 	if lvl < s.l.minLevel {
 		return kvs
 	}
-
-	// TODO: append fields from context here
 
 	span := trace.SpanFromContext(ctx)
 	if !span.IsRecording() {

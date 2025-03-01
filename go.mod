@@ -1,6 +1,6 @@
 module github.com/sweetloveinyourheart/exploding-kittens
 
-go 1.24.0
+go 1.23.6
 
 require (
 	connectrpc.com/connect v1.18.1

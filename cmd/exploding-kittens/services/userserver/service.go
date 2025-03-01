@@ -46,7 +46,9 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			user.InitializeRepos(app.Ctx())
+			if err := user.InitializeRepos(app.Ctx()); err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
 
 			signingKey := config.Instance().GetString("userserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)

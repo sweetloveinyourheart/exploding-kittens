@@ -88,7 +88,7 @@ func InitializeService(command ...*cobra.Command) {
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "generate" {
-		// TODO: generateDocs(ServiceRootCmd)
+		generateDocs(ServiceRootCmd)
 		generateSchema(ServiceRootCmd)
 		return
 	}
