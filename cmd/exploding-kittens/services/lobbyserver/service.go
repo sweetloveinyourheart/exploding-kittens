@@ -71,7 +71,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	config.Int64Default(lobbyServerCommand, "lobbyserver.grpc.port", "grpc-port", DEFAULT_LOBBYSERVER_GRPC_PORT, "GRPC Port to listen on", "LOBBYSERVER_GRPC_PORT")
 
 	cmdutil.BoilerplateFlagsCore(lobbyServerCommand, serviceType, envPrefix)
-	cmdutil.BoilerplateFlagsNatsEdge(lobbyServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsNats(lobbyServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(lobbyServerCommand, serviceType)
 	cmdutil.BoilerplateFlagsDB(lobbyServerCommand, serviceType, envPrefix)
 

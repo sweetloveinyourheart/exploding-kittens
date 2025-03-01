@@ -2,6 +2,8 @@ package actions
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
@@ -60,17 +63,23 @@ func (a *actions) JoinLobby(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.NotFoundError(err)
 	}
 
-	var lobbyID uuid.UUID
+	var lobbyState *lobby.Lobby
 	for _, lobby := range lobbies {
 		if lobby.LobbyCode == request.Msg.GetLobbyCode() {
-			lobbyID = lobby.LobbyID
+			lobbyState = lobby
 			break
 		}
 	}
 
-	if lobbyID == uuid.Nil {
+	if lobbyState == nil {
 		return nil, grpc.NotFoundError(errors.New("lobby not found"))
 	}
+
+	if slices.Contains(lobbyState.Participants, userID) {
+		return nil, grpc.NotFoundError(errors.New("user is already in the lobby"))
+	}
+
+	lobbyID := lobbyState.GetLobbyID()
 
 	if err := domains.CommandBus.HandleCommand(ctx, &lobby.JoinLobby{
 		LobbyID: lobbyID,
@@ -80,6 +89,11 @@ func (a *actions) JoinLobby(ctx context.Context, request *connect.Request[proto.
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "lobby is not available"))
 		}
 
+		return nil, grpc.InternalError(err)
+	}
+
+	err = a.emitLobbyUpdateEvent(lobbyID)
+	if err != nil {
 		return nil, grpc.InternalError(err)
 	}
 
@@ -108,8 +122,10 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 		return nil, grpc.NotFoundError(errors.New("user not part of the lobby"))
 	}
 
+	lobbyID := lobbyState.GetLobbyID()
+
 	if err := domains.CommandBus.HandleCommand(ctx, &lobby.LeaveLobby{
-		LobbyID: lobbyState.GetLobbyID(),
+		LobbyID: lobbyID,
 		UserID:  userID,
 	}); err != nil {
 		if errors.Is(err, lobby.ErrLobbyNotAvailable) {
@@ -119,9 +135,32 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 		return nil, grpc.InternalError(err)
 	}
 
+	err = a.emitLobbyUpdateEvent(lobbyID)
+	if err != nil {
+		return nil, grpc.InternalError(err)
+	}
+
 	return connect.NewResponse(&proto.LeaveLobbyResponse{
-		LobbyId: lobbyState.GetLobbyID().String(),
+		LobbyId: lobbyID.String(),
 	}), nil
+}
+
+func (a *actions) emitLobbyUpdateEvent(lobbyID uuid.UUID) error {
+	msg := &proto.Lobby{
+		LobbyId: lobbyID.String(),
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = a.bus.Publish(fmt.Sprintf("%s.%s", constants.LobbyStream, msg.GetLobbyId()), msgBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type GetLobbyRequestValidator proto.GetLobbyRequest

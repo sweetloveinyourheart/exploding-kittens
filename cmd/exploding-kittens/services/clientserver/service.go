@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
+	"github.com/cockroachdb/errors"
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -97,6 +98,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	config.StringDefault(clientServerCommand, "clientserver.userserver.url", "userserver-url", "http://userserver:50052", "Userserver connection URL", "CLIENTSERVER_USERSERVER_URL")
 
 	cmdutil.BoilerplateFlagsCore(clientServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsNats(clientServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(clientServerCommand, serviceType)
 
 	return clientServerCommand
@@ -105,15 +107,26 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 func setupDependencies() error {
 	signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
 
-	connPool := pool.New(100, config.Instance().GetString("lobbyserver.nats.url"),
+	connPool := pool.New(100, config.Instance().GetString("clientserver.nats.url"),
 		nats.NoEcho(),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1),
-		nats.Name("kittens/lobbyserver/1.0"),
+		nats.Name("kittens/clientserver/1.0"),
 		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
 			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
 		}),
 	)
+
+	busConnection, err := nats.Connect(config.Instance().GetString("clientserver.nats.url"),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/clientserver/1.0/single"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}))
+	if err != nil {
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
+	}
 
 	userServerClient := userServerConnect.NewUserServerClient(
 		http.DefaultClient,
@@ -131,6 +144,11 @@ func setupDependencies() error {
 	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
 		func(i *do.Injector) (*pool.ConnPool, error) {
 			return connPool, nil
+		})
+
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
 		})
 
 	return nil

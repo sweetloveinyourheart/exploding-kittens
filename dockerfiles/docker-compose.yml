@@ -69,6 +69,7 @@ services:
       "CLIENTSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "CLIENTSERVER_GRPC_PORT": 50051
+      "CLIENTSERVER_NATS_URL": "nats:4222"
     ports:
       - 50051:50051 # GRPC port
     networks:
@@ -94,7 +95,6 @@ services:
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "USERSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/userserver?sslmode=disable"
       "USERSERVER_GRPC_PORT": 50052
-      "USERSERVER_NATS_URL": "nats:4222"
     ports:
       - 50052:50052 # GRPC port
     networks:

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -10,8 +11,10 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/zmwangx/debounce"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
@@ -46,6 +49,19 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 
 		return grpc.NotFoundError(err)
 	}
+
+	lobbyChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
+	lobbyUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.LobbyStream, request.Msg.GetLobbyId()), lobbyChan)
+	if err != nil {
+		log.Global().ErrorContext(ctx, "Error subscribing to lobby update stream", zap.Error(err), zap.String("lobby_id", request.Msg.GetLobbyId()))
+		return grpc.InternalError(err)
+	}
+	defer func() {
+		err := lobbyUpdateStream.Unsubscribe()
+		if err != nil {
+			log.Global().ErrorContext(ctx, "Error unsubscribing from lobby update stream", zap.Error(err), zap.String("lobby_id", request.Msg.GetLobbyId()))
+		}
+	}()
 
 	mux := &sync.Mutex{}
 	sendData := func() {
@@ -131,6 +147,9 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 			log.Global().WarnContext(ctx, "error context done, closing stream", zap.String("user_id", userID.String()))
 			return streamError
 		case <-keepAlive.C:
+			debounced()
+			keepAlive.Reset(KeepAliveTimeout)
+		case <-lobbyChan:
 			debounced()
 			keepAlive.Reset(KeepAliveTimeout)
 		}

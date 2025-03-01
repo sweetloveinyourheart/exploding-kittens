@@ -59,7 +59,7 @@ func InitializeCoreRepos(appID string, ctx context.Context) error {
 }
 
 func initLobbyEventBus(appID string, connPool *pool.ConnPool) error {
-	neb, err := nats.NewEventBus(connPool, fmt.Sprintf("%s-play-bus", appID), nats.WithStreamName(constants.LobbyStream))
+	neb, err := nats.NewEventBus(connPool, fmt.Sprintf("%s-bus", appID), nats.WithStreamName(constants.LobbyStream))
 	if err != nil {
 		return err
 	}
