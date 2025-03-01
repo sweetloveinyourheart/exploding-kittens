@@ -10,7 +10,14 @@ service ClientServer {
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
     rpc GetPlayerProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
+    
+    rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
+    rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
+    rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
+    rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
 }
+
+// ========= User ==========
 
 message User {
     string user_id = 1;
@@ -42,4 +49,49 @@ message GuestLoginResponse {
 // Message for player profile
 message PlayerProfileResponse {
     User user = 1;
+}
+
+// ========= Lobby ==========
+
+message Lobby {
+    string lobby_id = 1;
+    string lobby_code = 2;
+    string lobby_name = 3;
+    string host_user_id = 4;
+    repeated string participants = 5;
+}
+
+// Message for create a lobby
+message CreateLobbyRequest {
+    string lobby_name = 1;
+}
+
+message CreateLobbyResponse {
+    string lobby_id = 1;
+}
+
+message GetLobbyRequest {
+    string lobby_id = 1;
+}
+
+message GetLobbyReply {
+    Lobby lobby = 1;
+}
+
+// Message for join a lobby
+message JoinLobbyRequest {
+    string lobby_code = 1;
+}
+
+message JoinLobbyResponse {
+    string lobby_id = 1;
+}
+
+// Message for leave a lobby
+message LeaveLobbyRequest {
+    string lobby_id = 1;
+}
+
+message LeaveLobbyResponse {
+    string lobby_id = 1;
 }

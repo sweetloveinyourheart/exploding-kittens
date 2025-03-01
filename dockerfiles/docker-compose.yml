@@ -9,6 +9,33 @@ services:
     depends_on:
       kittens_database:
         condition: service_healthy
+      kittens_nats:
+        condition: service_healthy
+
+  kittens_nats:
+    hostname: nats
+    image: ${NATS_CONTAINER_IMAGE}
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_nats
+    entrypoint: "nats-server --jetstream --name nats --http_port 8222"
+    ports:
+      - "4223:4222"
+      - "8223:8222"
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.41"
+    healthcheck:
+      test: >-
+        wget
+        --no-verbose
+        --tries=1
+        --spider
+        http://localhost:8222/healthz
+        ||
+        exit 1
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
 
   kittens_database:
     image: ${POSTGRES_CONTAINER_IMAGE}
@@ -18,7 +45,7 @@ services:
       "POSTGRES_DB": "postgres"
       "POSTGRES_USER": "root_admin"
       "POSTGRES_PASSWORD": "admin@123"
-      "POSTGRES_MULTIPLE_DATABASES": "userserver:userserver;"
+      "POSTGRES_MULTIPLE_DATABASES": "userserver:userserver;lobbyserver:lobbyserver;"
     ports:
       - "5432:5432"
     networks:
@@ -39,9 +66,10 @@ services:
     hostname: clientserver
     environment:
       "EXPLODING_KITTENS_SERVICE": "clientserver"
-      "CLIENTSERVER_ID": "00000000-0000-0000-0000-000000000002"
+      "CLIENTSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "CLIENTSERVER_GRPC_PORT": 50051
+      "CLIENTSERVER_NATS_URL": "nats:4222"
     ports:
       - 50051:50051 # GRPC port
     networks:
@@ -72,6 +100,32 @@ services:
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.16"
+    healthcheck:
+      test: [ "CMD-SHELL", "/app check http localhost:5052/healthz" ]
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully
+
+  lobbyserver:
+    image: kittens:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_lobbyserver
+    hostname: lobbyserver
+    environment:
+      "EXPLODING_KITTENS_SERVICE": "lobbyserver"
+      "LOBBYSERVER_ID": "00000000-0000-0000-0000-000000000003"
+      "LOBBYSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
+      "LOBBYSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/lobbyserver?sslmode=disable"
+      "LOBBYSERVER_GRPC_PORT": 50053
+      "LOBBYSERVER_NATS_URL": "nats:4222"
+    ports:
+      - 50053:50053 # GRPC port
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.32"
     healthcheck:
       test: [ "CMD-SHELL", "/app check http localhost:5052/healthz" ]
       start_period: 90s

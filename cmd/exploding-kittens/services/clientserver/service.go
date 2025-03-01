@@ -5,11 +5,16 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
+	"github.com/cockroachdb/errors"
+	"github.com/nats-io/nats.go"
+	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go/grpcconnect"
@@ -41,7 +46,9 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			client.InitializeRepos(app.Ctx())
+			if err := client.InitializeRepos(app.Ctx()); err != nil {
+				log.GlobalSugared().Fatal(err)
+			}
 
 			signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
 			actions := actions.NewActions(app.Ctx(), signingKey)
@@ -91,6 +98,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	config.StringDefault(clientServerCommand, "clientserver.userserver.url", "userserver-url", "http://userserver:50052", "Userserver connection URL", "CLIENTSERVER_USERSERVER_URL")
 
 	cmdutil.BoilerplateFlagsCore(clientServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsNats(clientServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(clientServerCommand, serviceType)
 
 	return clientServerCommand
@@ -98,6 +106,27 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 
 func setupDependencies() error {
 	signingKey := config.Instance().GetString("clientserver.secrets.token_signing_key")
+
+	connPool := pool.New(100, config.Instance().GetString("clientserver.nats.url"),
+		nats.NoEcho(),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/clientserver/1.0"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}),
+	)
+
+	busConnection, err := nats.Connect(config.Instance().GetString("clientserver.nats.url"),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/clientserver/1.0/single"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}))
+	if err != nil {
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
+	}
 
 	userServerClient := userServerConnect.NewUserServerClient(
 		http.DefaultClient,
@@ -111,6 +140,16 @@ func setupDependencies() error {
 	do.Provide[userServerConnect.UserServerClient](nil, func(i *do.Injector) (userServerConnect.UserServerClient, error) {
 		return userServerClient, nil
 	})
+
+	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
+		func(i *do.Injector) (*pool.ConnPool, error) {
+			return connPool, nil
+		})
+
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
+		})
 
 	return nil
 }

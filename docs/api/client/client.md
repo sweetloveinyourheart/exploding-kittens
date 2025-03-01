@@ -4,10 +4,19 @@
 ## Table of Contents
 
 - [clientserver.proto](#clientserver-proto)
+    - [CreateLobbyRequest](#com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest)
+    - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
+    - [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply)
+    - [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest)
     - [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest)
     - [GuestLoginResponse](#com-sweetloveinyourheart-kittens-clients-GuestLoginResponse)
+    - [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest)
+    - [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse)
+    - [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest)
+    - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
+    - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
     - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
   
@@ -21,6 +30,36 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## clientserver.proto
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest"></a>
+
+### CreateLobbyRequest
+Message for create a lobby
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_name | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse"></a>
+
+### CreateLobbyResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
 
 
 
@@ -55,6 +94,36 @@ Message for creating a new guest user
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-GetLobbyReply"></a>
+
+### GetLobbyReply
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby | [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-GetLobbyRequest"></a>
+
+### GetLobbyRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-GuestLoginRequest"></a>
 
 ### GuestLoginRequest
@@ -80,6 +149,85 @@ Message for guest login
 | ----- | ---- | ----- | ----------- |
 | user_id | [string](#string) |  | The database id for this user (UUID). |
 | token | [string](#string) |  | The session token for this user. |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest"></a>
+
+### JoinLobbyRequest
+Message for join a lobby
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_code | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse"></a>
+
+### JoinLobbyResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest"></a>
+
+### LeaveLobbyRequest
+Message for leave a lobby
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse"></a>
+
+### LeaveLobbyResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Lobby"></a>
+
+### Lobby
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+| lobby_code | [string](#string) |  |  |
+| lobby_name | [string](#string) |  |  |
+| host_user_id | [string](#string) |  |  |
+| participants | [string](#string) | repeated |  |
 
 
 
@@ -135,6 +283,10 @@ Message for player profile
 | CreateNewGuestUser | [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest) | [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse) |  |
 | GuestLogin | [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest) | [GuestLoginResponse](#com-sweetloveinyourheart-kittens-clients-GuestLoginResponse) |  |
 | GetPlayerProfile | [.google.protobuf.Empty](#google-protobuf-Empty) | [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse) |  |
+| CreateLobby | [CreateLobbyRequest](#com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest) | [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse) |  |
+| StreamLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) stream |  |
+| JoinLobby | [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest) | [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse) |  |
+| LeaveLobby | [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest) | [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse) |  |
 
  
 

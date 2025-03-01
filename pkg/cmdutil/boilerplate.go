@@ -100,6 +100,22 @@ func BoilerplateFlagsDB(command *cobra.Command, serviceType string, envPrefix st
 	_ = command.MarkPersistentFlagRequired("db-url")
 }
 
+func BoilerplateFlagsNats(command *cobra.Command, serviceType string, envPrefix string) {
+	_, serviceKey := st(serviceType)
+
+	config.StringDefault(command, fmt.Sprintf("%s.nats.url", serviceKey), "nats-url", "nats:4222", "Comma separated list of NATS endpoints", fmt.Sprintf("%s_NATS_URL", envPrefix))
+	boilerplateFlagsNatsCore(command, serviceType, envPrefix)
+}
+
+func boilerplateFlagsNatsCore(command *cobra.Command, serviceType string, envPrefix string) {
+	_, serviceKey := st(serviceType)
+
+	config.Int64Default(command, fmt.Sprintf("%s.nats.stream.replicas", serviceKey), "nats-stream-replicas", 1, "Number of times to replicate steams", fmt.Sprintf("%s_NATS_STREAM_REPLICAS", envPrefix))
+	config.Int64Default(command, fmt.Sprintf("%s.nats.consumer.replicas", serviceKey), "nats-consumer-replicas", 1, "Number of times to replicate consumers", fmt.Sprintf("%s_NATS_CONSUMER_REPLICAS", envPrefix))
+	config.StringDefault(command, fmt.Sprintf("%s.nats.stream.storage", serviceKey), "nats-stream-storage", "memory", "Storage type to use for streams", fmt.Sprintf("%s_NATS_STREAM_STORAGE", envPrefix))
+	config.StringDefault(command, fmt.Sprintf("%s.nats.consumer.storage", serviceKey), "nats-consumer-storage", "memory", "Storage type to use for consumers", fmt.Sprintf("%s_NATS_CONSUMER_STORAGE", envPrefix))
+}
+
 func BoilerplateSecureFlags(command *cobra.Command, serviceType string) {
 	_, serviceKey := st(serviceType)
 

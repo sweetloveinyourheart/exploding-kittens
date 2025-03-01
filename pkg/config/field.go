@@ -10,9 +10,13 @@ import (
 )
 
 const (
-	ServerId            = "server.id"
-	ServerReplicaNumber = "server.replica_number"
-	ServerReplicaCount  = "server.replica_count"
+	ServerId             = "server.id"
+	ServerReplicaNumber  = "server.replica_number"
+	ServerReplicaCount   = "server.replica_count"
+	NatsStreamReplicas   = "nats.stream.replicas"
+	NatsStreamStorage    = "nats.stream.storage"
+	NatsConsumerReplicas = "nats.consumer.replicas"
+	NatsConsumerStorage  = "nats.consumer.storage"
 )
 
 var Registry = make(map[*pflag.Flag]Binding)
