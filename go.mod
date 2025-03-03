@@ -9,7 +9,6 @@ require (
 	github.com/goccy/go-yaml v1.15.17
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/gorilla/mux v1.8.1
-	github.com/jellydator/ttlcache/v3 v3.3.0
 	github.com/nats-io/nats.go v1.39.0
 	github.com/pseudomuto/protoc-gen-doc v1.5.1
 	github.com/rs/cors v1.11.1
@@ -21,6 +20,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.3.2
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
+	go.uber.org/goleak v1.3.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/tools v0.29.0
 	google.golang.org/grpc v1.70.0

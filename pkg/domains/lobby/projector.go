@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"slices"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
@@ -57,7 +59,7 @@ func (p *Projector) HandleLobbyJoined(ctx context.Context, event common.Event, d
 func (p *Projector) HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error) {
 	for i, participant := range entity.Participants {
 		if participant == data.GetUserID() {
-			entity.Participants = append(entity.Participants[:i], entity.Participants[i+1:]...)
+			entity.Participants = slices.Delete(entity.Participants, i, i+1)
 			break
 		}
 	}

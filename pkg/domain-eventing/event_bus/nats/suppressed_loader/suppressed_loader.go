@@ -3,7 +3,7 @@ package suppressedloader
 import (
 	"fmt"
 
-	"github.com/jellydator/ttlcache/v3"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
 	"golang.org/x/sync/singleflight"
 )
 

@@ -9,7 +9,6 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
-	"github.com/jellydator/ttlcache/v3"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"go.uber.org/zap"
@@ -23,6 +22,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_handler/projector"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
 )
 
 const DefaultTTL = time.Minute * 60
@@ -205,7 +205,7 @@ func (r *Repo[T, PT]) Find(ctx context.Context, id string) (*T, error) {
 			if r.repoOptions.jetstream != nil {
 				events, err := nats.LoadJetStream(ctx, r.repoOptions.jetstream, r.streamName, subject, r.codec)
 				if err != nil || len(events) == 0 {
-					return cache.Set(key, nil, ttlcache.DefaultTTL)
+					return cache.CompareAndSet(key, nil, 0, ttlcache.DefaultTTL)
 				}
 
 				ar = new(T)
@@ -220,7 +220,7 @@ func (r *Repo[T, PT]) Find(ctx context.Context, id string) (*T, error) {
 			} else if r.repoOptions.connectionPool != nil {
 				events, err := nats.Load(ctx, r.repoOptions.connectionPool, r.streamName, subject, r.codec)
 				if err != nil || len(events) == 0 {
-					return cache.Set(key, nil, ttlcache.DefaultTTL)
+					return cache.CompareAndSet(key, nil, 0, ttlcache.DefaultTTL)
 				}
 
 				ar = new(T)
@@ -235,7 +235,7 @@ func (r *Repo[T, PT]) Find(ctx context.Context, id string) (*T, error) {
 			} else if r.repoOptions.eventBus != nil {
 				events, err := nats.LoadBus(ctx, r.repoOptions.eventBus, r.streamName, subject, r.codec)
 				if err != nil || len(events) == 0 {
-					return cache.Set(key, nil, ttlcache.DefaultTTL)
+					return cache.CompareAndSet(key, nil, 0, ttlcache.DefaultTTL)
 				}
 
 				ar = new(T)
@@ -252,14 +252,17 @@ func (r *Repo[T, PT]) Find(ctx context.Context, id string) (*T, error) {
 			}
 
 			if ar.(*T) == nil {
-				return cache.Set(key, nil, ttlcache.DefaultTTL)
+				return cache.CompareAndSet(key, nil, 0, ttlcache.DefaultTTL)
 			}
 
 			data, err := json.Marshal(ar)
 			if err != nil {
-				return cache.Set(key, nil, ttlcache.DefaultTTL)
+				return cache.CompareAndSet(key, nil, 0, ttlcache.DefaultTTL)
 			}
 
+			if versionable, ok := ar.(eventing.Versionable); ok {
+				return cache.CompareAndSet(key, data, int64(versionable.AggregateVersion()), ttlcache.DefaultTTL)
+			}
 			ret := cache.Set(key, data, ttlcache.DefaultTTL)
 			return ret
 		},
@@ -412,7 +415,12 @@ func (r *Repo[T, PT]) FindAll(ctx context.Context) ([]*T, error) {
 			})
 		}
 
-		r.db.Set(PT(entity).EntityID(), data, ttlcache.DefaultTTL)
+		var entityValue any = entity
+		if versionable, ok := entityValue.(eventing.Versionable); ok {
+			r.db.CompareAndSet(PT(entity).EntityID(), data, int64(versionable.AggregateVersion()), ttlcache.DefaultTTL)
+		} else {
+			r.db.Set(PT(entity).EntityID(), data, ttlcache.DefaultTTL)
+		}
 	}
 
 	return results, nil
@@ -465,7 +473,12 @@ func (r *Repo[T, PT]) Save(ctx context.Context, entity *T) error {
 		})
 	}
 
-	r.db.Set(id, data, ttlcache.DefaultTTL)
+	var entityValue any = entity
+	if versionable, ok := entityValue.(eventing.Versionable); entity != nil && ok {
+		r.db.CompareAndSet(id, data, int64(versionable.AggregateVersion()), ttlcache.DefaultTTL)
+	} else {
+		r.db.Set(id, data, ttlcache.DefaultTTL)
+	}
 
 	return nil
 }

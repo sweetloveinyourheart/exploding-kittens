@@ -10,6 +10,7 @@ import (
 
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/repo/version"
 )
 
 // Projector is a projector of events onto models.
@@ -41,6 +42,8 @@ type Error struct {
 	Event common.Event
 	// EntityID of related operation.
 	EntityID string
+	// EntityVersion is the version of the entity.
+	EntityVersion uint64
 }
 
 // Error implements the Error method of the errors.Error interface.
@@ -54,7 +57,7 @@ func (e *Error) Error() string {
 	}
 
 	if e.EntityID != "" && e.EntityID != uuid.Nil.String() {
-		str += fmt.Sprintf(", Entity(%s)", e.EntityID)
+		str += fmt.Sprintf(", Entity(%s, v%d)", e.EntityID, e.EntityVersion)
 	}
 
 	if e.Event != nil {
@@ -76,11 +79,12 @@ func (e *Error) Cause() error {
 
 // EventHandler is a CQRS projection handler to run a Projector implementation.
 type EventHandler[T any, PT eventing.GenericEntity[T]] struct {
-	projector      Projector[T, PT]
-	repo           eventing.ReadWriteRepo[T, PT]
-	useWait        bool
-	useRetryOnce   bool
-	entityLookupFn func(common.Event) string
+	projector              Projector[T, PT]
+	repo                   eventing.ReadWriteRepo[T, PT]
+	useWait                bool
+	useRetryOnce           bool
+	useIrregularVersioning bool
+	entityLookupFn         func(common.Event) string
 }
 
 type _ent struct{}
@@ -126,6 +130,15 @@ func WithRetryOnce[T any, PT eventing.GenericEntity[T]]() Option[T, PT] {
 	}
 }
 
+// WithIrregularVersioning sets the option to allow gaps in the version numbers.
+// This can be useful for projectors that project only some events of a larger
+// aggregate, which will lead to gaps in the versions.
+func WithIrregularVersioning[T any, PT eventing.GenericEntity[T]]() Option[T, PT] {
+	return func(h *EventHandler[T, PT]) {
+		h.useIrregularVersioning = true
+	}
+}
+
 // WithEntityLookup can be used to provide an alternative ID (from the aggregate ID)
 // for fetching the projected entity. The lookup func can for example extract
 // another field from the event or use a static ID for some singleton-like projections.
@@ -161,6 +174,19 @@ func (h *EventHandler[T, PT]) HandleEvent(ctx context.Context, event common.Even
 retryOnce:
 
 	findCtx := ctx
+	// Irregular versioning skips min version loading.
+	if !h.useIrregularVersioning {
+		// Try to find it with a min version (and optional retry) if the
+		// underlying repo supports it.
+		findCtx = version.NewContextWithMinVersion(ctx, event.Version()-1)
+
+		if h.useWait {
+			var cancel func()
+			findCtx, cancel = version.NewContextWithMinVersionWait(ctx, event.Version()-1)
+
+			defer cancel()
+		}
+	}
 
 	id := h.entityLookupFn(event)
 
@@ -194,15 +220,73 @@ retryOnce:
 		}
 	}
 
+	// The entity should be one version behind the event.
+	entityVersion := uint64(0)
+	if entity, ok := entity.(eventing.Versionable); ok {
+		entityVersion = entity.AggregateVersion()
+
+		// Ignore old/duplicate events.
+		if event.Version() <= entityVersion && !h.useIrregularVersioning {
+			return nil
+		}
+
+		// Irregular versioning has looser checks on the version.
+		if event.Version() != entityVersion+1 && !h.useIrregularVersioning {
+			if h.useRetryOnce && !triedOnce {
+				triedOnce = true
+
+				time.Sleep(100 * time.Millisecond)
+
+				goto retryOnce
+			}
+
+			if entityVersion == 0 && event.Version() > 1 {
+				return &Error{
+					Err:           ErrModelRemoved,
+					Projector:     h.projector.ProjectorType().String(),
+					Event:         event,
+					EntityID:      id,
+					EntityVersion: entityVersion,
+				}
+			}
+
+			return &Error{
+				Err:           eventing.ErrIncorrectEntityVersion,
+				Projector:     h.projector.ProjectorType().String(),
+				Event:         event,
+				EntityID:      id,
+				EntityVersion: entityVersion,
+			}
+		}
+	}
+
 	var newEntity any
 	// Run the projection, which will possibly increment the version.
 	newEntity, err = h.projector.Project(ctx, event, entity.(*T))
 	if err != nil {
 		return &Error{
-			Err:       fmt.Errorf("could not project: %w", err),
-			Projector: h.projector.ProjectorType().String(),
-			Event:     event,
-			EntityID:  id,
+			Err:           fmt.Errorf("could not project: %w", err),
+			Projector:     h.projector.ProjectorType().String(),
+			Event:         event,
+			EntityID:      id,
+			EntityVersion: entityVersion,
+		}
+	}
+
+	if newEntity.(*T) != nil {
+		// The model should now be at the same version as the event.
+		if versionEntity, ok := newEntity.(eventing.Versionable); ok {
+			entityVersion = versionEntity.AggregateVersion()
+
+			if versionEntity.AggregateVersion() != event.Version() {
+				return &Error{
+					Err:           ErrIncorrectProjectedEntityVersion,
+					Projector:     h.projector.ProjectorType().String(),
+					Event:         event,
+					EntityID:      id,
+					EntityVersion: entityVersion,
+				}
+			}
 		}
 	}
 
@@ -210,29 +294,32 @@ retryOnce:
 	if newEntity.(*T) != nil {
 		if newEntity.(PT).EntityID() != id {
 			return &Error{
-				Err:       fmt.Errorf("incorrect entity ID after projection"),
-				Projector: h.projector.ProjectorType().String(),
-				Event:     event,
-				EntityID:  id,
+				Err:           fmt.Errorf("incorrect entity ID after projection"),
+				Projector:     h.projector.ProjectorType().String(),
+				Event:         event,
+				EntityID:      id,
+				EntityVersion: entityVersion,
 			}
 		}
 
 		if err := h.repo.Save(ctx, newEntity.(*T)); err != nil {
 			return &Error{
-				Err:       fmt.Errorf("could not save: %w", err),
-				Projector: h.projector.ProjectorType().String(),
-				Event:     event,
-				EntityID:  id,
+				Err:           fmt.Errorf("could not save: %w", err),
+				Projector:     h.projector.ProjectorType().String(),
+				Event:         event,
+				EntityID:      id,
+				EntityVersion: entityVersion,
 			}
 		}
 	} else {
 		if remover, ok := h.repo.(versionRemover); ok {
 			if err := remover.RemoveVersion(ctx, id, event.Version()); err != nil {
 				return &Error{
-					Err:       fmt.Errorf("could not remove version: %w", err),
-					Projector: h.projector.ProjectorType().String(),
-					Event:     event,
-					EntityID:  id,
+					Err:           fmt.Errorf("could not remove version: %w", err),
+					Projector:     h.projector.ProjectorType().String(),
+					Event:         event,
+					EntityID:      id,
+					EntityVersion: entityVersion,
 				}
 			}
 
@@ -241,10 +328,11 @@ retryOnce:
 
 		if err := h.repo.Remove(ctx, id); err != nil {
 			return &Error{
-				Err:       fmt.Errorf("could not remove: %w", err),
-				Projector: h.projector.ProjectorType().String(),
-				Event:     event,
-				EntityID:  id,
+				Err:           fmt.Errorf("could not remove: %w", err),
+				Projector:     h.projector.ProjectorType().String(),
+				Event:         event,
+				EntityID:      id,
+				EntityVersion: entityVersion,
 			}
 		}
 	}

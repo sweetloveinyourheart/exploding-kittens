@@ -30,9 +30,13 @@ var (
 // used for sending context on the wire.
 type ContextMarshalFunc func(context.Context, map[string]interface{})
 
-// ContextUnmarshalFunc is a function that marshals any context values to a map,
-// used for sending context on the wire.
-type ContextUnmarshalFunc func(context.Context, map[string]interface{}) context.Context
+// RegisterContextMarshaler registers a marshaler function used by MarshalContext.
+func RegisterContextMarshaler(f ContextMarshalFunc) {
+	contextMarshalFuncsMu.Lock()
+	defer contextMarshalFuncsMu.Unlock()
+
+	contextMarshalFuncs = append(contextMarshalFuncs, f)
+}
 
 // MarshalContext marshals a context into a map.
 func MarshalContext(ctx context.Context) map[string]interface{} {
@@ -55,6 +59,18 @@ func MarshalContext(ctx context.Context) map[string]interface{} {
 	}
 
 	return allVals
+}
+
+// ContextUnmarshalFunc is a function that marshals any context values to a map,
+// used for sending context on the wire.
+type ContextUnmarshalFunc func(context.Context, map[string]interface{}) context.Context
+
+// RegisterContextUnmarshaler registers a marshaler function used by UnmarshalContext.
+func RegisterContextUnmarshaler(f ContextUnmarshalFunc) {
+	contextUnmarshalFuncsMu.Lock()
+	defer contextUnmarshalFuncsMu.Unlock()
+
+	contextUnmarshalFuncs = append(contextUnmarshalFuncs, f)
 }
 
 // UnmarshalContext unmarshals a context from a map.
