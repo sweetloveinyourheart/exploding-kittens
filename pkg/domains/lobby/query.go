@@ -66,6 +66,7 @@ func GetLobbyByID(ctx context.Context, lobbyID uuid.UUID) (*Lobby, error) {
 		return nil, errors.WithStack(err)
 	}
 
+	current := new(Lobby)
 	read := uint64(0)
 	for msg := range res.Messages() {
 		md, err := msg.Metadata()
@@ -87,7 +88,6 @@ func GetLobbyByID(ctx context.Context, lobbyID uuid.UUID) (*Lobby, error) {
 			return nil, err
 		}
 
-		current := new(Lobby)
 		result, err = projector.Project(ctx, event, current)
 		if err != nil {
 			return nil, err

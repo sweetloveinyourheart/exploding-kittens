@@ -197,7 +197,15 @@ func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event c
 		return err
 	}
 
-	log.Global().Info("Lobby info", zap.String("lobby_code", lobby.LobbyCode), zap.Int("paticipant", len(lobby.GetParticipants())))
+	log.Global().InfoContext(ctx, "lobby details",
+		zap.String("id", lobby.GetLobbyID().String()),
+		zap.String("code", lobby.GetLobbyCode()),
+		zap.String("name", lobby.GetLobbyName()),
+		zap.String("owner", lobby.GetHostUserID().String()),
+		zap.Int("player_count", len(lobby.GetParticipants())),
+		zap.Time("created_at", lobby.CreatedAt),
+		zap.Time("updated_at", lobby.UpdatedAt),
+	)
 
 	return nil
 }
