@@ -105,6 +105,6 @@ if [ $goImportsExitCode -eq 1 ]; then
 fi
 
 kittens-echo "Running golangci-lint..."
-go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.2 run --timeout 10m0s ./... || ( kittens-echo-red "Linting failed." && exit 1 )
+go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5 run --timeout 10m0s ./... || ( kittens-echo-red "Linting failed." && exit 1 )
 
 kittens-echo-green "Linting passed."
