@@ -7,6 +7,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 
+	"slices"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -72,6 +74,7 @@ type Aggregate struct {
 
 	currentLobbyID uuid.UUID
 	actived        bool
+	playerIDs      []uuid.UUID
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -96,9 +99,22 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrLobbyInWaitingMode
 		}
 	case *JoinLobby:
+		if !a.actived {
+			return ErrLobbyNotAvailable
+		}
+
+		err := a.validatePlayerExists(typed.UserID)
+		if err != nil {
+			return err
+		}
 	case *LeaveLobby:
 		if !a.actived {
 			return ErrLobbyNotAvailable
+		}
+
+		err := a.validatePlayerNotExists(typed.UserID)
+		if err != nil {
+			return err
 		}
 	default:
 		// All other events require the aggregate to be created.
@@ -161,13 +177,47 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 
 		a.currentLobbyID = data.LobbyID
 		a.actived = true
+		a.playerIDs = append(a.playerIDs, data.GetHostUserID())
 
 	case EventTypeLobbyJoined:
+		data, ok := event.Data().(*LobbyJoined)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+		a.playerIDs = append(a.playerIDs, data.GetUserID())
+
 	case EventTypeLobbyLeft:
-		a.actived = true
+		data, ok := event.Data().(*LobbyLeft)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		for i, id := range a.playerIDs {
+			if id == data.GetUserID() {
+				a.playerIDs = slices.Delete(a.playerIDs, i, i+1)
+				break
+			}
+		}
+		if len(a.playerIDs) == 0 {
+			a.actived = false
+		}
 
 	default:
 		return errors.WithStack(fmt.Errorf("could not apply event: %s", event.EventType()))
 	}
 	return nil
+}
+
+func (a *Aggregate) validatePlayerExists(playerID uuid.UUID) error {
+	if slices.Contains(a.playerIDs, playerID) {
+		return errors.New("player is already exist")
+	}
+	return nil
+}
+
+func (a *Aggregate) validatePlayerNotExists(playerID uuid.UUID) error {
+	if slices.Contains(a.playerIDs, playerID) {
+		return nil
+	}
+	return errors.New("player does not exist")
 }

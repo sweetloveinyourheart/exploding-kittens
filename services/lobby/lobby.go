@@ -16,6 +16,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains"
+	lobbyDomain "github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains/lobby"
 )
 
 //go:embed migrations/*.sql
@@ -26,6 +27,11 @@ func InitializeRepos(ctx context.Context) error {
 
 	if err := InitializeCoreRepos(appID, ctx); err != nil {
 		log.Global().ErrorContext(ctx, "failed to initialize core repos", zap.Error(err))
+		return err
+	}
+
+	_, err := lobbyDomain.NewLobbyInteractionProcessor(ctx)
+	if err != nil {
 		return err
 	}
 

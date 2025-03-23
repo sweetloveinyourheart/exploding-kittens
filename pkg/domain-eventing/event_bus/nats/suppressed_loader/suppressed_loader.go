@@ -3,8 +3,9 @@ package suppressedloader
 import (
 	"fmt"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
 	"golang.org/x/sync/singleflight"
+
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
 )
 
 // SuppressedLoader wraps another Loader and suppresses duplicate

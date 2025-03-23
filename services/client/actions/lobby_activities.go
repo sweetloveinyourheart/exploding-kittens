@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"slices"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -13,7 +12,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
-	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
@@ -75,12 +73,7 @@ func (a *actions) JoinLobby(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.NotFoundError(errors.New("lobby not found"))
 	}
 
-	if slices.Contains(lobbyState.Participants, userID) {
-		return nil, grpc.NotFoundError(errors.New("user is already in the lobby"))
-	}
-
 	lobbyID := lobbyState.GetLobbyID()
-
 	if err := domains.CommandBus.HandleCommand(ctx, &lobby.JoinLobby{
 		LobbyID: lobbyID,
 		UserID:  userID,
@@ -109,20 +102,11 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
 	}
 
-	lobbyState, err := domains.LobbyRepo.Find(ctx, request.Msg.GetLobbyId())
+	lobbyIDString := request.Msg.GetLobbyId()
+	lobbyID, err := uuid.FromString(lobbyIDString)
 	if err != nil {
-		if errors.Is(err, eventing.ErrEntityNotFound) {
-			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "no such lobby"))
-		}
-
-		return nil, grpc.NotFoundError(err)
+		return nil, grpc.InvalidArgumentError(errors.New("lobby_id must be in the correct format"))
 	}
-
-	if !slices.Contains(lobbyState.Participants, userID) {
-		return nil, grpc.NotFoundError(errors.New("user not part of the lobby"))
-	}
-
-	lobbyID := lobbyState.GetLobbyID()
 
 	if err := domains.CommandBus.HandleCommand(ctx, &lobby.LeaveLobby{
 		LobbyID: lobbyID,

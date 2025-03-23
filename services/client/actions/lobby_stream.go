@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 const KeepAliveTimeout = 150 * time.Second
 
 func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[proto.GetLobbyRequest], stream *connect.ServerStream[proto.GetLobbyReply]) error {
-	errContext, cancel := context.WithCancel(ctx)
+	cancelCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	var streamError error
 
@@ -94,6 +95,12 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 			}
 		}()
 
+		// If the user is not in the room, close the stream
+		if !slices.Contains(lobbyState.GetParticipants(), userID) {
+			cancel()
+			return
+		}
+
 		reply := &proto.GetLobbyReply{
 			Lobby: &proto.Lobby{
 				LobbyId:      lobbyState.GetLobbyID().String(),
@@ -143,8 +150,8 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 		case <-ctx.Done():
 			log.Global().InfoContext(ctx, "stream context done, closing stream", zap.String("user_id", userID.String()))
 			return ctx.Err()
-		case <-errContext.Done():
-			log.Global().WarnContext(ctx, "error context done, closing stream", zap.String("user_id", userID.String()))
+		case <-cancelCtx.Done():
+			log.Global().InfoContext(ctx, "stream context cancelled, closing stream", zap.String("user_id", userID.String()))
 			return streamError
 		case <-keepAlive.C:
 			debounced()
