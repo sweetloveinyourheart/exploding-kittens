@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go;grpc";
+
+package com.sweetloveinyourheart.kittens.gameengines;
+
+import "google/protobuf/empty.proto";
+
+service GameEngineServer {
+    // Get cards
+    rpc GetCards (google.protobuf.Empty) returns (GetCardsResponse);
+}
+
+message Card {
+    string card_id = 1;
+    string name = 2;
+    string description = 3;
+}
+
+message GetCardsResponse {
+    repeated Card cards = 1;
+}

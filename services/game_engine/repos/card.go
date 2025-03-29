@@ -20,7 +20,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 	var cards []CardDetail
 	query := `
 		SELECT 
-			cards.id, 
+			cards.card_id, 
 			cards.name, 
 			cards.description, 
 			cards.effect, 
@@ -28,7 +28,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 			cart_types.name,
 			cart_types.description
 		FROM cards 
-		INNER JOIN card_types ON cards.type_id = card_types.id;
+		INNER JOIN card_types ON cards.type_id = card_types.type_id;
 	`
 	rows, err := r.Tx.Query(ctx, query)
 	if err != nil {
@@ -39,7 +39,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 	for rows.Next() {
 		var card CardDetail
 		if err := rows.Scan(
-			&card.ID,
+			&card.CardID,
 			&card.Name,
 			&card.Description,
 			&card.Effect,

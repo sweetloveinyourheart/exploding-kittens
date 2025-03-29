@@ -8,7 +8,7 @@ import (
 
 // CardType represents the different categories of cards
 type CardType struct {
-	ID          int       `json:"id"`
+	TypeID      int       `json:"type_id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -17,7 +17,7 @@ type CardType struct {
 
 // Card represents an individual card with effects stored in JSONB
 type Card struct {
-	ID          uuid.UUID `json:"id"`
+	CardID      uuid.UUID `json:"card_id"`
 	TypeID      int       `json:"type_id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`

@@ -3,6 +3,7 @@ package gameengineserver
 import (
 	"fmt"
 
+	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/samber/do"
@@ -11,8 +12,12 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go/grpcconnect"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/actions"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 )
 
@@ -43,22 +48,21 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			// signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
-			// actions := actions.NewActions(app.Ctx(), signingKey)
+			signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
+			actions := actions.NewActions(app.Ctx(), signingKey)
 
-			// opt := connect.WithInterceptors(
-			// 	interceptors.CommonConnectInterceptors(
-			// 		serviceType,
-			// 		signingKey,
-			// 		interceptors.ConnectServerAuthHandler(signingKey),
-			// 		auth_interceptors.WithOverride(actions),
-			// 	)...,
-			// )
-			// path, handler := grpcconnect.NewUserServerHandler(
-			// 	actions,
-			// 	opt,
-			// )
-			// go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("gameengineserver.grpc.port"), serviceType)
+			opt := connect.WithInterceptors(
+				interceptors.CommonConnectInterceptors(
+					serviceType,
+					signingKey,
+					interceptors.ConnectServerAuthHandler(signingKey),
+				)...,
+			)
+			path, handler := grpcconnect.NewGameEngineServerHandler(
+				actions,
+				opt,
+			)
+			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("gameengineserver.grpc.port"), serviceType)
 
 			app.Run()
 		},
