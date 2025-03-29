@@ -45,7 +45,7 @@ services:
       "POSTGRES_DB": "postgres"
       "POSTGRES_USER": "root_admin"
       "POSTGRES_PASSWORD": "admin@123"
-      "POSTGRES_MULTIPLE_DATABASES": "userserver:userserver;lobbyserver:lobbyserver;"
+      "POSTGRES_MULTIPLE_DATABASES": "userserver:userserver;"
     ports:
       - "5432:5432"
     networks:
@@ -118,7 +118,6 @@ services:
       "EXPLODING_KITTENS_SERVICE": "lobbyserver"
       "LOBBYSERVER_ID": "00000000-0000-0000-0000-000000000003"
       "LOBBYSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
-      "LOBBYSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/lobbyserver?sslmode=disable"
       "LOBBYSERVER_GRPC_PORT": 50053
       "LOBBYSERVER_NATS_URL": "nats:4222"
     ports:

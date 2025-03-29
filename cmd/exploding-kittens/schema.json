@@ -234,7 +234,7 @@
         ]
       }
     ],
-    "defaultDatabaseName": "kittens_lobbyserver",
+    "defaultDatabaseName": "",
     "Config": [
       {
         "name": "db-migrations-url",

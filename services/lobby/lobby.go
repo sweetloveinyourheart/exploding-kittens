@@ -2,7 +2,6 @@ package lobby
 
 import (
 	"context"
-	"embed"
 	"fmt"
 
 	pool "github.com/octu0/nats-pool"
@@ -18,9 +17,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains"
 	lobbyDomain "github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains/lobby"
 )
-
-//go:embed migrations/*.sql
-var FS embed.FS
 
 func InitializeRepos(ctx context.Context) error {
 	appID := fmt.Sprintf("lobbyserver-%s", config.Instance().GetString("lobbyserver.id"))
