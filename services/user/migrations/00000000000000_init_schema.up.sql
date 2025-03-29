@@ -7,8 +7,9 @@ CREATE TABLE public.users
     username        VARCHAR(255)                NOT NULL,
     full_name       VARCHAR(255)                NOT NULL,
     status          INT                         NOT NULL,
-    created_at      TIMESTAMP WITH TIME ZONE    NOT NULL,
-    updated_at      TIMESTAMP WITH TIME ZONE    NOT NULL,
+    created_at      TIMESTAMP WITH TIME ZONE    NOT NULL    DEFAULT now(),
+    updated_at      TIMESTAMP WITH TIME ZONE    NOT NULL    DEFAULT now(),
+
     PRIMARY KEY (user_id)
 );
 
@@ -19,8 +20,9 @@ CREATE TABLE public.user_credentials
     user_id         UUID                        NOT NULL,
     auth_provider   VARCHAR(255)                NOT NULL,
     meta            JSONB,
-    created_at      TIMESTAMP WITH TIME ZONE    NOT NULL,
-    updated_at      TIMESTAMP WITH TIME ZONE    NOT NULL,
+    created_at      TIMESTAMP WITH TIME ZONE    NOT NULL    DEFAULT now(),
+    updated_at      TIMESTAMP WITH TIME ZONE    NOT NULL    DEFAULT now(),
+
     PRIMARY KEY (user_id),
     CONSTRAINT fk_user_credentials_users FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
@@ -36,6 +38,7 @@ CREATE TABLE public.user_sessions
     last_updated        TIMESTAMP WITH TIME ZONE    NOT NULL,
     session_expiration  TIMESTAMP WITH TIME ZONE,
     session_end         TIMESTAMP WITH TIME ZONE,
+
     PRIMARY KEY (session_id),
     CONSTRAINT fk_user_sessions_users FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
