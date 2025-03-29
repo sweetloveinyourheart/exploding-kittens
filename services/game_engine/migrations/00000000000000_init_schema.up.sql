@@ -5,13 +5,13 @@ CREATE TABLE cards (
     description     TEXT,
     effect          JSONB,
     quantity        INT             NOT NULL,
-    created_at      TIMESTAMP WITH TIME ZONE    DEFAULT now(),   
-    updated_at      TIMESTAMP WITH TIME ZONE    DEFAULT now(),
+    created_at      TIMESTAMP WITH  TIME ZONE   DEFAULT now(),   
+    updated_at      TIMESTAMP WITH  TIME ZONE   DEFAULT now(),
     
     PRIMARY KEY(card_id)
 );
 
-INSERT INTO cards (type_id, name, description, effect, quantity) VALUES
+INSERT INTO cards (name, description, effect, quantity) VALUES
 -- Action Cards
 ('Exploding Kitten', 'If you draw one, you explode and are out of the game unless you have a Defuse card.', '{"instant_death": true}', 4),
 ('Defuse', 'Prevents an Exploding Kitten from eliminating you.', '{"prevent_explode": true, "place_back": "secret"}', 6),
