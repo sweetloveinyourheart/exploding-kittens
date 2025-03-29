@@ -239,7 +239,7 @@
       {
         "name": "grpc-port",
         "usage": "GRPC Port to listen on",
-        "default": 50052,
+        "default": 50053,
         "valueType": "int64",
         "path": "lobbyserver.grpc.port",
         "env": [

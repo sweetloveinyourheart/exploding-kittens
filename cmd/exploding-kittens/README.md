@@ -132,7 +132,7 @@ app lobbyserver [flags]
 ### Options
 
 ```
-      --grpc-port int                  GRPC Port to listen on (default 50052)
+      --grpc-port int                  GRPC Port to listen on (default 50053)
   -h, --help                           help for lobbyserver
       --id string                      Unique identifier for this services
       --nats-consumer-replicas int     Number of times to replicate consumers (default 1)
