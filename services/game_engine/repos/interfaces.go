@@ -6,6 +6,13 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
 )
 
+type CardDetail struct {
+	models.Card
+	Effects      []byte
+	ComboEffects []byte
+}
+
 type ICardRepository interface {
-	GetCards(ctx context.Context) ([]models.Card, error)
+	GetCardsInformation(ctx context.Context) ([]models.Card, error)
+	GetCards(ctx context.Context) ([]CardDetail, error)
 }

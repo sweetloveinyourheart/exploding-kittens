@@ -17,17 +17,15 @@ func NewCardRepository(tx db.DbOrTx) ICardRepository {
 	}
 }
 
-func (r *CardRepository) GetCards(ctx context.Context) ([]models.Card, error) {
+func (r *CardRepository) GetCardsInformation(ctx context.Context) ([]models.Card, error) {
 	var cards []models.Card
 	query := `
 		SELECT 
 			cards.card_id, 
 			cards.name, 
-			cards.description, 
-			cards.effect, 
+			cards.description,
 			cards.quantity
-		FROM cards 
-		INNER JOIN card_types ON cards.type_id = card_types.type_id;
+		FROM cards;
 	`
 	rows, err := r.Tx.Query(ctx, query)
 	if err != nil {
@@ -41,8 +39,51 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]models.Card, error) {
 			&card.CardID,
 			&card.Name,
 			&card.Description,
-			&card.Effect,
 			&card.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		cards = append(cards, card)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cards, nil
+}
+
+func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
+	var cards []CardDetail
+	query := `
+		SELECT 
+			c.card_id,
+			c.name AS card_name,
+			c.description AS card_description,
+			c.quantity,
+			COALESCE(ce.effect, '{}') AS card_effect,  -- Defaults to empty JSON if no effect
+			COALESCE(json_agg(DISTINCT ce2.effect) FILTER (WHERE ce2.effect IS NOT NULL), '[]') AS combo_effects
+		FROM cards c
+		LEFT JOIN card_effects ce ON c.card_id = ce.card_id
+		LEFT JOIN card_combo cc ON c.card_id = cc.card_id
+		LEFT JOIN combo_effects ce2 ON cc.combo_id = ce2.combo_id
+		GROUP BY c.card_id, c.name, c.description, c.quantity, ce.effect;
+	`
+	rows, err := r.Tx.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var card CardDetail
+		if err := rows.Scan(
+			&card.CardID,
+			&card.Name,
+			&card.Description,
+			&card.Quantity,
+			&card.Effects,
+			&card.ComboEffects,
 		); err != nil {
 			return nil, err
 		}

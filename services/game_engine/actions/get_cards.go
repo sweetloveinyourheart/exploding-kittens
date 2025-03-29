@@ -15,7 +15,7 @@ import (
 )
 
 func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.GetCardsResponse], err error) {
-	cards, err := a.cardRepo.GetCards(ctx)
+	cards, err := a.cardRepo.GetCardsInformation(ctx)
 	if err != nil {
 		log.Global().Error("error getting card list", zap.Error(err))
 		return nil, grpc.NotFoundError(err)
