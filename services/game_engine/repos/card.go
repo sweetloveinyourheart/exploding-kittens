@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
 )
 
 type CardRepository struct {
@@ -16,17 +17,15 @@ func NewCardRepository(tx db.DbOrTx) ICardRepository {
 	}
 }
 
-func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
-	var cards []CardDetail
+func (r *CardRepository) GetCards(ctx context.Context) ([]models.Card, error) {
+	var cards []models.Card
 	query := `
 		SELECT 
 			cards.card_id, 
 			cards.name, 
 			cards.description, 
 			cards.effect, 
-			cards.quantity,
-			cart_types.name,
-			cart_types.description
+			cards.quantity
 		FROM cards 
 		INNER JOIN card_types ON cards.type_id = card_types.type_id;
 	`
@@ -37,15 +36,13 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var card CardDetail
+		var card models.Card
 		if err := rows.Scan(
 			&card.CardID,
 			&card.Name,
 			&card.Description,
 			&card.Effect,
 			&card.Quantity,
-			&card.Type.Name,
-			&card.Type.Description,
 		); err != nil {
 			return nil, err
 		}
