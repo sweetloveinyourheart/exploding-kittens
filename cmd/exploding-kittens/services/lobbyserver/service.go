@@ -19,7 +19,7 @@ import (
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 )
 
-const DEFAULT_LOBBYSERVER_GRPC_PORT = 50052
+const DEFAULT_LOBBYSERVER_GRPC_PORT = 50053
 
 const serviceType = "lobbyserver"
 const envPrefix = "LOBBYSERVER"
