@@ -1,4 +1,4 @@
-package lobby
+package game
 
 import (
 	"context"
@@ -17,41 +17,47 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 
 	"go.uber.org/zap"
 
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
 
 var (
-	ProcessingTimeout                      = 10 * time.Second
-	BatchSize                              = 1024
-	LobbyInteractionHandlerType            = "lobby-interaction-processing"
-	LobbyInteractionConsumerandDurableName = "lobby-cancelled-void-choices-consumer"
+	ProcessingTimeout                     = 10 * time.Second
+	BatchSize                             = 1024
+	GameInteractionHandlerType            = "game-interaction-processing"
+	GameInteractionConsumerandDurableName = "game-cancelled-void-choices-consumer"
 )
 
-type LobbyInteractionProcessor struct {
+type GameInteractionProcessor struct {
 	ctx context.Context
-	*lobby.LobbyProjector
+	*game.GameProjector
+
+	cardRepo repos.ICardRepository
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 }
 
-func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcessor, error) {
-	lip := &LobbyInteractionProcessor{
-		ctx:   ctx,
-		queue: make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
+	cardRepo := do.MustInvoke[repos.ICardRepository](nil)
+
+	lip := &GameInteractionProcessor{
+		ctx:      ctx,
+		cardRepo: cardRepo,
+		queue:    make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 	}
 
-	lip.LobbyProjector = lobby.NewLobbyProjection(lip)
+	lip.GameProjector = game.NewGameProjection(lip)
 
-	lobbyMatcher := eventing.NewMatchEventSubject(lobby.SubjectFactory, lobby.AggregateType,
-		lobby.EventTypeLobbyLeft,
+	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
+		game.EventTypeGameCreated,
 	)
 
-	lobbySubject := nats2.CreateConsumerSubject(constants.LobbyStream, lobbyMatcher)
+	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
 
 	connPool, err := do.InvokeNamed[*pool.ConnPool](nil, string(constants.ConnectionPool))
 	if err != nil {
@@ -78,12 +84,12 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 		memory = true
 	}
 
-	lobbyConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.LobbyStream, jetstream.ConsumerConfig{
-		Name:        LobbyInteractionConsumerandDurableName,
-		Durable:     LobbyInteractionConsumerandDurableName,
-		Description: "Responsible for reading lobby events related to lobby leaves",
+	gameConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.GameStream, jetstream.ConsumerConfig{
+		Name:        GameInteractionConsumerandDurableName,
+		Durable:     GameInteractionConsumerandDurableName,
+		Description: "Responsible for reading game events related to game leaves",
 		FilterSubjects: []string{
-			lobbySubject,
+			gameSubject,
 		},
 		DeliverPolicy:     jetstream.DeliverAllPolicy,
 		ReplayPolicy:      jetstream.ReplayInstantPolicy,
@@ -105,14 +111,14 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 			if ctx.Err() != nil {
 				return
 			}
-			messages, err := lobbyConsumer.Fetch(BatchSize, jetstream.FetchMaxWait(1*time.Second))
+			messages, err := gameConsumer.Fetch(BatchSize, jetstream.FetchMaxWait(1*time.Second))
 			if err != nil {
 				if errors.Is(err, jetstream.ErrNoMessages) ||
 					errors.Is(err, context.Canceled) ||
 					errors.Is(err, context.DeadlineExceeded) {
 					continue
 				}
-				log.Global().FatalContext(ctx, "failed to fetch lobby events", zap.Error(err))
+				log.Global().FatalContext(ctx, "failed to fetch game events", zap.Error(err))
 			}
 
 			if messages.Error() != nil {
@@ -121,7 +127,7 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 					errors.Is(messages.Error(), context.DeadlineExceeded) {
 					continue
 				}
-				log.Global().FatalContext(ctx, "failed to fetch lobby events, messages error", zap.Error(messages.Error()))
+				log.Global().FatalContext(ctx, "failed to fetch game events, messages error", zap.Error(messages.Error()))
 			}
 
 			for msg := range messages.Messages() {
@@ -136,7 +142,7 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 					continue
 				}
 
-				if !lobbyMatcher.Match(event) {
+				if !gameMatcher.Match(event) {
 					if err := msg.Ack(); err != nil {
 						log.Global().ErrorContext(ctx, "failed to ack message", zap.Error(err))
 					}
@@ -169,35 +175,27 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 		}
 	}()
 
-	log.Global().InfoContext(ctx, "initialized lobby interaction processing")
+	log.Global().InfoContext(ctx, "initialized game interaction processing")
 
 	return lip, nil
 }
 
-func (w *LobbyInteractionProcessor) HandlerType() common.EventHandlerType {
-	return common.EventHandlerType(LobbyInteractionHandlerType)
+func (w *GameInteractionProcessor) HandlerType() common.EventHandlerType {
+	return common.EventHandlerType(GameInteractionHandlerType)
 }
 
-func (w *LobbyInteractionProcessor) HandleEvent(ctx context.Context, event common.Event) (err error) {
+func (w *GameInteractionProcessor) HandleEvent(ctx context.Context, event common.Event) (err error) {
 	if event == nil {
 		return errors.WithStack(errors.New("event is nil"))
 	}
 
-	if event.AggregateType() == lobby.AggregateType {
-		return w.LobbyProjector.HandleEvent(ctx, event)
+	if event.AggregateType() == game.AggregateType {
+		return w.GameProjector.HandleEvent(ctx, event)
 	}
 
 	return errors.WithStack(fmt.Errorf("unknown aggregate type %s", event.AggregateType()))
 }
 
-func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *lobby.LobbyCreated) error {
-	return nil
-}
-
-func (w *LobbyInteractionProcessor) HandleLobbyJoined(ctx context.Context, event common.Event, data *lobby.LobbyJoined) error {
-	return nil
-}
-
-func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event common.Event, data *lobby.LobbyLeft) error {
+func (w *GameInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
 	return nil
 }
