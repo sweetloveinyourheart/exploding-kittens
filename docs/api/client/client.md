@@ -18,6 +18,7 @@
     - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
     - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
+    - [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
   
     - [ClientServer](#com-sweetloveinyourheart-kittens-clients-ClientServer)
@@ -249,6 +250,21 @@ Message for player profile
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-StartGameRequest"></a>
+
+### StartGameRequest
+Message for start a game
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-User"></a>
 
 ### User
@@ -287,6 +303,7 @@ Message for player profile
 | StreamLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) stream |  |
 | JoinLobby | [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest) | [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse) |  |
 | LeaveLobby | [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest) | [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse) |  |
+| StartGame | [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

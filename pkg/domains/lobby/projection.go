@@ -16,12 +16,14 @@ type AllEventsProjector interface {
 	HandleLobbyCreated(ctx context.Context, event common.Event, data *LobbyCreated, entity *Lobby) (*Lobby, error)
 	HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined, entity *Lobby) (*Lobby, error)
 	HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error)
+	HandleGameStarted(ctx context.Context, event common.Event, data *GameStarted, entity *Lobby) (*Lobby, error)
 }
 
 type eventsProjector interface {
 	handleLobbyCreated(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 	handleLobbyJoined(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 	handleLobbyLeft(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
+	handleGameStarted(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 }
 
 // LobbyProjector is an event handler for Projections in the Lobby domain.
@@ -139,6 +141,8 @@ func (p *LobbyProjector) handleLobbyEvent(ctx context.Context, event common.Even
 		eventHandler = p.handleLobbyJoined
 	case EventTypeLobbyLeft:
 		eventHandler = p.handleLobbyLeft
+	case EventTypeGameStarted:
+		eventHandler = p.handleGameStarted
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -213,6 +217,28 @@ func (p *LobbyProjector) handleLobbyLeft(ctx context.Context, event common.Event
 		HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft) error
 	}); ok {
 		return entity, handler.HandleLobbyLeft(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleGameStarted handles user leaves a lobby events.
+func (p *LobbyProjector) handleGameStarted(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error) {
+	data, ok := event.Data().(*GameStarted)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleGameStarted"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleGameStarted(ctx context.Context, event common.Event, data *GameStarted, entity *Lobby) (*Lobby, error)
+	}); ok {
+		return handler.HandleGameStarted(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleGameStarted(ctx context.Context, event common.Event, data *GameStarted) error
+	}); ok {
+		return entity, handler.HandleGameStarted(ctx, event, data)
 	}
 
 	return entity, nil

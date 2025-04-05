@@ -10,6 +10,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
@@ -127,6 +128,43 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 	return connect.NewResponse(&proto.LeaveLobbyResponse{
 		LobbyId: lobbyID.String(),
 	}), nil
+}
+
+func (a *actions) StartGame(ctx context.Context, request *connect.Request[proto.StartGameRequest]) (response *connect.Response[emptypb.Empty], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		// This should never happen as this endpoint should be authenticated
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	lobbyIDString := request.Msg.GetLobbyId()
+	lobbyID, err := uuid.FromString(lobbyIDString)
+	if err != nil {
+		return nil, grpc.InvalidArgumentError(errors.New("lobby_id must be in the correct format"))
+	}
+
+	gameID := uuid.Must(uuid.NewV7())
+	if err := domains.CommandBus.HandleCommand(ctx, &lobby.StartGame{
+		LobbyID:    lobbyID,
+		HostUserID: userID,
+		GameID:     gameID,
+	}); err != nil {
+		if errors.Is(err, lobby.ErrLobbyNotAvailable) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "lobby is not availale"))
+		}
+
+		if errors.Is(err, lobby.ErrHostUserNotRecognized) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "user_id", "action needs the host to be triggered"))
+		}
+
+		if errors.Is(err, lobby.ErrGameIsNotEnoughPlayer) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "player_ids", "not enough player to start a game"))
+		}
+
+		return nil, grpc.InternalError(err)
+	}
+
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
 func (a *actions) emitLobbyUpdateEvent(lobbyID uuid.UUID) error {

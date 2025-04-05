@@ -73,7 +73,9 @@ type Aggregate struct {
 	*aggregate.AggregateBase
 
 	currentLobbyID uuid.UUID
+	currentGameID  uuid.UUID
 	actived        bool
+	hostID         uuid.UUID
 	playerIDs      []uuid.UUID
 }
 
@@ -116,6 +118,24 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if err != nil {
 			return err
 		}
+
+	case *StartGame:
+		if !a.actived {
+			return ErrLobbyNotAvailable
+		}
+
+		if a.hostID != typed.HostUserID {
+			return ErrHostUserNotRecognized
+		}
+
+		if a.currentGameID != uuid.Nil {
+			return ErrGameIsAlreadyStarted
+		}
+
+		if len(a.playerIDs) < 2 {
+			return ErrGameIsNotEnoughPlayer
+		}
+
 	default:
 		// All other events require the aggregate to be created.
 	}
@@ -178,6 +198,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.currentLobbyID = data.LobbyID
 		a.actived = true
 		a.playerIDs = append(a.playerIDs, data.GetHostUserID())
+		a.hostID = data.GetHostUserID()
 
 	case EventTypeLobbyJoined:
 		data, ok := event.Data().(*LobbyJoined)
@@ -201,6 +222,14 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		if len(a.playerIDs) == 0 {
 			a.actived = false
 		}
+
+	case EventTypeGameStarted:
+		data, ok := event.Data().(*GameStarted)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		a.currentGameID = data.GetGameID()
 
 	default:
 		return errors.WithStack(fmt.Errorf("could not apply event: %s", event.EventType()))

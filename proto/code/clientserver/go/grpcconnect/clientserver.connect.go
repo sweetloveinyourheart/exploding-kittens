@@ -52,6 +52,8 @@ const (
 	ClientServerJoinLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	// ClientServerLeaveLobbyProcedure is the fully-qualified name of the ClientServer's LeaveLobby RPC.
 	ClientServerLeaveLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	// ClientServerStartGameProcedure is the fully-qualified name of the ClientServer's StartGame RPC.
+	ClientServerStartGameProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartGame"
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -64,6 +66,7 @@ type ClientServerClient interface {
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
+	StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -120,6 +123,12 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 			connect.WithClientOptions(opts...),
 		),
+		startGame: connect.NewClient[_go.StartGameRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerStartGameProcedure,
+			connect.WithSchema(clientServerMethods.ByName("StartGame")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -132,6 +141,7 @@ type clientServerClient struct {
 	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
 	joinLobby          *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
 	leaveLobby         *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
+	startGame          *connect.Client[_go.StartGameRequest, emptypb.Empty]
 }
 
 // CreateNewGuestUser calls
@@ -170,6 +180,11 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, req *connect.Reques
 	return c.leaveLobby.CallUnary(ctx, req)
 }
 
+// StartGame calls com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame.
+func (c *clientServerClient) StartGame(ctx context.Context, req *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.startGame.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
@@ -180,6 +195,7 @@ type ClientServerHandler interface {
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
+	StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -231,6 +247,12 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerStartGameHandler := connect.NewUnaryHandler(
+		ClientServerStartGameProcedure,
+		svc.StartGame,
+		connect.WithSchema(clientServerMethods.ByName("StartGame")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClientServerCreateNewGuestUserProcedure:
@@ -247,6 +269,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerJoinLobbyHandler.ServeHTTP(w, r)
 		case ClientServerLeaveLobbyProcedure:
 			clientServerLeaveLobbyHandler.ServeHTTP(w, r)
+		case ClientServerStartGameProcedure:
+			clientServerStartGameHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -282,4 +306,8 @@ func (UnimplementedClientServerHandler) JoinLobby(context.Context, *connect.Requ
 
 func (UnimplementedClientServerHandler) LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame is not implemented"))
 }

@@ -14,6 +14,7 @@ type Lobby struct {
 	LobbyName    string      `json:"lobby_name"`
 	HostUserID   uuid.UUID   `json:"host_user_id"`
 	Participants []uuid.UUID `json:"participants"`
+	GameID       uuid.UUID   `json:"game_id"`
 	CreatedAt    time.Time   `json:"created_at"`
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
