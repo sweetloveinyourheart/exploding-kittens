@@ -1,0 +1,50 @@
+{
+  "name": "@sweetloveinyourheart/exploding-kittens-client-core",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": "./index.js",
+  "module": "./index.js",
+  "files": [
+    "dist",
+    "src",
+    "gen",
+    "index.js",
+    "index.d.ts"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sweetloveinyourheart/exploding-kittens.git"
+  },
+  "scripts": {
+    "build": "pnpm run script:build",
+    "package": "pnpm run script:package",
+    "build:dev": "NODE_ENV pnpm run build",
+    "build:prod": "NODE_ENV=production pnpm run build",
+    "script:build": "rm -rf ./dist/* && npx buf generate ../proto/clientserver && pnpm run script:package",
+    "script:package": "pnpm run script:package-all && tsc --emitDeclarationOnly --outDir dist",
+    "script:package-all": "npx esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js",
+    "script:package-core": "npx esbuild src/core.ts --bundle --format=esm  --outfile=dist/core.js"
+  },
+  "optionalDependencies": {
+    "typescript": "5.7.3"
+  },
+  "keywords": [],
+  "author": "Nguyen Lam",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.51.0",
+    "@bufbuild/protoc-gen-es": "^1.10.0",
+    "@connectrpc/protoc-gen-connect-es": "^1.5.0",
+    "esbuild": "^0.25.2"
+  },
+  "dependencies": {
+    "@connectrpc/connect": "^2.0.2",
+    "@connectrpc/connect-web": "^2.0.2",
+    "@bufbuild/protobuf": "^1.10.0"
+  }
+}
