@@ -639,3 +639,42 @@ export class LeaveLobbyResponse extends Message<LeaveLobbyResponse> {
   }
 }
 
+/**
+ * Message for start a game
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.StartGameRequest
+ */
+export class StartGameRequest extends Message<StartGameRequest> {
+  /**
+   * @generated from field: string lobby_id = 1;
+   */
+  lobbyId = "";
+
+  constructor(data?: PartialMessage<StartGameRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StartGameRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "lobby_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartGameRequest {
+    return new StartGameRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartGameRequest {
+    return new StartGameRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartGameRequest {
+    return new StartGameRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: StartGameRequest | PlainMessage<StartGameRequest> | undefined, b: StartGameRequest | PlainMessage<StartGameRequest> | undefined): boolean {
+    return proto3.util.equals(StartGameRequest, a, b);
+  }
+}
+

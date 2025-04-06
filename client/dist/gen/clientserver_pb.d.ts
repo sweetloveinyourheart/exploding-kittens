@@ -315,3 +315,22 @@ export declare class LeaveLobbyResponse extends Message<LeaveLobbyResponse> {
     static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LeaveLobbyResponse;
     static equals(a: LeaveLobbyResponse | PlainMessage<LeaveLobbyResponse> | undefined, b: LeaveLobbyResponse | PlainMessage<LeaveLobbyResponse> | undefined): boolean;
 }
+/**
+ * Message for start a game
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.StartGameRequest
+ */
+export declare class StartGameRequest extends Message<StartGameRequest> {
+    /**
+     * @generated from field: string lobby_id = 1;
+     */
+    lobbyId: string;
+    constructor(data?: PartialMessage<StartGameRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StartGameRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartGameRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartGameRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartGameRequest;
+    static equals(a: StartGameRequest | PlainMessage<StartGameRequest> | undefined, b: StartGameRequest | PlainMessage<StartGameRequest> | undefined): boolean;
+}

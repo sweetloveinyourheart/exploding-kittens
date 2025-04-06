@@ -3212,6 +3212,39 @@ var LeaveLobbyResponse = class _LeaveLobbyResponse extends Message {
     return proto3.util.equals(_LeaveLobbyResponse, a, b);
   }
 };
+var StartGameRequest = class _StartGameRequest extends Message {
+  /**
+   * @generated from field: string lobby_id = 1;
+   */
+  lobbyId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.StartGameRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "lobby_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _StartGameRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _StartGameRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _StartGameRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_StartGameRequest, a, b);
+  }
+};
 
 // src/gen/clientserver_connect.ts
 var ClientServer = {
@@ -3279,6 +3312,15 @@ var ClientServer = {
       I: LeaveLobbyRequest,
       O: LeaveLobbyResponse,
       kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame
+     */
+    startGame: {
+      name: "StartGame",
+      I: StartGameRequest,
+      O: Empty,
+      kind: MethodKind.Unary
     }
   }
 };
@@ -3298,5 +3340,6 @@ export {
   LeaveLobbyResponse,
   Lobby,
   PlayerProfileResponse,
+  StartGameRequest,
   User
 };

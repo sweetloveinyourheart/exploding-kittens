@@ -1,4 +1,4 @@
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -67,6 +67,15 @@ export declare const ClientServer: {
             readonly name: "LeaveLobby";
             readonly I: typeof LeaveLobbyRequest;
             readonly O: typeof LeaveLobbyResponse;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame
+         */
+        readonly startGame: {
+            readonly name: "StartGame";
+            readonly I: typeof StartGameRequest;
+            readonly O: typeof Empty;
             readonly kind: MethodKind.Unary;
         };
     };
