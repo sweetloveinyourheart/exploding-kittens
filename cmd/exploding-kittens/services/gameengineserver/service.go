@@ -5,12 +5,16 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nats-io/nats.go"
+	pool "github.com/octu0/nats-pool"
+	"go.uber.org/zap"
 
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
@@ -114,6 +118,21 @@ func setupDependencies() error {
 	do.Provide[repos.ICardRepository](nil, func(i *do.Injector) (repos.ICardRepository, error) {
 		return cardRepo, nil
 	})
+
+	connPool := pool.New(100, config.Instance().GetString("lgameserver.nats.url"),
+		nats.NoEcho(),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/lgameserver/1.0"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}),
+	)
+
+	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
+		func(i *do.Injector) (*pool.ConnPool, error) {
+			return connPool, nil
+		})
 
 	return nil
 }
