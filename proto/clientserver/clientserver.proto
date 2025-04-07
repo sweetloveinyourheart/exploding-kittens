@@ -43,7 +43,7 @@ message GuestLoginRequest {
 }
   
 message GuestLoginResponse {
-    string user_id = 1; // The database id for this user (UUID).
+    User user = 1; // The user basic info
     string token = 2; // The session token for this user.
 }
 

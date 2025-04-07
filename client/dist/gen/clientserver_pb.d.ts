@@ -101,11 +101,11 @@ export declare class GuestLoginRequest extends Message<GuestLoginRequest> {
  */
 export declare class GuestLoginResponse extends Message<GuestLoginResponse> {
     /**
-     * The database id for this user (UUID).
+     * The user basic info
      *
-     * @generated from field: string user_id = 1;
+     * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
      */
-    userId: string;
+    user?: User;
     /**
      * The session token for this user.
      *

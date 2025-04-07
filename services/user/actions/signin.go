@@ -78,7 +78,14 @@ func (a *actions) SignIn(ctx context.Context, request *connect.Request[proto.Sig
 	}
 
 	return connect.NewResponse(&proto.SignInResponse{
-		UserId: user.UserID.String(),
-		Token:  tokenString,
+		User: &proto.User{
+			UserId:    user.UserID.String(),
+			Username:  user.Username,
+			FullName:  user.FullName,
+			Status:    int32(user.Status),
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+		},
+		Token: tokenString,
 	}), nil
 }

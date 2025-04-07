@@ -148,7 +148,7 @@ Message for guest login
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| user_id | [string](#string) |  | The database id for this user (UUID). |
+| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  | The user basic info |
 | token | [string](#string) |  | The session token for this user. |
 
 

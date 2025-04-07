@@ -33,7 +33,7 @@ const defDBName = "kittens_gameengineserver"
 const envPrefix = "GAMEENGINESERVER"
 
 func Command(rootCmd *cobra.Command) *cobra.Command {
-	var userServerCommand = &cobra.Command{
+	var gameEngineServerCommand = &cobra.Command{
 		Use:   fmt.Sprintf("%s [flags]", serviceType),
 		Short: fmt.Sprintf("Run as %s service", serviceType),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -88,13 +88,14 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	}
 
 	// config options
-	config.Int64Default(userServerCommand, "gameengineserver.grpc.port", "grpc-port", DEFAULT_GAMEENGINESERVER_GRPC_PORT, "GRPC Port to listen on", "GAMEENGINESERVER_GRPC_PORT")
+	config.Int64Default(gameEngineServerCommand, "gameengineserver.grpc.port", "grpc-port", DEFAULT_GAMEENGINESERVER_GRPC_PORT, "GRPC Port to listen on", "GAMEENGINESERVER_GRPC_PORT")
 
-	cmdutil.BoilerplateFlagsCore(userServerCommand, serviceType, envPrefix)
-	cmdutil.BoilerplateSecureFlags(userServerCommand, serviceType)
-	cmdutil.BoilerplateFlagsDB(userServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsCore(gameEngineServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsNats(gameEngineServerCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateSecureFlags(gameEngineServerCommand, serviceType)
+	cmdutil.BoilerplateFlagsDB(gameEngineServerCommand, serviceType, envPrefix)
 
-	return userServerCommand
+	return gameEngineServerCommand
 }
 
 func setupDependencies() error {
@@ -119,11 +120,11 @@ func setupDependencies() error {
 		return cardRepo, nil
 	})
 
-	connPool := pool.New(100, config.Instance().GetString("lgameserver.nats.url"),
+	connPool := pool.New(100, config.Instance().GetString("gameengineserver.nats.url"),
 		nats.NoEcho(),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1),
-		nats.Name("kittens/lgameserver/1.0"),
+		nats.Name("kittens/gameengineserver/1.0"),
 		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
 			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
 		}),

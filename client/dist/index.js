@@ -2810,11 +2810,11 @@ var GuestLoginRequest = class _GuestLoginRequest extends Message {
 };
 var GuestLoginResponse = class _GuestLoginResponse extends Message {
   /**
-   * The database id for this user (UUID).
+   * The user basic info
    *
-   * @generated from field: string user_id = 1;
+   * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
    */
-  userId = "";
+  user;
   /**
    * The session token for this user.
    *
@@ -2828,13 +2828,7 @@ var GuestLoginResponse = class _GuestLoginResponse extends Message {
   static runtime = proto3;
   static typeName = "com.sweetloveinyourheart.kittens.clients.GuestLoginResponse";
   static fields = proto3.util.newFieldList(() => [
-    {
-      no: 1,
-      name: "user_id",
-      kind: "scalar",
-      T: 9
-      /* ScalarType.STRING */
-    },
+    { no: 1, name: "user", kind: "message", T: User },
     {
       no: 2,
       name: "token",

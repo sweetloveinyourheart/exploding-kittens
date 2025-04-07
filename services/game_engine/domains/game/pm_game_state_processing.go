@@ -37,13 +37,13 @@ type GameInteractionProcessor struct {
 	ctx context.Context
 	*game.GameProjector
 
-	cardRepo *repos.ICardRepository
+	cardRepo repos.ICardRepository
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
-	cardRepo := do.MustInvoke[*repos.ICardRepository](nil)
+	cardRepo := do.MustInvoke[repos.ICardRepository](nil)
 
 	lip := &GameInteractionProcessor{
 		ctx:      ctx,

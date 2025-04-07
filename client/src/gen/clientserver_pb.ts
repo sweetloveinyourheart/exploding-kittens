@@ -195,11 +195,11 @@ export class GuestLoginRequest extends Message<GuestLoginRequest> {
  */
 export class GuestLoginResponse extends Message<GuestLoginResponse> {
   /**
-   * The database id for this user (UUID).
+   * The user basic info
    *
-   * @generated from field: string user_id = 1;
+   * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
    */
-  userId = "";
+  user?: User;
 
   /**
    * The session token for this user.
@@ -216,7 +216,7 @@ export class GuestLoginResponse extends Message<GuestLoginResponse> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "com.sweetloveinyourheart.kittens.clients.GuestLoginResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "user", kind: "message", T: User },
     { no: 2, name: "token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 

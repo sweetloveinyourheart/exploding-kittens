@@ -145,7 +145,7 @@ services:
       "GAMEENGINESERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "GAMEENGINESERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/gameengineserver?sslmode=disable"
       "GAMEENGINESERVER_GRPC_PORT": 50054
-      "GAMESERVER_NATS_URL": "nats:4222"
+      "GAMEENGINESERVER_NATS_URL": "nats:4222"
     ports:
       - 50054:50054 # GRPC port
     networks:
