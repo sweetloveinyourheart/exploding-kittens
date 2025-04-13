@@ -100,6 +100,41 @@
     path: gameengineserver.id
     env:
     - GAMEENGINESERVER_ID
+  - name: nats-consumer-replicas
+    usage: Number of times to replicate consumers
+    default: 1
+    valueType: int64
+    path: gameengineserver.nats.consumer.replicas
+    env:
+    - GAMEENGINESERVER_NATS_CONSUMER_REPLICAS
+  - name: nats-consumer-storage
+    usage: Storage type to use for consumers
+    default: memory
+    valueType: string
+    path: gameengineserver.nats.consumer.storage
+    env:
+    - GAMEENGINESERVER_NATS_CONSUMER_STORAGE
+  - name: nats-stream-replicas
+    usage: Number of times to replicate steams
+    default: 1
+    valueType: int64
+    path: gameengineserver.nats.stream.replicas
+    env:
+    - GAMEENGINESERVER_NATS_STREAM_REPLICAS
+  - name: nats-stream-storage
+    usage: Storage type to use for streams
+    default: memory
+    valueType: string
+    path: gameengineserver.nats.stream.storage
+    env:
+    - GAMEENGINESERVER_NATS_STREAM_STORAGE
+  - name: nats-url
+    usage: Comma separated list of NATS endpoints
+    default: nats:4222
+    valueType: string
+    path: gameengineserver.nats.url
+    env:
+    - GAMEENGINESERVER_NATS_URL
   - name: token-signing-key
     usage: Signing key used for service to service tokens
     default: ""

@@ -87,6 +87,11 @@ app gameengineserver [flags]
       --grpc-port int                             GRPC Port to listen on (default 50054)
   -h, --help                                      help for gameengineserver
       --id string                                 Unique identifier for this services
+      --nats-consumer-replicas int                Number of times to replicate consumers (default 1)
+      --nats-consumer-storage string              Storage type to use for consumers (default "memory")
+      --nats-stream-replicas int                  Number of times to replicate steams (default 1)
+      --nats-stream-storage string                Storage type to use for streams (default "memory")
+      --nats-url string                           Comma separated list of NATS endpoints (default "nats:4222")
       --token-signing-key string                  Signing key used for service to service tokens
 ```
 
@@ -102,6 +107,11 @@ app gameengineserver [flags]
 - GAMEENGINESERVER_DB_URL :: `gameengineserver.db.url` Database connection URL
 - GAMEENGINESERVER_GRPC_PORT :: `gameengineserver.grpc.port` GRPC Port to listen on
 - GAMEENGINESERVER_ID :: `gameengineserver.id` Unique identifier for this services
+- GAMEENGINESERVER_NATS_CONSUMER_REPLICAS :: `gameengineserver.nats.consumer.replicas` Number of times to replicate consumers
+- GAMEENGINESERVER_NATS_CONSUMER_STORAGE :: `gameengineserver.nats.consumer.storage` Storage type to use for consumers
+- GAMEENGINESERVER_NATS_STREAM_REPLICAS :: `gameengineserver.nats.stream.replicas` Number of times to replicate steams
+- GAMEENGINESERVER_NATS_STREAM_STORAGE :: `gameengineserver.nats.stream.storage` Storage type to use for streams
+- GAMEENGINESERVER_NATS_URL :: `gameengineserver.nats.url` Comma separated list of NATS endpoints
 - GAMEENGINESERVER_SECRETS_TOKEN_SIGNING_KEY :: `gameengineserver.secrets.token_signing_key` Signing key used for service to service tokens
 ```
 
