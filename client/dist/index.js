@@ -2850,6 +2850,41 @@ var GuestLoginResponse = class _GuestLoginResponse extends Message {
     return proto3.util.equals(_GuestLoginResponse, a, b);
   }
 };
+var PlayerProfileRequest = class _PlayerProfileRequest extends Message {
+  /**
+   * Required: UUID of the guest user
+   *
+   * @generated from field: string user_id = 1;
+   */
+  userId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "user_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PlayerProfileRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PlayerProfileRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PlayerProfileRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PlayerProfileRequest, a, b);
+  }
+};
 var PlayerProfileResponse = class _PlayerProfileResponse extends Message {
   /**
    * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
@@ -3263,11 +3298,20 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile
+     */
+    getUserProfile: {
+      name: "GetUserProfile",
+      I: Empty,
+      O: PlayerProfileResponse,
+      kind: MethodKind.Unary
+    },
+    /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
      */
     getPlayerProfile: {
       name: "GetPlayerProfile",
-      I: Empty,
+      I: PlayerProfileRequest,
       O: PlayerProfileResponse,
       kind: MethodKind.Unary
     },
@@ -3333,6 +3377,7 @@ export {
   LeaveLobbyRequest,
   LeaveLobbyResponse,
   Lobby,
+  PlayerProfileRequest,
   PlayerProfileResponse,
   StartGameRequest,
   User

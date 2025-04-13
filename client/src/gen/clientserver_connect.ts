@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -31,11 +31,20 @@ export const ClientServer = {
       kind: MethodKind.Unary,
     },
     /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile
+     */
+    getUserProfile: {
+      name: "GetUserProfile",
+      I: Empty,
+      O: PlayerProfileResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
      */
     getPlayerProfile: {
       name: "GetPlayerProfile",
-      I: Empty,
+      I: PlayerProfileRequest,
       O: PlayerProfileResponse,
       kind: MethodKind.Unary,
     },

@@ -240,6 +240,45 @@ export class GuestLoginResponse extends Message<GuestLoginResponse> {
 /**
  * Message for player profile
  *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest
+ */
+export class PlayerProfileRequest extends Message<PlayerProfileRequest> {
+  /**
+   * Required: UUID of the guest user
+   *
+   * @generated from field: string user_id = 1;
+   */
+  userId = "";
+
+  constructor(data?: PartialMessage<PlayerProfileRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayerProfileRequest {
+    return new PlayerProfileRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayerProfileRequest {
+    return new PlayerProfileRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayerProfileRequest {
+    return new PlayerProfileRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined, b: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined): boolean {
+    return proto3.util.equals(PlayerProfileRequest, a, b);
+  }
+}
+
+/**
  * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
  */
 export class PlayerProfileResponse extends Message<PlayerProfileResponse> {

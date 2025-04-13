@@ -1,4 +1,4 @@
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -25,11 +25,20 @@ export declare const ClientServer: {
             readonly kind: MethodKind.Unary;
         };
         /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile
+         */
+        readonly getUserProfile: {
+            readonly name: "GetUserProfile";
+            readonly I: typeof Empty;
+            readonly O: typeof PlayerProfileResponse;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
          * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
          */
         readonly getPlayerProfile: {
             readonly name: "GetPlayerProfile";
-            readonly I: typeof Empty;
+            readonly I: typeof PlayerProfileRequest;
             readonly O: typeof PlayerProfileResponse;
             readonly kind: MethodKind.Unary;
         };

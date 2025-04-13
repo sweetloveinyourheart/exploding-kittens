@@ -124,6 +124,25 @@ export declare class GuestLoginResponse extends Message<GuestLoginResponse> {
 /**
  * Message for player profile
  *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest
+ */
+export declare class PlayerProfileRequest extends Message<PlayerProfileRequest> {
+    /**
+     * Required: UUID of the guest user
+     *
+     * @generated from field: string user_id = 1;
+     */
+    userId: string;
+    constructor(data?: PartialMessage<PlayerProfileRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayerProfileRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayerProfileRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayerProfileRequest;
+    static equals(a: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined, b: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined): boolean;
+}
+/**
  * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
  */
 export declare class PlayerProfileResponse extends Message<PlayerProfileResponse> {
