@@ -15,7 +15,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
 
-func (a *actions) GetPlayerProfile(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.PlayerProfileResponse], err error) {
+func (a *actions) GetUserProfile(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.PlayerProfileResponse], err error) {
 	playerID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
 	if !ok {
 		// This should never happen as this endpoint should be authenticated
@@ -23,6 +23,29 @@ func (a *actions) GetPlayerProfile(ctx context.Context, request *connect.Request
 	}
 
 	getUserRequest := userProto.GetUserRequest{UserId: playerID.String()}
+	profile, err := a.userServerClient.GetUser(ctx, connect.NewRequest(&getUserRequest))
+	if err != nil {
+		return nil, grpc.NotFoundError(err)
+	}
+
+	return connect.NewResponse(&proto.PlayerProfileResponse{
+		User: &proto.User{
+			UserId:   profile.Msg.GetUser().GetUserId(),
+			Username: profile.Msg.GetUser().GetUsername(),
+			FullName: profile.Msg.GetUser().GetFullName(),
+			Status:   profile.Msg.GetUser().GetStatus(),
+		},
+	}), nil
+}
+
+func (a *actions) GetPlayerProfile(ctx context.Context, request *connect.Request[proto.PlayerProfileRequest]) (response *connect.Response[proto.PlayerProfileResponse], err error) {
+	_, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		// This should never happen as this endpoint should be authenticated
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	getUserRequest := userProto.GetUserRequest{UserId: request.Msg.GetUserId()}
 	profile, err := a.userServerClient.GetUser(ctx, connect.NewRequest(&getUserRequest))
 	if err != nil {
 		return nil, grpc.NotFoundError(err)

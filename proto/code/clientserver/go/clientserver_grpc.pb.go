@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ClientServer_CreateNewGuestUser_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
 	ClientServer_GuestLogin_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	ClientServer_GetUserProfile_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
 	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
 	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
@@ -35,7 +36,8 @@ const (
 type ClientServerClient interface {
 	CreateNewGuestUser(ctx context.Context, in *CreateNewGuestUserRequest, opts ...grpc.CallOption) (*CreateNewGuestUserResponse, error)
 	GuestLogin(ctx context.Context, in *GuestLoginRequest, opts ...grpc.CallOption) (*GuestLoginResponse, error)
-	GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
+	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
+	GetPlayerProfile(ctx context.Context, in *PlayerProfileRequest, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
 	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
 	StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error)
 	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
@@ -70,7 +72,17 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, in *GuestLoginReque
 	return out, nil
 }
 
-func (c *clientServerClient) GetPlayerProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
+func (c *clientServerClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PlayerProfileResponse)
+	err := c.cc.Invoke(ctx, ClientServer_GetUserProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) GetPlayerProfile(ctx context.Context, in *PlayerProfileRequest, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PlayerProfileResponse)
 	err := c.cc.Invoke(ctx, ClientServer_GetPlayerProfile_FullMethodName, in, out, cOpts...)
@@ -135,7 +147,8 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, in *LeaveLobbyReque
 type ClientServerServer interface {
 	CreateNewGuestUser(context.Context, *CreateNewGuestUserRequest) (*CreateNewGuestUserResponse, error)
 	GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error)
-	GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
+	GetUserProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
+	GetPlayerProfile(context.Context, *PlayerProfileRequest) (*PlayerProfileResponse, error)
 	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
 	StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error
 	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
@@ -155,7 +168,10 @@ func (UnimplementedClientServerServer) CreateNewGuestUser(context.Context, *Crea
 func (UnimplementedClientServerServer) GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GuestLogin not implemented")
 }
-func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error) {
+func (UnimplementedClientServerServer) GetUserProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
+}
+func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *PlayerProfileRequest) (*PlayerProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPlayerProfile not implemented")
 }
 func (UnimplementedClientServerServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
@@ -226,8 +242,26 @@ func _ClientServer_GuestLogin_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ClientServer_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GetUserProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GetUserProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GetUserProfile(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayerProfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -239,7 +273,7 @@ func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context
 		FullMethod: ClientServer_GetPlayerProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServerServer).GetPlayerProfile(ctx, req.(*emptypb.Empty))
+		return srv.(ClientServerServer).GetPlayerProfile(ctx, req.(*PlayerProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -323,6 +357,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GuestLogin",
 			Handler:    _ClientServer_GuestLogin_Handler,
+		},
+		{
+			MethodName: "GetUserProfile",
+			Handler:    _ClientServer_GetUserProfile_Handler,
 		},
 		{
 			MethodName: "GetPlayerProfile",

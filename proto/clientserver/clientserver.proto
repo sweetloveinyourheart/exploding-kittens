@@ -9,7 +9,8 @@ package com.sweetloveinyourheart.kittens.clients;
 service ClientServer {
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
-    rpc GetPlayerProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
+    rpc GetUserProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
+    rpc GetPlayerProfile(PlayerProfileRequest) returns (PlayerProfileResponse);
     
     rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
     rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
@@ -47,6 +48,10 @@ message GuestLoginResponse {
 }
 
 // Message for player profile
+message PlayerProfileRequest {
+    string user_id = 1; // Required: UUID of the guest user
+}
+
 message PlayerProfileResponse {
     User user = 1;
 }
