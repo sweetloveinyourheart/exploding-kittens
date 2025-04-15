@@ -2933,6 +2933,10 @@ var Lobby = class _Lobby extends Message {
    * @generated from field: repeated string participants = 5;
    */
   participants = [];
+  /**
+   * @generated from field: optional string game_id = 6;
+   */
+  gameId;
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -2968,7 +2972,8 @@ var Lobby = class _Lobby extends Message {
       T: 9
       /* ScalarType.STRING */
     },
-    { no: 5, name: "participants", kind: "scalar", T: 9, repeated: true }
+    { no: 5, name: "participants", kind: "scalar", T: 9, repeated: true },
+    { no: 6, name: "game_id", kind: "scalar", T: 9, opt: true }
   ]);
   static fromBinary(bytes, options) {
     return new _Lobby().fromBinary(bytes, options);

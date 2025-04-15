@@ -45,6 +45,10 @@ func (t *Lobby) GetParticipants() []uuid.UUID {
 	return t.Participants
 }
 
+func (t *Lobby) GetGameID() uuid.UUID {
+	return t.GameID
+}
+
 func (t *Lobby) GetCreatedAt() time.Time {
 	return t.CreatedAt
 }

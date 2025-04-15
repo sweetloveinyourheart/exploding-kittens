@@ -163,6 +163,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			LobbyID: cmd.LobbyID,
 			UserID:  cmd.UserID,
 		}, TimeNow())
+	case *StartGame:
+		a.AppendEvent(EventTypeGameStarted, &GameStarted{
+			LobbyID:    cmd.LobbyID,
+			HostUserID: cmd.HostUserID,
+			GameID:     cmd.GameID,
+		}, TimeNow())
 
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())

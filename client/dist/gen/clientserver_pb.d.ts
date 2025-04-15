@@ -183,6 +183,10 @@ export declare class Lobby extends Message<Lobby> {
      * @generated from field: repeated string participants = 5;
      */
     participants: string[];
+    /**
+     * @generated from field: optional string game_id = 6;
+     */
+    gameId?: string;
     constructor(data?: PartialMessage<Lobby>);
     static readonly runtime: typeof proto3;
     static readonly typeName = "com.sweetloveinyourheart.kittens.clients.Lobby";

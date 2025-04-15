@@ -230,6 +230,7 @@ Message for leave a lobby
 | lobby_name | [string](#string) |  |  |
 | host_user_id | [string](#string) |  |  |
 | participants | [string](#string) | repeated |  |
+| game_id | [string](#string) | optional |  |
 
 
 

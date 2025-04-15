@@ -37,6 +37,7 @@ var AllEventTypes = []common.EventType{
 	EventTypeLobbyCreated,
 	EventTypeLobbyJoined,
 	EventTypeLobbyLeft,
+	EventTypeGameStarted,
 }
 
 type LobbyCreated struct {

@@ -344,6 +344,11 @@ export class Lobby extends Message<Lobby> {
    */
   participants: string[] = [];
 
+  /**
+   * @generated from field: optional string game_id = 6;
+   */
+  gameId?: string;
+
   constructor(data?: PartialMessage<Lobby>) {
     super();
     proto3.util.initPartial(data, this);
@@ -357,6 +362,7 @@ export class Lobby extends Message<Lobby> {
     { no: 3, name: "lobby_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "host_user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "participants", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 6, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Lobby {

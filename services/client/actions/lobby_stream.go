@@ -108,6 +108,7 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 				LobbyName:    lobbyState.GetLobbyName(),
 				HostUserId:   lobbyState.GetHostUserID().String(),
 				Participants: stringsutil.ConvertUUIDsToStrings(lobbyState.GetParticipants()),
+				GameId:       stringsutil.ConvertUUIDToStringPtr(lobbyState.GetGameID()),
 			},
 		}
 

@@ -48,3 +48,20 @@ func ConvertUUIDsToStrings(uuids []uuid.UUID) []string {
 	}
 	return strings
 }
+
+// ConvertUUIDToStringPtr converts a given UUID to its string representation
+// and returns a pointer to the resulting string.
+//
+// Parameters:
+//   - uuid: The UUID to be converted.
+//
+// Returns:
+//   - A pointer to the string representation of the provided UUID.
+func ConvertUUIDToStringPtr(uuid uuid.UUID) *string {
+	if uuid.IsNil() {
+		return nil
+	}
+
+	str := uuid.String()
+	return &str
+}

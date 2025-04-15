@@ -12,6 +12,7 @@ func init() {
 	eventing.RegisterCommand[CreateLobby, *CreateLobby]()
 	eventing.RegisterCommand[JoinLobby, *JoinLobby]()
 	eventing.RegisterCommand[LeaveLobby, *LeaveLobby]()
+	eventing.RegisterCommand[StartGame, *StartGame]()
 }
 
 const (
