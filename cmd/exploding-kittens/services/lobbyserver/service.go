@@ -103,5 +103,10 @@ func setupDependencies() error {
 			return connPool, nil
 		})
 
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
+		})
+
 	return nil
 }

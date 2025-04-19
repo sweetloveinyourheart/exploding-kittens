@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
-
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
@@ -38,6 +37,7 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Gam
 func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, data *GameCreated, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
 
+	entity.PlayerHands = make(map[uuid.UUID]uuid.UUID)
 	for _, playerID := range data.GetPlayerIDs() {
 		entity.PlayerHands[playerID] = uuid.Nil
 	}

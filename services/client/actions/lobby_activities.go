@@ -2,8 +2,6 @@ package actions
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -12,7 +10,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
@@ -86,11 +83,6 @@ func (a *actions) JoinLobby(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.InternalError(err)
 	}
 
-	err = a.emitLobbyUpdateEvent(lobbyID)
-	if err != nil {
-		return nil, grpc.InternalError(err)
-	}
-
 	return connect.NewResponse(&proto.JoinLobbyResponse{
 		LobbyId: lobbyID.String(),
 	}), nil
@@ -117,11 +109,6 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "lobby is not availale"))
 		}
 
-		return nil, grpc.InternalError(err)
-	}
-
-	err = a.emitLobbyUpdateEvent(lobbyID)
-	if err != nil {
 		return nil, grpc.InternalError(err)
 	}
 
@@ -165,24 +152,6 @@ func (a *actions) StartGame(ctx context.Context, request *connect.Request[proto.
 	}
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
-}
-
-func (a *actions) emitLobbyUpdateEvent(lobbyID uuid.UUID) error {
-	msg := &proto.Lobby{
-		LobbyId: lobbyID.String(),
-	}
-
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-
-	err = a.bus.Publish(fmt.Sprintf("%s.%s", constants.LobbyStream, msg.GetLobbyId()), msgBytes)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 type GetLobbyRequestValidator proto.GetLobbyRequest

@@ -133,11 +133,13 @@ func (a *Aggregate) HandleCommand(ctx context.Context, cmd eventing.Command) err
 func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 	switch event.EventType() {
 	case EventTypeGameCreated:
-		_, ok := event.Data().(*GameCreated)
+		data, ok := event.Data().(*GameCreated)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
+
 		a.actived = true
+		a.currentGameID = data.GetGameID()
 	}
 
 	return nil

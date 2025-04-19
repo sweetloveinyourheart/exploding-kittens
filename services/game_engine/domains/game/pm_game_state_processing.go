@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -17,12 +18,15 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 
 	"go.uber.org/zap"
 
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
 
@@ -196,6 +200,34 @@ func (w *GameInteractionProcessor) HandleEvent(ctx context.Context, event common
 	return errors.WithStack(fmt.Errorf("unknown aggregate type %s", event.AggregateType()))
 }
 
-func (w *GameInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
+func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
+	cards, err := w.cardRepo.GetCards(ctx)
+	if err != nil {
+		return err
+	}
+
+	var cardIDs []uuid.UUID
+	for _, card := range cards {
+		cardIDs = append(cardIDs, card.CardID)
+	}
+
+	// Init desk
+	deskID := uuid.Must(uuid.NewV7())
+	if err := domains.CommandBus.HandleCommand(ctx, &desk.CreateDesk{
+		DeskID: deskID,
+		Cards:  cardIDs,
+	}); err != nil {
+		return err
+	}
+
+	// Init hand
+	handID := uuid.Must(uuid.NewV7())
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.CreateHand{
+		HandID: handID,
+		Cards:  cardIDs,
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }

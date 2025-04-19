@@ -121,3 +121,18 @@ func (a *Aggregate) HandleCommand(ctx context.Context, cmd eventing.Command) err
 
 	return nil
 }
+
+// ApplyEvent implements the ApplyEvent method of the
+// eventing.Aggregate interface.
+func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
+	switch event.EventType() {
+	case EventTypeDeskCreated:
+		data, ok := event.Data().(*DeskCreated)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+		a.currentDeskID = data.GetDeskID()
+	}
+
+	return nil
+}
