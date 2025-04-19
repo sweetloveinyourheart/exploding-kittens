@@ -946,7 +946,7 @@ var file_clientserver_proto_rawDesc = string([]byte{
 	0x62, 0x62, 0x79, 0x49, 0x64, 0x22, 0x2d, 0x0a, 0x10, 0x53, 0x74, 0x61, 0x72, 0x74, 0x47, 0x61,
 	0x6d, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x6c, 0x6f, 0x62,
 	0x62, 0x79, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6c, 0x6f, 0x62,
-	0x62, 0x79, 0x49, 0x64, 0x32, 0xc0, 0x09, 0x0a, 0x0c, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x53,
+	0x62, 0x79, 0x49, 0x64, 0x32, 0xc0, 0x0a, 0x0a, 0x0c, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x53,
 	0x65, 0x72, 0x76, 0x65, 0x72, 0x12, 0x9f, 0x01, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
 	0x4e, 0x65, 0x77, 0x47, 0x75, 0x65, 0x73, 0x74, 0x55, 0x73, 0x65, 0x72, 0x12, 0x43, 0x2e, 0x63,
 	0x6f, 0x6d, 0x2e, 0x73, 0x77, 0x65, 0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65, 0x69, 0x6e, 0x79, 0x6f,
@@ -991,6 +991,14 @@ var file_clientserver_proto_rawDesc = string([]byte{
 	0x69, 0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2e, 0x6b, 0x69, 0x74, 0x74,
 	0x65, 0x6e, 0x73, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61,
 	0x74, 0x65, 0x4c, 0x6f, 0x62, 0x62, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x7e, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x4c, 0x6f, 0x62, 0x62, 0x79, 0x12, 0x39, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2e, 0x73, 0x77, 0x65, 0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65, 0x69, 0x6e, 0x79, 0x6f, 0x75,
+	0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2e, 0x6b, 0x69, 0x74, 0x74, 0x65, 0x6e, 0x73, 0x2e, 0x63,
+	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x6f, 0x62, 0x62, 0x79, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x37, 0x2e, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x77, 0x65,
+	0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65, 0x69, 0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72,
+	0x74, 0x2e, 0x6b, 0x69, 0x74, 0x74, 0x65, 0x6e, 0x73, 0x2e, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x73, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x6f, 0x62, 0x62, 0x79, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12,
 	0x83, 0x01, 0x0a, 0x0b, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f, 0x62, 0x62, 0x79, 0x12,
 	0x39, 0x2e, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x77, 0x65, 0x65, 0x74, 0x6c, 0x6f, 0x76, 0x65, 0x69,
 	0x6e, 0x79, 0x6f, 0x75, 0x72, 0x68, 0x65, 0x61, 0x72, 0x74, 0x2e, 0x6b, 0x69, 0x74, 0x74, 0x65,
@@ -1074,21 +1082,23 @@ var file_clientserver_proto_depIdxs = []int32{
 	17, // 6: com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile:input_type -> google.protobuf.Empty
 	5,  // 7: com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile:input_type -> com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest
 	8,  // 8: com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby:input_type -> com.sweetloveinyourheart.kittens.clients.CreateLobbyRequest
-	10, // 9: com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby:input_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyRequest
-	12, // 10: com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby:input_type -> com.sweetloveinyourheart.kittens.clients.JoinLobbyRequest
-	14, // 11: com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby:input_type -> com.sweetloveinyourheart.kittens.clients.LeaveLobbyRequest
-	16, // 12: com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame:input_type -> com.sweetloveinyourheart.kittens.clients.StartGameRequest
-	2,  // 13: com.sweetloveinyourheart.kittens.clients.ClientServer.CreateNewGuestUser:output_type -> com.sweetloveinyourheart.kittens.clients.CreateNewGuestUserResponse
-	4,  // 14: com.sweetloveinyourheart.kittens.clients.ClientServer.GuestLogin:output_type -> com.sweetloveinyourheart.kittens.clients.GuestLoginResponse
-	6,  // 15: com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile:output_type -> com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
-	6,  // 16: com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile:output_type -> com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
-	9,  // 17: com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby:output_type -> com.sweetloveinyourheart.kittens.clients.CreateLobbyResponse
-	11, // 18: com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby:output_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyReply
-	13, // 19: com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby:output_type -> com.sweetloveinyourheart.kittens.clients.JoinLobbyResponse
-	15, // 20: com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby:output_type -> com.sweetloveinyourheart.kittens.clients.LeaveLobbyResponse
-	17, // 21: com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame:output_type -> google.protobuf.Empty
-	13, // [13:22] is the sub-list for method output_type
-	4,  // [4:13] is the sub-list for method input_type
+	10, // 9: com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby:input_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyRequest
+	10, // 10: com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby:input_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyRequest
+	12, // 11: com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby:input_type -> com.sweetloveinyourheart.kittens.clients.JoinLobbyRequest
+	14, // 12: com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby:input_type -> com.sweetloveinyourheart.kittens.clients.LeaveLobbyRequest
+	16, // 13: com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame:input_type -> com.sweetloveinyourheart.kittens.clients.StartGameRequest
+	2,  // 14: com.sweetloveinyourheart.kittens.clients.ClientServer.CreateNewGuestUser:output_type -> com.sweetloveinyourheart.kittens.clients.CreateNewGuestUserResponse
+	4,  // 15: com.sweetloveinyourheart.kittens.clients.ClientServer.GuestLogin:output_type -> com.sweetloveinyourheart.kittens.clients.GuestLoginResponse
+	6,  // 16: com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile:output_type -> com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
+	6,  // 17: com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile:output_type -> com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
+	9,  // 18: com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby:output_type -> com.sweetloveinyourheart.kittens.clients.CreateLobbyResponse
+	11, // 19: com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby:output_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyReply
+	11, // 20: com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby:output_type -> com.sweetloveinyourheart.kittens.clients.GetLobbyReply
+	13, // 21: com.sweetloveinyourheart.kittens.clients.ClientServer.JoinLobby:output_type -> com.sweetloveinyourheart.kittens.clients.JoinLobbyResponse
+	15, // 22: com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby:output_type -> com.sweetloveinyourheart.kittens.clients.LeaveLobbyResponse
+	17, // 23: com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame:output_type -> google.protobuf.Empty
+	14, // [14:24] is the sub-list for method output_type
+	4,  // [4:14] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name

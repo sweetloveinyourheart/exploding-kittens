@@ -3330,6 +3330,15 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby
+     */
+    getLobby: {
+      name: "GetLobby",
+      I: GetLobbyRequest,
+      O: GetLobbyReply,
+      kind: MethodKind.Unary
+    },
+    /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby
      */
     streamLobby: {

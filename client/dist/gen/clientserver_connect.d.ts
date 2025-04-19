@@ -52,6 +52,15 @@ export declare const ClientServer: {
             readonly kind: MethodKind.Unary;
         };
         /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby
+         */
+        readonly getLobby: {
+            readonly name: "GetLobby";
+            readonly I: typeof GetLobbyRequest;
+            readonly O: typeof GetLobbyReply;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
          * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby
          */
         readonly streamLobby: {

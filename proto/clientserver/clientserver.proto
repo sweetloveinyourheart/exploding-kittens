@@ -13,6 +13,7 @@ service ClientServer {
     rpc GetPlayerProfile(PlayerProfileRequest) returns (PlayerProfileResponse);
     
     rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
+    rpc GetLobby(GetLobbyRequest) returns (GetLobbyReply);
     rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
     rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
     rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);

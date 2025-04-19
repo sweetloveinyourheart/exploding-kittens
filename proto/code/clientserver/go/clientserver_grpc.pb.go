@@ -25,6 +25,7 @@ const (
 	ClientServer_GetUserProfile_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
 	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
 	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	ClientServer_GetLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
 	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
 	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
@@ -40,6 +41,7 @@ type ClientServerClient interface {
 	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
 	GetPlayerProfile(ctx context.Context, in *PlayerProfileRequest, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
 	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
+	GetLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (*GetLobbyReply, error)
 	StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error)
 	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
@@ -104,6 +106,16 @@ func (c *clientServerClient) CreateLobby(ctx context.Context, in *CreateLobbyReq
 	return out, nil
 }
 
+func (c *clientServerClient) GetLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (*GetLobbyReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLobbyReply)
+	err := c.cc.Invoke(ctx, ClientServer_GetLobby_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *clientServerClient) StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &ClientServer_ServiceDesc.Streams[0], ClientServer_StreamLobby_FullMethodName, cOpts...)
@@ -162,6 +174,7 @@ type ClientServerServer interface {
 	GetUserProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
 	GetPlayerProfile(context.Context, *PlayerProfileRequest) (*PlayerProfileResponse, error)
 	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
+	GetLobby(context.Context, *GetLobbyRequest) (*GetLobbyReply, error)
 	StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error
 	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
@@ -189,6 +202,9 @@ func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *Player
 }
 func (UnimplementedClientServerServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateLobby not implemented")
+}
+func (UnimplementedClientServerServer) GetLobby(context.Context, *GetLobbyRequest) (*GetLobbyReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLobby not implemented")
 }
 func (UnimplementedClientServerServer) StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamLobby not implemented")
@@ -312,6 +328,24 @@ func _ClientServer_CreateLobby_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_GetLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLobbyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GetLobby(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GetLobby_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GetLobby(ctx, req.(*GetLobbyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ClientServer_StreamLobby_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(GetLobbyRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -403,6 +437,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateLobby",
 			Handler:    _ClientServer_CreateLobby_Handler,
+		},
+		{
+			MethodName: "GetLobby",
+			Handler:    _ClientServer_GetLobby_Handler,
 		},
 		{
 			MethodName: "JoinLobby",

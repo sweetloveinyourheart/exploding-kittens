@@ -205,13 +205,22 @@ func (w *LobbyInteractionProcessor) HandleEvent(ctx context.Context, event commo
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *lobby.LobbyCreated) error {
-	w.emitLobbyUpdateEvent(data.GetLobbyID())
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyJoined(ctx context.Context, event common.Event, data *lobby.LobbyJoined) error {
 	w.playerIDs = append(w.playerIDs, data.GetUserID())
-	w.emitLobbyUpdateEvent(data.GetLobbyID())
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -222,7 +231,12 @@ func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event c
 			break
 		}
 	}
-	w.emitLobbyUpdateEvent(data.GetLobbyID())
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -236,7 +250,11 @@ func (w *LobbyInteractionProcessor) HandleGameStarted(ctx context.Context, event
 		return err
 	}
 
-	w.emitLobbyUpdateEvent(data.GetLobbyID())
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

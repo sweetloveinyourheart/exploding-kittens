@@ -48,6 +48,8 @@ const (
 	// ClientServerCreateLobbyProcedure is the fully-qualified name of the ClientServer's CreateLobby
 	// RPC.
 	ClientServerCreateLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	// ClientServerGetLobbyProcedure is the fully-qualified name of the ClientServer's GetLobby RPC.
+	ClientServerGetLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
 	// ClientServerStreamLobbyProcedure is the fully-qualified name of the ClientServer's StreamLobby
 	// RPC.
 	ClientServerStreamLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
@@ -67,6 +69,7 @@ type ClientServerClient interface {
 	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
+	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
@@ -115,6 +118,12 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("CreateLobby")),
 			connect.WithClientOptions(opts...),
 		),
+		getLobby: connect.NewClient[_go.GetLobbyRequest, _go.GetLobbyReply](
+			httpClient,
+			baseURL+ClientServerGetLobbyProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GetLobby")),
+			connect.WithClientOptions(opts...),
+		),
 		streamLobby: connect.NewClient[_go.GetLobbyRequest, _go.GetLobbyReply](
 			httpClient,
 			baseURL+ClientServerStreamLobbyProcedure,
@@ -149,6 +158,7 @@ type clientServerClient struct {
 	getUserProfile     *connect.Client[emptypb.Empty, _go.PlayerProfileResponse]
 	getPlayerProfile   *connect.Client[_go.PlayerProfileRequest, _go.PlayerProfileResponse]
 	createLobby        *connect.Client[_go.CreateLobbyRequest, _go.CreateLobbyResponse]
+	getLobby           *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
 	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
 	joinLobby          *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
 	leaveLobby         *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
@@ -181,6 +191,11 @@ func (c *clientServerClient) CreateLobby(ctx context.Context, req *connect.Reque
 	return c.createLobby.CallUnary(ctx, req)
 }
 
+// GetLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby.
+func (c *clientServerClient) GetLobby(ctx context.Context, req *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error) {
+	return c.getLobby.CallUnary(ctx, req)
+}
+
 // StreamLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby.
 func (c *clientServerClient) StreamLobby(ctx context.Context, req *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error) {
 	return c.streamLobby.CallServerStream(ctx, req)
@@ -209,6 +224,7 @@ type ClientServerHandler interface {
 	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
 	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
+	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
@@ -252,6 +268,12 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("CreateLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerGetLobbyHandler := connect.NewUnaryHandler(
+		ClientServerGetLobbyProcedure,
+		svc.GetLobby,
+		connect.WithSchema(clientServerMethods.ByName("GetLobby")),
+		connect.WithHandlerOptions(opts...),
+	)
 	clientServerStreamLobbyHandler := connect.NewServerStreamHandler(
 		ClientServerStreamLobbyProcedure,
 		svc.StreamLobby,
@@ -288,6 +310,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerGetPlayerProfileHandler.ServeHTTP(w, r)
 		case ClientServerCreateLobbyProcedure:
 			clientServerCreateLobbyHandler.ServeHTTP(w, r)
+		case ClientServerGetLobbyProcedure:
+			clientServerGetLobbyHandler.ServeHTTP(w, r)
 		case ClientServerStreamLobbyProcedure:
 			clientServerStreamLobbyHandler.ServeHTTP(w, r)
 		case ClientServerJoinLobbyProcedure:
@@ -323,6 +347,10 @@ func (UnimplementedClientServerHandler) GetPlayerProfile(context.Context, *conne
 
 func (UnimplementedClientServerHandler) CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error {

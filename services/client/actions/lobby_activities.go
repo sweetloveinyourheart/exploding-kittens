@@ -10,6 +10,8 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"slices"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
@@ -17,6 +19,38 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
+
+func (a *actions) GetLobby(ctx context.Context, request *connect.Request[proto.GetLobbyRequest]) (response *connect.Response[proto.GetLobbyReply], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		// This should never happen as this endpoint should be authenticated
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	lobbyID := request.Msg.GetLobbyId()
+
+	lobbyState, err := domains.LobbyRepo.Find(ctx, lobbyID)
+	if err != nil {
+		return nil, grpc.NotFoundError(err)
+	}
+
+	isAuthorization := slices.Contains(lobbyState.GetParticipants(), userID)
+	if !isAuthorization {
+		return nil, grpc.NotFoundError(errors.Errorf("Lobby not found"))
+	}
+
+	return connect.NewResponse(&proto.GetLobbyReply{
+		Lobby: &proto.Lobby{
+			LobbyId:      lobbyState.GetLobbyID().String(),
+			LobbyCode:    lobbyState.GetLobbyCode(),
+			LobbyName:    lobbyState.GetLobbyName(),
+			HostUserId:   lobbyState.GetHostUserID().String(),
+			Participants: stringsutil.ConvertUUIDsToStrings(lobbyState.GetParticipants()),
+			GameId:       stringsutil.ConvertUUIDToStringPtr(lobbyState.GetGameID()),
+		},
+	}), nil
+
+}
 
 func (a *actions) CreateLobby(ctx context.Context, request *connect.Request[proto.CreateLobbyRequest]) (response *connect.Response[proto.CreateLobbyResponse], err error) {
 	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
