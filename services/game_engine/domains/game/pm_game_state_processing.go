@@ -3,6 +3,8 @@ package game
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"slices"
 	"strings"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/samber/lo"
+	"github.com/samber/lo/mutable"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
@@ -23,6 +26,7 @@ import (
 
 	"go.uber.org/zap"
 
+	cardConstants "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
@@ -71,7 +75,6 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 	conn, err := connPool.Get()
 	if err != nil {
 		return nil, errors.WithStack(err)
-
 	}
 
 	js, err := jetstream.New(conn)
@@ -91,7 +94,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 	gameConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.GameStream, jetstream.ConsumerConfig{
 		Name:        GameInteractionConsumerandDurableName,
 		Durable:     GameInteractionConsumerandDurableName,
-		Description: "Responsible for reading game events related to game leaves",
+		Description: "Responsible for reading game events related to game state",
 		FilterSubjects: []string{
 			gameSubject,
 		},
@@ -201,17 +204,41 @@ func (w *GameInteractionProcessor) HandleEvent(ctx context.Context, event common
 }
 
 func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
+	playerCount := len(data.GetPlayerIDs())
+
+	// Get cards registry
 	cards, err := w.cardRepo.GetCards(ctx)
 	if err != nil {
 		return err
 	}
 
-	var cardIDs []uuid.UUID
-	for _, card := range cards {
-		cardIDs = append(cardIDs, card.CardID)
+	// Pre setup cards
+	cardIDs := w.setupCards(cards, playerCount)
+
+	// Deal 7 cards to each player
+	cardsPerPlayer := 7
+	if len(cardIDs) < playerCount*cardsPerPlayer {
+		return fmt.Errorf("not enough cards to deal")
 	}
 
-	// Init desk
+	playerHands := make(map[uuid.UUID]uuid.UUID)
+	for _, playerID := range data.GetPlayerIDs() {
+		playerCards := cardIDs[0:7]
+		cardIDs = slices.Delete(cardIDs, 0, 7)
+
+		// Create player hand
+		playerHandID := hand.NewPlayerHandID(data.GetGameID(), playerID)
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.CreateHand{
+			HandID: playerHandID,
+			Cards:  playerCards,
+		}); err != nil {
+			return err
+		}
+
+		playerHands[playerID] = playerHandID
+	}
+
+	// Create new desk
 	deskID := uuid.Must(uuid.NewV7())
 	if err := domains.CommandBus.HandleCommand(ctx, &desk.CreateDesk{
 		DeskID: deskID,
@@ -220,14 +247,50 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 		return err
 	}
 
-	// Init hand
-	handID := uuid.Must(uuid.NewV7())
-	if err := domains.CommandBus.HandleCommand(ctx, &hand.CreateHand{
-		HandID: handID,
-		Cards:  cardIDs,
+	// Init game args
+	if err := domains.CommandBus.HandleCommand(ctx, &game.InitGameArgs{
+		GameID:      data.GetGameID(),
+		Desk:        deskID,
+		PlayerHands: playerHands,
+		PlayerTurn:  data.GetPlayerIDs()[rand.Intn(playerCount)],
 	}); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (w *GameInteractionProcessor) setupCards(cards []repos.CardDetail, playerNum int) []uuid.UUID {
+	// Remove the Exploding Kitten and Defuse Cards from the deck
+	explodingToAdd := playerNum - 1
+	defuseToAdd := playerNum - 1
+
+	filteredCards := make([]repos.CardDetail, 0, len(cards))
+
+	for _, card := range cards {
+		switch card.Name {
+		case cardConstants.ExplodingKitten:
+			for range explodingToAdd {
+				filteredCards = append(filteredCards, card)
+			}
+		case cardConstants.Defuse:
+			for range defuseToAdd {
+				filteredCards = append(filteredCards, card)
+			}
+		default:
+			for range card.Quantity {
+				filteredCards = append(filteredCards, card)
+			}
+		}
+	}
+
+	// Shuffle cards
+	mutable.Shuffle(filteredCards)
+
+	var cardIDs []uuid.UUID
+	for _, card := range filteredCards {
+		cardIDs = append(cardIDs, card.CardID)
+	}
+
+	return cardIDs
 }

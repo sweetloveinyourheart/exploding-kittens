@@ -19,9 +19,9 @@ import (
 	natsEventBus "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_handler/projector"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_store/natsjs"
-	consumeroptions "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/consumer_options"
 	contexthook "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/context_hook"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/ephemeral"
+	consumeroptions "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/consumer_options"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/ephemeral"
 	natsRepo "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/repo/natsjs_eventsourced"
 )
 

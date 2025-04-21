@@ -25,7 +25,7 @@ import (
 var FS embed.FS
 
 func InitializeRepos(ctx context.Context) error {
-	appID := fmt.Sprintf("gameserver-%s", config.Instance().GetString("gameserver.id"))
+	appID := fmt.Sprintf("gameengineserver-%s", config.Instance().GetString("gameengineserver.id"))
 
 	if err := InitializeCoreRepos(appID, ctx); err != nil {
 		log.Global().ErrorContext(ctx, "failed to initialize core repos", zap.Error(err))
@@ -42,21 +42,6 @@ func InitializeRepos(ctx context.Context) error {
 
 func InitializeCoreRepos(appID string, ctx context.Context) error {
 	var err error
-
-	domains.GameRepo, err = game.CreateNATSRepoGames(ctx, appID)
-	if err != nil {
-		return err
-	}
-
-	domains.DeskRepo, err = desk.CreateNATSRepoDesk(ctx, appID)
-	if err != nil {
-		return err
-	}
-
-	domains.HandRepo, err = hand.CreateNATSRepoHand(ctx, appID)
-	if err != nil {
-		return err
-	}
 
 	domains.CommandBus = bus.NewCommandHandler()
 

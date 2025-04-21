@@ -8,7 +8,7 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
-	consumerinvalidator "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/consumer_invalidator"
+	consumerinvalidator "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/consumer_invalidator"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains/match"

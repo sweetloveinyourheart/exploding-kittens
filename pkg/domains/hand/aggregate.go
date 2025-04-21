@@ -1,11 +1,13 @@
 package hand
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -62,6 +64,19 @@ func init() {
 		2,
 		subjectTokenFunc)
 	registerEvents(subjectFunc, subjectRootFunc, 2, subjectTokenFunc)
+}
+
+func NewPlayerHandID(gameID uuid.UUID, playerID uuid.UUID) uuid.UUID {
+	buf := bytesBufferPool.Get().(*bytes.Buffer)
+	defer func() {
+		buf.Reset()
+		bytesBufferPool.Put(buf)
+	}()
+
+	buf.Write(gameID.Bytes())
+	buf.Write(playerID.Bytes())
+
+	return uuid.NewV5(constants.NameSpaceGames, buf.String())
 }
 
 const AggregateType = common.AggregateType("hand")

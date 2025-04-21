@@ -205,6 +205,8 @@ func (w *LobbyInteractionProcessor) HandleEvent(ctx context.Context, event commo
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *lobby.LobbyCreated) error {
+	w.playerIDs = append(w.playerIDs, data.HostUserID)
+
 	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
 	if err != nil {
 		return err

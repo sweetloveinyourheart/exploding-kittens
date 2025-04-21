@@ -71,6 +71,7 @@ type Aggregate struct {
 
 	currentGameID uuid.UUID
 	actived       bool
+	initializing  bool
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -91,8 +92,17 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameAlreadyCreated
 		}
 
-		if a.actived {
+		if a.initializing {
 			return ErrGameIsInitializing
+		}
+
+		if len(typed.PlayerIDs) < 2 {
+			return ErrNotEnoughUserToPlay
+		}
+
+	case *InitGameArgs:
+		if a.actived {
+			return ErrGameAlreadyInitialized
 		}
 	}
 
@@ -105,6 +115,14 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		a.AppendEvent(EventTypeGameCreated, &GameCreated{
 			GameID:    cmd.GameID,
 			PlayerIDs: cmd.PlayerIDs,
+		}, TimeNow())
+
+	case *InitGameArgs:
+		a.AppendEvent(EventTypeGameArgsInitialized, &GameArgsInitialized{
+			GameID:      cmd.GameID,
+			Desk:        cmd.Desk,
+			PlayerHands: cmd.PlayerHands,
+			PlayerTurn:  cmd.PlayerTurn,
 		}, TimeNow())
 
 	default:
@@ -138,8 +156,17 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 
-		a.actived = true
+		a.initializing = true
 		a.currentGameID = data.GetGameID()
+
+	case EventTypeGameArgsInitialized:
+		_, ok := event.Data().(*GameArgsInitialized)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		a.initializing = false
+		a.actived = true
 	}
 
 	return nil
