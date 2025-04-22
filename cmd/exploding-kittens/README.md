@@ -121,12 +121,12 @@ app clientserver [flags]
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
-## app gameengineserver
+## app dataprovider
 
-Run as gameengineserver service
+Run as dataprovider service
 
 ```
-app gameengineserver [flags]
+app dataprovider [flags]
 ```
 
 ### Options
@@ -140,27 +140,73 @@ app gameengineserver [flags]
       --db-postgres-timeout int                   Timeout for postgres connection (default 60)
       --db-read-url string                        Database connection readonly URL
       --db-url string                             Database connection URL
-      --grpc-port int                             GRPC Port to listen on (default 50054)
-  -h, --help                                      help for gameengineserver
+      --grpc-port int                             GRPC Port to listen on (default 50055)
+  -h, --help                                      help for dataprovider
       --id string                                 Unique identifier for this services
-      --nats-consumer-replicas int                Number of times to replicate consumers (default 1)
-      --nats-consumer-storage string              Storage type to use for consumers (default "memory")
-      --nats-stream-replicas int                  Number of times to replicate steams (default 1)
-      --nats-stream-storage string                Storage type to use for streams (default "memory")
-      --nats-url string                           Comma separated list of NATS endpoints (default "nats:4222")
       --token-signing-key string                  Signing key used for service to service tokens
 ```
 
 ### Environment Variables
 
-- GAMEENGINESERVER_DB_MIGRATIONS_URL :: `gameengineserver.db.migrations.url` Database connection migrations URL
-- GAMEENGINESERVER_DB_POSTGRES_CONNECTION_MAX_IDLETIME :: `gameengineserver.db.postgres.max_idletime` Max connection idle time in seconds
-- GAMEENGINESERVER_DB_POSTGRES_CONNECTION_MAX_LIFETIME :: `gameengineserver.db.postgres.max_lifetime` Max connection lifetime in seconds
-- GAMEENGINESERVER_DB_POSTGRES_MAX_IDLE_CONNECTIONS :: `gameengineserver.db.postgres.max_idle_connections` Maximum number of idle connections
-- GAMEENGINESERVER_DB_POSTGRES_MAX_OPEN_CONNECTIONS :: `gameengineserver.db.postgres.max_open_connections` Maximum number of connections
-- GAMEENGINESERVER_DB_POSTGRES_TIMEOUT :: `gameengineserver.db.postgres.timeout` Timeout for postgres connection
-- GAMEENGINESERVER_DB_READ_URL :: `gameengineserver.db.read.url` Database connection readonly URL
-- GAMEENGINESERVER_DB_URL :: `gameengineserver.db.url` Database connection URL
+- DATAPROVIDER_DB_MIGRATIONS_URL :: `dataprovider.db.migrations.url` Database connection migrations URL
+- DATAPROVIDER_DB_POSTGRES_CONNECTION_MAX_IDLETIME :: `dataprovider.db.postgres.max_idletime` Max connection idle time in seconds
+- DATAPROVIDER_DB_POSTGRES_CONNECTION_MAX_LIFETIME :: `dataprovider.db.postgres.max_lifetime` Max connection lifetime in seconds
+- DATAPROVIDER_DB_POSTGRES_MAX_IDLE_CONNECTIONS :: `dataprovider.db.postgres.max_idle_connections` Maximum number of idle connections
+- DATAPROVIDER_DB_POSTGRES_MAX_OPEN_CONNECTIONS :: `dataprovider.db.postgres.max_open_connections` Maximum number of connections
+- DATAPROVIDER_DB_POSTGRES_TIMEOUT :: `dataprovider.db.postgres.timeout` Timeout for postgres connection
+- DATAPROVIDER_DB_READ_URL :: `dataprovider.db.read.url` Database connection readonly URL
+- DATAPROVIDER_DB_URL :: `dataprovider.db.url` Database connection URL
+- DATAPROVIDER_GRPC_PORT :: `dataprovider.grpc.port` GRPC Port to listen on
+- DATAPROVIDER_ID :: `dataprovider.id` Unique identifier for this services
+- DATAPROVIDER_SECRETS_TOKEN_SIGNING_KEY :: `dataprovider.secrets.token_signing_key` Signing key used for service to service tokens
+```
+
+### Options inherited from parent commands
+
+```
+      --config string              config file (default is $HOME/.EXPLODING-poker/app.yaml)
+      --healthcheck-host string    Host to listen on for services that support a health check (default "localhost")
+      --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
+      --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
+      --log-level string           log level to use (default "info")
+  -s, --service string             which service to run
+```
+
+### Environment Variables inherited from parent commands
+
+- EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
+- EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
+- EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
+- LOG_LEVEL :: `log.level` log level to use
+- EXPLODING_KITTENS_SERVICE :: `service` which service to run
+```
+
+## app gameengineserver
+
+Run as gameengineserver service
+
+```
+app gameengineserver [flags]
+```
+
+### Options
+
+```
+      --dataprovider-url string        Data provider connection URL (default "http://dataprovider:50055")
+      --grpc-port int                  GRPC Port to listen on (default 50054)
+  -h, --help                           help for gameengineserver
+      --id string                      Unique identifier for this services
+      --nats-consumer-replicas int     Number of times to replicate consumers (default 1)
+      --nats-consumer-storage string   Storage type to use for consumers (default "memory")
+      --nats-stream-replicas int       Number of times to replicate steams (default 1)
+      --nats-stream-storage string     Storage type to use for streams (default "memory")
+      --nats-url string                Comma separated list of NATS endpoints (default "nats:4222")
+      --token-signing-key string       Signing key used for service to service tokens
+```
+
+### Environment Variables
+
+- GAMEENGINESERVER_DATAPROVIDER_URL :: `gameengineserver.dataprovider.url` Data provider connection URL
 - GAMEENGINESERVER_GRPC_PORT :: `gameengineserver.grpc.port` GRPC Port to listen on
 - GAMEENGINESERVER_ID :: `gameengineserver.id` Unique identifier for this services
 - GAMEENGINESERVER_NATS_CONSUMER_REPLICAS :: `gameengineserver.nats.consumer.replicas` Number of times to replicate consumers

@@ -15,7 +15,8 @@ import (
 	deskDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	gameDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	handDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
+
+	dataProviderProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
 )
 
 func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
@@ -57,12 +58,12 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 	defer cancel()
 
 	gs.Eventually(func() bool {
-		gameState, err := gameRepo.Find(findCtx, gameID.String())
-		deskState, err := deskRepo.Find(findCtx, gameState.Desk.String())
+		gameState, gameStateErr := gameRepo.Find(findCtx, gameID.String())
+		deskState, deskStateErr := deskRepo.Find(findCtx, gameState.Desk.String())
 
 		validDesk := isValidDesk(cards, deskState.Cards, len(gameState.PlayerHands))
 
-		return err == nil && validDesk && gameState.Desk != uuid.Nil
+		return gameStateErr == nil && deskStateErr == nil && validDesk && gameState.Desk != uuid.Nil
 	}, 5*time.Second, 10*time.Millisecond)
 
 	gs.Eventually(func() bool {
@@ -80,14 +81,14 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 	}, 5*time.Second, 10*time.Millisecond)
 }
 
-func isValidDesk(original []repos.CardDetail, deskCards []uuid.UUID, playerNum int) bool {
-	cardMap := make(map[uuid.UUID]repos.CardDetail, len(original))
+func isValidDesk(original []*dataProviderProto.Card, deskCards []uuid.UUID, playerNum int) bool {
+	cardMap := make(map[uuid.UUID]*dataProviderProto.Card, len(original))
 	defuseQuantity := 0
 
 	for _, card := range original {
-		cardMap[card.CardID] = card
+		cardMap[uuid.FromStringOrNil(card.CardId)] = card
 		if card.Name == cards.Defuse {
-			defuseQuantity = card.Quantity
+			defuseQuantity = int(card.Quantity)
 		}
 	}
 

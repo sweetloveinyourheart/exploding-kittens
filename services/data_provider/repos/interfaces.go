@@ -3,7 +3,7 @@ package repos
 import (
 	"context"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/data_provider/models"
 )
 
 type CardDetail struct {

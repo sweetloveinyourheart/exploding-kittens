@@ -1,7 +1,7 @@
 [
   {
-    "name": "gameengineserver",
-    "shortName": "Run as gameengineserver service",
+    "name": "dataprovider",
+    "shortName": "Run as dataprovider service",
     "long": "",
     "ports": null,
     "healthCheckPorts": [
@@ -37,26 +37,96 @@
         ]
       }
     ],
-    "defaultDatabaseName": "kittens_gameengineserver",
+    "defaultDatabaseName": "kittens_dataprovider",
     "Config": [
       {
-        "name": "dataprovider-url",
-        "usage": "Data provider connection URL",
-        "default": "http://dataprovider:50055",
+        "name": "db-migrations-url",
+        "usage": "Database connection migrations URL",
+        "default": "",
         "valueType": "string",
-        "path": "gameengineserver.dataprovider.url",
+        "path": "dataprovider.db.migrations.url",
         "env": [
-          "GAMEENGINESERVER_DATAPROVIDER_URL"
+          "DATAPROVIDER_DB_MIGRATIONS_URL"
+        ]
+      },
+      {
+        "name": "db-postgres-connection-max-idletime",
+        "usage": "Max connection idle time in seconds",
+        "default": 180,
+        "valueType": "int64",
+        "path": "dataprovider.db.postgres.max_idletime",
+        "env": [
+          "DATAPROVIDER_DB_POSTGRES_CONNECTION_MAX_IDLETIME"
+        ]
+      },
+      {
+        "name": "db-postgres-connection-max-lifetime",
+        "usage": "Max connection lifetime in seconds",
+        "default": 300,
+        "valueType": "int64",
+        "path": "dataprovider.db.postgres.max_lifetime",
+        "env": [
+          "DATAPROVIDER_DB_POSTGRES_CONNECTION_MAX_LIFETIME"
+        ]
+      },
+      {
+        "name": "db-postgres-max-idle-connections",
+        "usage": "Maximum number of idle connections",
+        "default": 50,
+        "valueType": "int64",
+        "path": "dataprovider.db.postgres.max_idle_connections",
+        "env": [
+          "DATAPROVIDER_DB_POSTGRES_MAX_IDLE_CONNECTIONS"
+        ]
+      },
+      {
+        "name": "db-postgres-max-open-connections",
+        "usage": "Maximum number of connections",
+        "default": 500,
+        "valueType": "int64",
+        "path": "dataprovider.db.postgres.max_open_connections",
+        "env": [
+          "DATAPROVIDER_DB_POSTGRES_MAX_OPEN_CONNECTIONS"
+        ]
+      },
+      {
+        "name": "db-postgres-timeout",
+        "usage": "Timeout for postgres connection",
+        "default": 60,
+        "valueType": "int64",
+        "path": "dataprovider.db.postgres.timeout",
+        "env": [
+          "DATAPROVIDER_DB_POSTGRES_TIMEOUT"
+        ]
+      },
+      {
+        "name": "db-read-url",
+        "usage": "Database connection readonly URL",
+        "default": "",
+        "valueType": "string",
+        "path": "dataprovider.db.read.url",
+        "env": [
+          "DATAPROVIDER_DB_READ_URL"
+        ]
+      },
+      {
+        "name": "db-url",
+        "usage": "Database connection URL",
+        "default": "",
+        "valueType": "string",
+        "path": "dataprovider.db.url",
+        "env": [
+          "DATAPROVIDER_DB_URL"
         ]
       },
       {
         "name": "grpc-port",
         "usage": "GRPC Port to listen on",
-        "default": 50054,
+        "default": 50055,
         "valueType": "int64",
-        "path": "gameengineserver.grpc.port",
+        "path": "dataprovider.grpc.port",
         "env": [
-          "GAMEENGINESERVER_GRPC_PORT"
+          "DATAPROVIDER_GRPC_PORT"
         ]
       },
       {
@@ -64,59 +134,9 @@
         "usage": "Unique identifier for this services",
         "default": "",
         "valueType": "string",
-        "path": "gameengineserver.id",
+        "path": "dataprovider.id",
         "env": [
-          "GAMEENGINESERVER_ID"
-        ]
-      },
-      {
-        "name": "nats-consumer-replicas",
-        "usage": "Number of times to replicate consumers",
-        "default": 1,
-        "valueType": "int64",
-        "path": "gameengineserver.nats.consumer.replicas",
-        "env": [
-          "GAMEENGINESERVER_NATS_CONSUMER_REPLICAS"
-        ]
-      },
-      {
-        "name": "nats-consumer-storage",
-        "usage": "Storage type to use for consumers",
-        "default": "memory",
-        "valueType": "string",
-        "path": "gameengineserver.nats.consumer.storage",
-        "env": [
-          "GAMEENGINESERVER_NATS_CONSUMER_STORAGE"
-        ]
-      },
-      {
-        "name": "nats-stream-replicas",
-        "usage": "Number of times to replicate steams",
-        "default": 1,
-        "valueType": "int64",
-        "path": "gameengineserver.nats.stream.replicas",
-        "env": [
-          "GAMEENGINESERVER_NATS_STREAM_REPLICAS"
-        ]
-      },
-      {
-        "name": "nats-stream-storage",
-        "usage": "Storage type to use for streams",
-        "default": "memory",
-        "valueType": "string",
-        "path": "gameengineserver.nats.stream.storage",
-        "env": [
-          "GAMEENGINESERVER_NATS_STREAM_STORAGE"
-        ]
-      },
-      {
-        "name": "nats-url",
-        "usage": "Comma separated list of NATS endpoints",
-        "default": "nats:4222",
-        "valueType": "string",
-        "path": "gameengineserver.nats.url",
-        "env": [
-          "GAMEENGINESERVER_NATS_URL"
+          "DATAPROVIDER_ID"
         ]
       },
       {
@@ -124,9 +144,9 @@
         "usage": "Signing key used for service to service tokens",
         "default": "",
         "valueType": "string",
-        "path": "gameengineserver.secrets.token_signing_key",
+        "path": "dataprovider.secrets.token_signing_key",
         "env": [
-          "GAMEENGINESERVER_SECRETS_TOKEN_SIGNING_KEY"
+          "DATAPROVIDER_SECRETS_TOKEN_SIGNING_KEY"
         ]
       },
       {

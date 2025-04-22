@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go/jetstream"
@@ -15,14 +16,16 @@ import (
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/samber/lo/mutable"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	dataProviderProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
+	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 
 	"go.uber.org/zap"
 
@@ -49,18 +52,16 @@ type GameInteractionProcessor struct {
 	ctx context.Context
 	*game.GameProjector
 
-	cardRepo repos.ICardRepository
+	dataProvider dataProviderGrpc.DataProviderClient
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
-	cardRepo := do.MustInvoke[repos.ICardRepository](nil)
-
 	lip := &GameInteractionProcessor{
-		ctx:      ctx,
-		cardRepo: cardRepo,
-		queue:    make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		ctx:          ctx,
+		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 	}
 
 	lip.GameProjector = game.NewGameProjection(lip)
@@ -286,7 +287,7 @@ type CardSetup struct {
 
 func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int) (*CardSetup, error) {
 	// Get cards registry
-	cards, err := w.cardRepo.GetCards(ctx)
+	response, err := w.dataProvider.GetCards(ctx, &connect.Request[emptypb.Empty]{})
 	if err != nil {
 		return nil, err
 	}
@@ -294,11 +295,11 @@ func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int
 	// Num of Exploding Kitten cards must be playerNum - 1
 	explodingToAdd := playerNum - 1
 
-	explodingKittenCards := make([]repos.CardDetail, 0, explodingToAdd)
-	defuseCards := make([]repos.CardDetail, 0)
-	standardCards := make([]repos.CardDetail, 0)
+	explodingKittenCards := make([]*dataProviderProto.Card, 0, explodingToAdd)
+	defuseCards := make([]*dataProviderProto.Card, 0)
+	standardCards := make([]*dataProviderProto.Card, 0)
 
-	for _, card := range cards {
+	for _, card := range response.Msg.GetCards() {
 		switch card.Name {
 		case cardConstants.ExplodingKitten:
 			for range explodingToAdd {
@@ -317,17 +318,17 @@ func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int
 
 	var standardCardIDs []uuid.UUID
 	for _, card := range standardCards {
-		standardCardIDs = append(standardCardIDs, card.CardID)
+		standardCardIDs = append(standardCardIDs, uuid.FromStringOrNil(card.CardId))
 	}
 
 	var explodingKittenCardIDs []uuid.UUID
 	for _, card := range explodingKittenCards {
-		explodingKittenCardIDs = append(explodingKittenCardIDs, card.CardID)
+		explodingKittenCardIDs = append(explodingKittenCardIDs, uuid.FromStringOrNil(card.CardId))
 	}
 
 	var defuseCardIDs []uuid.UUID
 	for _, card := range defuseCards {
-		defuseCardIDs = append(defuseCardIDs, card.CardID)
+		defuseCardIDs = append(defuseCardIDs, uuid.FromStringOrNil(card.CardId))
 	}
 
 	return &CardSetup{

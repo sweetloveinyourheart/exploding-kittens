@@ -3,27 +3,27 @@
 
 ## Table of Contents
 
-- [gameengineserver.proto](#gameengineserver-proto)
-    - [Card](#com-sweetloveinyourheart-kittens-gameengines-Card)
-    - [GetCardsResponse](#com-sweetloveinyourheart-kittens-gameengines-GetCardsResponse)
+- [dataprovider.proto](#dataprovider-proto)
+    - [Card](#com-sweetloveinyourheart-kittens-dataproviders-Card)
+    - [GetCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse)
   
-    - [GameEngineServer](#com-sweetloveinyourheart-kittens-gameengines-GameEngineServer)
+    - [DataProvider](#com-sweetloveinyourheart-kittens-dataproviders-DataProvider)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="gameengineserver-proto"></a>
+<a name="dataprovider-proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## gameengineserver.proto
+## dataprovider.proto
 
 
 
-<a name="com-sweetloveinyourheart-kittens-gameengines-Card"></a>
+<a name="com-sweetloveinyourheart-kittens-dataproviders-Card"></a>
 
 ### Card
-
+The Card message definition
 
 
 | Field | Type | Label | Description |
@@ -31,13 +31,16 @@
 | card_id | [string](#string) |  |  |
 | name | [string](#string) |  |  |
 | description | [string](#string) |  |  |
+| quantity | [int32](#int32) |  |  |
+| effects | [bytes](#bytes) |  |  |
+| combo_effects | [bytes](#bytes) |  |  |
 
 
 
 
 
 
-<a name="com-sweetloveinyourheart-kittens-gameengines-GetCardsResponse"></a>
+<a name="com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse"></a>
 
 ### GetCardsResponse
 
@@ -45,7 +48,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| cards | [Card](#com-sweetloveinyourheart-kittens-gameengines-Card) | repeated |  |
+| cards | [Card](#com-sweetloveinyourheart-kittens-dataproviders-Card) | repeated |  |
 
 
 
@@ -58,14 +61,14 @@
  
 
 
-<a name="com-sweetloveinyourheart-kittens-gameengines-GameEngineServer"></a>
+<a name="com-sweetloveinyourheart-kittens-dataproviders-DataProvider"></a>
 
-### GameEngineServer
+### DataProvider
 
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| GetCards | [.google.protobuf.Empty](#google-protobuf-Empty) | [GetCardsResponse](#com-sweetloveinyourheart-kittens-gameengines-GetCardsResponse) | Get cards |
+| GetCards | [.google.protobuf.Empty](#google-protobuf-Empty) | [GetCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse) | Get cards |
 
  
 

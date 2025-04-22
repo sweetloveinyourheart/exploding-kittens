@@ -4,11 +4,12 @@ import (
 	"context"
 	goTesting "testing"
 
+	"connectrpc.com/connect"
 	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
-	"github.com/stretchr/testify/mock"
+	goMock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
@@ -17,24 +18,24 @@ import (
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/testing"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/mock"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
 
 	"go.uber.org/zap"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
-	mockCard "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos/mock"
+	dataProviderProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
+	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 )
 
 type GameSuite struct {
 	*testing.Suite
 	deferred []func()
 
-	mockCardRepository *mockCard.MockCardRepository
+	mockDataProviderClient *mock.MockDataProviderClient
 }
 
 func (as *GameSuite) SetupTest() {
-	as.mockCardRepository = new(mockCard.MockCardRepository)
+	as.mockDataProviderClient = new(mock.MockDataProviderClient)
 }
 
 func (as *GameSuite) TearDownTest() {
@@ -48,8 +49,8 @@ func (as *GameSuite) TearDownTest() {
 
 func TestGameSuite(t *goTesting.T) {
 	gs := &GameSuite{
-		Suite:              testing.MakeSuite(t),
-		mockCardRepository: new(mockCard.MockCardRepository),
+		Suite:                  testing.MakeSuite(t),
+		mockDataProviderClient: new(mock.MockDataProviderClient),
 	}
 	suite.Run(t, gs)
 }
@@ -74,8 +75,8 @@ func (gs *GameSuite) setupEnvironment() {
 		}),
 	)
 
-	do.Override[repos.ICardRepository](nil, func(i *do.Injector) (repos.ICardRepository, error) {
-		return gs.mockCardRepository, nil
+	do.Override[dataProviderGrpc.DataProviderClient](nil, func(i *do.Injector) (dataProviderGrpc.DataProviderClient, error) {
+		return gs.mockDataProviderClient, nil
 	})
 
 	do.OverrideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
@@ -91,23 +92,25 @@ func (gs *GameSuite) setupEnvironment() {
 	gs.NoError(err)
 }
 
-func (gs *GameSuite) prepareCards() []repos.CardDetail {
-	cards := []repos.CardDetail{
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440001"), Name: cards.ExplodingKitten, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440002"), Name: cards.Defuse, Quantity: 6}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440003"), Name: cards.Attack, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440004"), Name: cards.Nope, Quantity: 5}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440005"), Name: cards.SeeTheFuture, Quantity: 5}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440006"), Name: cards.Shuffle, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440007"), Name: cards.Skip, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440008"), Name: cards.Favor, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440009"), Name: cards.BeardCat, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440010"), Name: cards.Catermelon, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440011"), Name: cards.HairyPotatoCat, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440012"), Name: cards.RainbowRalphingCat, Quantity: 4}},
+func (gs *GameSuite) prepareCards() []*dataProviderProto.Card {
+	cards := []*dataProviderProto.Card{
+		{CardId: "123e4567-e89b-12d3-a456-426655440001", Name: cards.ExplodingKitten, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440002", Name: cards.Defuse, Quantity: 6},
+		{CardId: "123e4567-e89b-12d3-a456-426655440003", Name: cards.Attack, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440004", Name: cards.Nope, Quantity: 5},
+		{CardId: "123e4567-e89b-12d3-a456-426655440005", Name: cards.SeeTheFuture, Quantity: 5},
+		{CardId: "123e4567-e89b-12d3-a456-426655440006", Name: cards.Shuffle, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440007", Name: cards.Skip, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440008", Name: cards.Favor, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440009", Name: cards.BeardCat, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440010", Name: cards.Catermelon, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440011", Name: cards.HairyPotatoCat, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440012", Name: cards.RainbowRalphingCat, Quantity: 4},
 	}
 
-	gs.mockCardRepository.On("GetCards", mock.Anything).Return(cards, nil)
+	gs.mockDataProviderClient.On("GetCards", goMock.Anything, goMock.Anything).Return(connect.NewResponse(&dataProviderProto.GetCardsResponse{
+		Cards: cards,
+	}), nil)
 
 	return cards
 }

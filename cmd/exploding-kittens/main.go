@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	kittens_clientserver "github.com/sweetloveinyourheart/exploding-kittens/cmd/exploding-kittens/services/clientserver"
+	kittens_dataprovider "github.com/sweetloveinyourheart/exploding-kittens/cmd/exploding-kittens/services/dataprovider"
 	kittens_gameengineserver "github.com/sweetloveinyourheart/exploding-kittens/cmd/exploding-kittens/services/gameengineserver"
 	kittens_lobbyserver "github.com/sweetloveinyourheart/exploding-kittens/cmd/exploding-kittens/services/lobbyserver"
 	kittens_userserver "github.com/sweetloveinyourheart/exploding-kittens/cmd/exploding-kittens/services/userserver"
@@ -27,6 +28,7 @@ func main() {
 	commands = append(commands, kittens_lobbyserver.Command(cmdutil.ServiceRootCmd))
 	commands = append(commands, kittens_userserver.Command(cmdutil.ServiceRootCmd))
 	commands = append(commands, kittens_gameengineserver.Command(cmdutil.ServiceRootCmd))
+	commands = append(commands, kittens_dataprovider.Command(cmdutil.ServiceRootCmd))
 	commands = append(commands, kittens_utils.CheckCommand())
 
 	cmdutil.InitializeService(commands...)

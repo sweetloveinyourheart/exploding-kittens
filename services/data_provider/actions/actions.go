@@ -6,7 +6,7 @@ import (
 	"github.com/samber/do"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/data_provider/repos"
 )
 
 type actions struct {

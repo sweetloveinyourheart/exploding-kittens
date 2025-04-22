@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/data_provider/models"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/data_provider/repos"
 )
 
 type MockCardRepository struct {

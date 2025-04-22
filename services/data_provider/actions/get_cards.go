@@ -11,11 +11,11 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
 )
 
 func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.GetCardsResponse], err error) {
-	cards, err := a.cardRepo.GetCardsInformation(ctx)
+	cards, err := a.cardRepo.GetCards(ctx)
 	if err != nil {
 		log.Global().Error("error getting card list", zap.Error(err))
 		return nil, grpc.NotFoundError(err)
@@ -24,9 +24,12 @@ func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb
 	cardList := make([]*proto.Card, 0)
 	for _, card := range cards {
 		cardList = append(cardList, &proto.Card{
-			CardId:      card.CardID.String(),
-			Name:        card.Name,
-			Description: card.Description,
+			CardId:       card.CardID.String(),
+			Name:         card.Name,
+			Description:  card.Description,
+			Quantity:     int32(card.Quantity),
+			Effects:      card.Effects,
+			ComboEffects: card.ComboEffects,
 		})
 	}
 

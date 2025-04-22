@@ -2,7 +2,6 @@ package gameengine
 
 import (
 	"context"
-	"embed"
 	"fmt"
 
 	pool "github.com/octu0/nats-pool"
@@ -20,9 +19,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 	gameDomain "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains/game"
 )
-
-//go:embed migrations/*.sql
-var FS embed.FS
 
 func InitializeRepos(ctx context.Context) error {
 	appID := fmt.Sprintf("gameengineserver-%s", config.Instance().GetString("gameengineserver.id"))

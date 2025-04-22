@@ -2,9 +2,9 @@ package gameengineserver
 
 import (
 	"fmt"
+	"net/http"
 
 	"connectrpc.com/connect"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"go.uber.org/zap"
@@ -15,21 +15,15 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
-	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go/grpcconnect"
+	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/actions"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 )
 
 const DEFAULT_GAMEENGINESERVER_GRPC_PORT = 50054
 
 const serviceType = "gameengineserver"
-const dbTablePrefix = "kittens_gameengineserver"
-const defDBName = "kittens_gameengineserver"
 const envPrefix = "GAMEENGINESERVER"
 
 func Command(rootCmd *cobra.Command) *cobra.Command {
@@ -42,8 +36,6 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
-			app.Migrations(gameengine.FS, dbTablePrefix)
-
 			if err := setupDependencies(); err != nil {
 				log.GlobalSugared().Fatal(err)
 			}
@@ -51,22 +43,6 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			if err := gameengine.InitializeRepos(app.Ctx()); err != nil {
 				log.GlobalSugared().Fatal(err)
 			}
-
-			signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
-			actions := actions.NewActions(app.Ctx(), signingKey)
-
-			opt := connect.WithInterceptors(
-				interceptors.CommonConnectInterceptors(
-					serviceType,
-					signingKey,
-					interceptors.ConnectServerAuthHandler(signingKey),
-				)...,
-			)
-			path, handler := grpcconnect.NewGameEngineServerHandler(
-				actions,
-				opt,
-			)
-			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("gameengineserver.grpc.port"), serviceType)
 
 			app.Run()
 		},
@@ -82,42 +58,34 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				Command: cmd,
 			})
 			config.AddDefaultServicePorts(cmd, rootCmd)
-			config.AddDefaultDatabase(cmd, defDBName)
 			return nil
 		},
 	}
 
 	// config options
 	config.Int64Default(gameEngineServerCommand, "gameengineserver.grpc.port", "grpc-port", DEFAULT_GAMEENGINESERVER_GRPC_PORT, "GRPC Port to listen on", "GAMEENGINESERVER_GRPC_PORT")
+	config.StringDefault(gameEngineServerCommand, "gameengineserver.dataprovider.url", "dataprovider-url", "http://dataprovider:50055", "Data provider connection URL", "GAMEENGINESERVER_DATAPROVIDER_URL")
 
 	cmdutil.BoilerplateFlagsCore(gameEngineServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateFlagsNats(gameEngineServerCommand, serviceType, envPrefix)
-	cmdutil.BoilerplateSecureFlags(gameEngineServerCommand, serviceType)
-	cmdutil.BoilerplateFlagsDB(gameEngineServerCommand, serviceType, envPrefix)
 
 	return gameEngineServerCommand
 }
 
 func setupDependencies() error {
-	dbConn, err := db.NewDbWithWait(config.Instance().GetString("gameengineserver.db.url"), db.DBOptions{
-		TimeoutSec:      config.Instance().GetInt("gameengineserver.db.postgres.timeout"),
-		MaxOpenConns:    config.Instance().GetInt("gameengineserver.db.postgres.max_open_connections"),
-		MaxIdleConns:    config.Instance().GetInt("gameengineserver.db.postgres.max_idle_connections"),
-		ConnMaxLifetime: config.Instance().GetInt("gameengineserver.db.postgres.max_lifetime"),
-		ConnMaxIdleTime: config.Instance().GetInt("gameengineserver.db.postgres.max_idletime"),
-		EnableTracing:   config.Instance().GetBool("gameengineserver.db.tracing"),
-	})
-	if err != nil {
-		return err
-	}
+	signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
 
-	do.Provide[*pgxpool.Pool](nil, func(i *do.Injector) (*pgxpool.Pool, error) {
-		return dbConn, nil
-	})
+	dataProviderClient := dataProviderConnect.NewDataProviderClient(
+		http.DefaultClient,
+		config.Instance().GetString("gameengineserver.dataprovider.url"),
+		connect.WithInterceptors(interceptors.CommonConnectClientInterceptors(
+			serviceType,
+			signingKey,
+		)...),
+	)
 
-	cardRepo := repos.NewCardRepository(dbConn)
-	do.Provide[repos.ICardRepository](nil, func(i *do.Injector) (repos.ICardRepository, error) {
-		return cardRepo, nil
+	do.Provide[dataProviderConnect.DataProviderClient](nil, func(i *do.Injector) (dataProviderConnect.DataProviderClient, error) {
+		return dataProviderClient, nil
 	})
 
 	connPool := pool.New(100, config.Instance().GetString("gameengineserver.nats.url"),
