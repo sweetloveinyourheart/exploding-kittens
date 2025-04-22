@@ -8,10 +8,12 @@ import (
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/testing"
 
@@ -19,6 +21,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 	mockCard "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos/mock"
 )
@@ -86,4 +89,25 @@ func (gs *GameSuite) setupEnvironment() {
 	gs.deferred = append(gs.deferred, cancel)
 	err = gameengine.InitializeRepos(ctx)
 	gs.NoError(err)
+}
+
+func (gs *GameSuite) prepareCards() []repos.CardDetail {
+	cards := []repos.CardDetail{
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440001"), Name: cards.ExplodingKitten, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440002"), Name: cards.Defuse, Quantity: 6}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440003"), Name: cards.Attack, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440004"), Name: cards.Nope, Quantity: 5}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440005"), Name: cards.SeeTheFuture, Quantity: 5}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440006"), Name: cards.Shuffle, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440007"), Name: cards.Skip, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440008"), Name: cards.Favor, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440009"), Name: cards.BeardCat, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440010"), Name: cards.Catermelon, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440011"), Name: cards.HairyPotatoCat, Quantity: 4}},
+		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440012"), Name: cards.RainbowRalphingCat, Quantity: 4}},
+	}
+
+	gs.mockCardRepository.On("GetCards", mock.Anything).Return(cards, nil)
+
+	return cards
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
@@ -15,33 +14,16 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/repo/version"
 	deskDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	gameDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/models"
+	handDomain "github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/repos"
 )
 
 func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 	gs.setupEnvironment()
+	cards := gs.prepareCards()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
-
-	cards := []repos.CardDetail{
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440001"), Name: cards.ExplodingKitten, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440002"), Name: cards.Defuse, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440003"), Name: cards.Attack, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440004"), Name: cards.Nope, Quantity: 5}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440005"), Name: cards.SeeTheFuture, Quantity: 5}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440006"), Name: cards.Shuffle, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440007"), Name: cards.Skip, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440008"), Name: cards.Favor, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440009"), Name: cards.BeardCat, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440010"), Name: cards.Catermelon, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440011"), Name: cards.HairyPotatoCat, Quantity: 4}},
-		{Card: models.Card{CardID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440012"), Name: cards.RainbowRalphingCat, Quantity: 4}},
-	}
-
-	gs.mockCardRepository.On("GetCards", mock.Anything).Return(cards, nil)
-	gs.NoError(nil, nil)
 
 	mw := retrymw.NewCommandHandlerMiddleware(retry.Attempts(4), retry.MaxDelay(1*time.Second))
 	commandBus := bus.NewCommandHandler()
@@ -55,12 +37,14 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 	deskRepo, err := deskDomain.CreateNATSRepoDesk(ctx, "test")
 	gs.NoError(err)
 
+	handRepo, err := handDomain.CreateNATSRepoHand(ctx, "test")
+	gs.NoError(err)
+
 	gameID := uuid.Must(uuid.NewV7())
-	player01 := uuid.Must(uuid.NewV7())
-	player02 := uuid.Must(uuid.NewV7())
 	playerIDs := []uuid.UUID{
-		player01,
-		player02,
+		uuid.Must(uuid.NewV7()),
+		uuid.Must(uuid.NewV7()),
+		uuid.Must(uuid.NewV7()),
 	}
 
 	err = commandBus.HandleCommand(ctx, &gameDomain.CreateGame{
@@ -76,18 +60,51 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 		gameState, err := gameRepo.Find(findCtx, gameID.String())
 		deskState, err := deskRepo.Find(findCtx, gameState.Desk.String())
 
-		shuffled := isCardsShuffled(cards, deskState.Cards)
+		validDesk := isValidDesk(cards, deskState.Cards, len(gameState.PlayerHands))
 
-		return err == nil && shuffled && gameState.Desk != uuid.Nil
+		return err == nil && validDesk && gameState.Desk != uuid.Nil
+	}, 5*time.Second, 10*time.Millisecond)
+
+	gs.Eventually(func() bool {
+		for _, playerID := range playerIDs {
+			playerHandID := handDomain.NewPlayerHandID(gameID, playerID)
+			handState, err := handRepo.Find(findCtx, playerHandID.String())
+
+			isValid := err == nil && len(handState.GetCards()) == 8
+			if !isValid {
+				return false
+			}
+		}
+
+		return true
 	}, 5*time.Second, 10*time.Millisecond)
 }
 
-func isCardsShuffled(original []repos.CardDetail, shuffled []uuid.UUID) bool {
-	for i := range original {
-		if original[i].Card.CardID != shuffled[i] {
-			return true // cards are same, but order differs = shuffled
+func isValidDesk(original []repos.CardDetail, deskCards []uuid.UUID, playerNum int) bool {
+	cardMap := make(map[uuid.UUID]repos.CardDetail, len(original))
+	defuseQuantity := 0
+
+	for _, card := range original {
+		cardMap[card.CardID] = card
+		if card.Name == cards.Defuse {
+			defuseQuantity = card.Quantity
 		}
 	}
 
-	return false // same order, not shuffled
+	explodingKittenCards := 0
+	defuseCards := 0
+
+	for _, cardID := range deskCards {
+		if card, ok := cardMap[cardID]; ok {
+			switch card.Name {
+			case cards.ExplodingKitten:
+				explodingKittenCards++
+			case cards.Defuse:
+				defuseCards++
+			}
+		}
+	}
+
+	// Ensure that the number of Exploding Kitten and Defuse cards is valid
+	return explodingKittenCards == playerNum-1 && defuseCards == defuseQuantity-playerNum
 }

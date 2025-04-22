@@ -34,6 +34,10 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
 
+const (
+	BASE_CARDS_PER_PLAYER = 7
+)
+
 var (
 	ProcessingTimeout                     = 10 * time.Second
 	BatchSize                             = 1024
@@ -206,43 +210,57 @@ func (w *GameInteractionProcessor) HandleEvent(ctx context.Context, event common
 func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
 	playerCount := len(data.GetPlayerIDs())
 
-	// Get cards registry
-	cards, err := w.cardRepo.GetCards(ctx)
-	if err != nil {
-		return err
-	}
-
 	// Pre setup cards
-	cardIDs := w.setupCards(cards, playerCount)
-
-	// Deal 7 cards to each player
-	cardsPerPlayer := 7
-	if len(cardIDs) < playerCount*cardsPerPlayer {
-		return fmt.Errorf("not enough cards to deal")
+	cards, err := w.setupCards(ctx, playerCount)
+	if err != nil {
+		return fmt.Errorf("error setting up cards")
 	}
+
+	// Ensure we have enough cards for all players
+	playerIDs := data.GetPlayerIDs()
+	if len(cards.StandardCards) < len(playerIDs)*BASE_CARDS_PER_PLAYER || len(cards.DefuseCards) < len(playerIDs) {
+		return errors.New("not enough cards to deal to all players")
+	}
+
+	// Shuffle standard cards
+	mutable.Shuffle(cards.StandardCards)
 
 	playerHands := make(map[uuid.UUID]uuid.UUID)
-	for _, playerID := range data.GetPlayerIDs() {
-		playerCards := cardIDs[0:7]
-		cardIDs = slices.Delete(cardIDs, 0, 7)
+	for _, playerID := range playerIDs {
+		standardCards := slices.Clone(cards.StandardCards[:BASE_CARDS_PER_PLAYER]) // deal 7 standard cards
+		handCards := append(standardCards, cards.DefuseCards[0])                   // deal 1 defuse card
 
-		// Create player hand
-		playerHandID := hand.NewPlayerHandID(data.GetGameID(), playerID)
+		// Trim used cards
+		cards.StandardCards = slices.Delete(cards.StandardCards, 0, BASE_CARDS_PER_PLAYER)
+		cards.DefuseCards = slices.Delete(cards.DefuseCards, 0, 1)
+
+		// Shuffle player's cards
+		mutable.Shuffle(handCards)
+
+		handID := hand.NewPlayerHandID(data.GetGameID(), playerID)
 		if err := domains.CommandBus.HandleCommand(ctx, &hand.CreateHand{
-			HandID: playerHandID,
-			Cards:  playerCards,
+			HandID: handID,
+			Cards:  handCards,
 		}); err != nil {
-			return err
+			return fmt.Errorf("failed to create hand for player %s: %w", playerID, err)
 		}
-
-		playerHands[playerID] = playerHandID
+		playerHands[playerID] = handID
 	}
 
-	// Create new desk
+	// Create a desk by calculating the total length needed for deskCards
 	deskID := uuid.Must(uuid.NewV7())
+	totalLength := len(cards.StandardCards) + len(cards.ExplodingKittenCards) + len(cards.DefuseCards)
+	deskCards := make([]uuid.UUID, 0, totalLength)
+	deskCards = append(deskCards, cards.StandardCards...)
+	deskCards = append(deskCards, cards.ExplodingKittenCards...)
+	deskCards = append(deskCards, cards.DefuseCards...)
+
+	// Shuffle desk's cards
+	mutable.Shuffle(deskCards)
+
 	if err := domains.CommandBus.HandleCommand(ctx, &desk.CreateDesk{
 		DeskID: deskID,
-		Cards:  cardIDs,
+		Cards:  deskCards,
 	}); err != nil {
 		return err
 	}
@@ -260,37 +278,61 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	return nil
 }
 
-func (w *GameInteractionProcessor) setupCards(cards []repos.CardDetail, playerNum int) []uuid.UUID {
-	// Remove the Exploding Kitten and Defuse Cards from the deck
-	explodingToAdd := playerNum - 1
-	defuseToAdd := playerNum - 1
+type CardSetup struct {
+	StandardCards        []uuid.UUID
+	ExplodingKittenCards []uuid.UUID
+	DefuseCards          []uuid.UUID
+}
 
-	filteredCards := make([]repos.CardDetail, 0, len(cards))
+func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int) (*CardSetup, error) {
+	// Get cards registry
+	cards, err := w.cardRepo.GetCards(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Num of Exploding Kitten cards must be playerNum - 1
+	explodingToAdd := playerNum - 1
+
+	explodingKittenCards := make([]repos.CardDetail, 0, explodingToAdd)
+	defuseCards := make([]repos.CardDetail, 0)
+	standardCards := make([]repos.CardDetail, 0)
 
 	for _, card := range cards {
 		switch card.Name {
 		case cardConstants.ExplodingKitten:
 			for range explodingToAdd {
-				filteredCards = append(filteredCards, card)
+				explodingKittenCards = append(explodingKittenCards, card)
 			}
 		case cardConstants.Defuse:
-			for range defuseToAdd {
-				filteredCards = append(filteredCards, card)
+			for range card.Quantity {
+				defuseCards = append(defuseCards, card)
 			}
 		default:
 			for range card.Quantity {
-				filteredCards = append(filteredCards, card)
+				standardCards = append(standardCards, card)
 			}
 		}
 	}
 
-	// Shuffle cards
-	mutable.Shuffle(filteredCards)
-
-	var cardIDs []uuid.UUID
-	for _, card := range filteredCards {
-		cardIDs = append(cardIDs, card.CardID)
+	var standardCardIDs []uuid.UUID
+	for _, card := range standardCards {
+		standardCardIDs = append(standardCardIDs, card.CardID)
 	}
 
-	return cardIDs
+	var explodingKittenCardIDs []uuid.UUID
+	for _, card := range explodingKittenCards {
+		explodingKittenCardIDs = append(explodingKittenCardIDs, card.CardID)
+	}
+
+	var defuseCardIDs []uuid.UUID
+	for _, card := range defuseCards {
+		defuseCardIDs = append(defuseCardIDs, card.CardID)
+	}
+
+	return &CardSetup{
+		StandardCards:        standardCardIDs,
+		ExplodingKittenCards: explodingKittenCardIDs,
+		DefuseCards:          defuseCardIDs,
+	}, nil
 }
