@@ -75,16 +75,16 @@ INSERT INTO combo_effects (combo_id, required_cards, effect) VALUES
 INSERT INTO card_combo (card_id, combo_id)
 SELECT card_id, (SELECT combo_id FROM combo_effects WHERE required_cards = 2)
 FROM cards
-WHERE name IN ('TacoCat', 'Catermelon', 'Hairy Potato Cat', 'Rainbow Ralphing Cat', 'Beard Cat');
+WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_cat', 'beard_cat');
 
 -- Three of a Kind (All Cat Cards)
 INSERT INTO card_combo (card_id, combo_id)
 SELECT card_id, (SELECT combo_id FROM combo_effects WHERE required_cards = 3)
 FROM cards
-WHERE name IN ('TacoCat', 'Catermelon', 'Hairy Potato Cat', 'Rainbow Ralphing Cat', 'Beard Cat');
+WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_cat', 'beard_cat');
 
 -- Five Different Cards (All Cat Cards)
 INSERT INTO card_combo (card_id, combo_id)
 SELECT card_id, (SELECT combo_id FROM combo_effects WHERE required_cards = 5)
 FROM cards
-WHERE name IN ('TacoCat', 'Catermelon', 'Hairy Potato Cat', 'Rainbow Ralphing Cat', 'Beard Cat');
+WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_cat', 'beard_cat');
