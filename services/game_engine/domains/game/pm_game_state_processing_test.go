@@ -87,7 +87,7 @@ func isValidDesk(original []*dataProviderProto.Card, deskCards []uuid.UUID, play
 
 	for _, card := range original {
 		cardMap[uuid.FromStringOrNil(card.CardId)] = card
-		if card.Name == cards.Defuse {
+		if card.Code == cards.Defuse {
 			defuseQuantity = int(card.Quantity)
 		}
 	}
@@ -97,7 +97,7 @@ func isValidDesk(original []*dataProviderProto.Card, deskCards []uuid.UUID, play
 
 	for _, cardID := range deskCards {
 		if card, ok := cardMap[cardID]; ok {
-			switch card.Name {
+			switch card.Code {
 			case cards.ExplodingKitten:
 				explodingKittenCards++
 			case cards.Defuse:

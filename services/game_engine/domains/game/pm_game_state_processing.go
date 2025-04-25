@@ -300,7 +300,7 @@ func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int
 	standardCards := make([]*dataProviderProto.Card, 0)
 
 	for _, card := range response.Msg.GetCards() {
-		switch card.Name {
+		switch card.Code {
 		case cardConstants.ExplodingKitten:
 			for range explodingToAdd {
 				explodingKittenCards = append(explodingKittenCards, card)

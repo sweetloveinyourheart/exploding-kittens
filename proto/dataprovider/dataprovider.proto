@@ -14,11 +14,12 @@ service DataProvider {
 // The Card message definition
 message Card {
     string card_id = 1;
-    string name = 2;
-    string description = 3;
-    int32 quantity = 4;
-    bytes effects = 5;
-    bytes combo_effects = 6;
+    string code = 2;
+    string name = 3;
+    string description = 4;
+    int32 quantity = 5;
+    bytes effects = 6;
+    bytes combo_effects = 7;
   }
 
 message GetCardsResponse {

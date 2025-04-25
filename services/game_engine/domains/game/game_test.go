@@ -94,18 +94,18 @@ func (gs *GameSuite) setupEnvironment() {
 
 func (gs *GameSuite) prepareCards() []*dataProviderProto.Card {
 	cards := []*dataProviderProto.Card{
-		{CardId: "123e4567-e89b-12d3-a456-426655440001", Name: cards.ExplodingKitten, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440002", Name: cards.Defuse, Quantity: 6},
-		{CardId: "123e4567-e89b-12d3-a456-426655440003", Name: cards.Attack, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440004", Name: cards.Nope, Quantity: 5},
-		{CardId: "123e4567-e89b-12d3-a456-426655440005", Name: cards.SeeTheFuture, Quantity: 5},
-		{CardId: "123e4567-e89b-12d3-a456-426655440006", Name: cards.Shuffle, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440007", Name: cards.Skip, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440008", Name: cards.Favor, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440009", Name: cards.BeardCat, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440010", Name: cards.Catermelon, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440011", Name: cards.HairyPotatoCat, Quantity: 4},
-		{CardId: "123e4567-e89b-12d3-a456-426655440012", Name: cards.RainbowRalphingCat, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440001", Code: cards.ExplodingKitten, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440002", Code: cards.Defuse, Quantity: 6},
+		{CardId: "123e4567-e89b-12d3-a456-426655440003", Code: cards.Attack, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440004", Code: cards.Nope, Quantity: 5},
+		{CardId: "123e4567-e89b-12d3-a456-426655440005", Code: cards.SeeTheFuture, Quantity: 5},
+		{CardId: "123e4567-e89b-12d3-a456-426655440006", Code: cards.Shuffle, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440007", Code: cards.Skip, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440008", Code: cards.Favor, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4},
+		{CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.RainbowRalphingCat, Quantity: 4},
 	}
 
 	gs.mockDataProviderClient.On("GetCards", goMock.Anything, goMock.Anything).Return(connect.NewResponse(&dataProviderProto.GetCardsResponse{

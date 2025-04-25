@@ -37,7 +37,7 @@
         ]
       }
     ],
-    "defaultDatabaseName": "kittens_gameengineserver",
+    "defaultDatabaseName": "",
     "Config": [
       {
         "name": "dataprovider-url",

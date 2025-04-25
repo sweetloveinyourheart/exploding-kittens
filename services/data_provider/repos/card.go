@@ -59,6 +59,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 		SELECT 
 			c.card_id,
 			c.name AS card_name,
+			c.code,
 			c.description AS card_description,
 			c.quantity,
 			COALESCE(ce.effect, '{}') AS card_effect,  -- Defaults to empty JSON if no effect
@@ -80,6 +81,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 		if err := rows.Scan(
 			&card.CardID,
 			&card.Name,
+			&card.Code,
 			&card.Description,
 			&card.Quantity,
 			&card.Effects,

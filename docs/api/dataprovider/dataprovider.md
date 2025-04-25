@@ -29,6 +29,7 @@ The Card message definition
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | card_id | [string](#string) |  |  |
+| code | [string](#string) |  |  |
 | name | [string](#string) |  |  |
 | description | [string](#string) |  |  |
 | quantity | [int32](#int32) |  |  |

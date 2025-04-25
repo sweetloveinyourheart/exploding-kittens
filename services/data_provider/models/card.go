@@ -9,6 +9,7 @@ import (
 // Card represents an individual card with effects stored in JSONB
 type Card struct {
 	CardID      uuid.UUID `json:"card_id"`
+	Code        string    `json:"code"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Quantity    int       `json:"quantity"`

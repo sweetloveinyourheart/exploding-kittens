@@ -25,6 +25,7 @@ func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb
 	for _, card := range cards {
 		cardList = append(cardList, &proto.Card{
 			CardId:       card.CardID.String(),
+			Code:         card.Code,
 			Name:         card.Name,
 			Description:  card.Description,
 			Quantity:     int32(card.Quantity),

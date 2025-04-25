@@ -2,6 +2,7 @@
 CREATE TABLE cards (
     card_id         UUID                        DEFAULT gen_random_uuid(),
     name            VARCHAR(50)     NOT NULL,
+    code            VARCHAR(50)     NOT NULL,
     description     TEXT,
     quantity        INT             NOT NULL,
     created_at      TIMESTAMP WITH  TIME ZONE   DEFAULT now(),   
@@ -41,19 +42,19 @@ CREATE TABLE card_combo (
 );
 
 INSERT INTO cards (card_id, name, description, quantity) VALUES
-    (gen_random_uuid(), 'Exploding Kitten', 'If you draw one, you explode and are out of the game unless you have a Defuse card.', 4),
-    (gen_random_uuid(), 'Defuse', 'Allows you to prevent an explosion and secretly place the Exploding Kitten back into the deck.', 6),
-    (gen_random_uuid(), 'Nope', 'Cancels any action (except Exploding Kitten or Defuse).', 5),
-    (gen_random_uuid(), 'Attack', 'Ends your turn without drawing and forces the next player to take two turns in a row.', 4),
-    (gen_random_uuid(), 'Skip', 'Ends your turn immediately without drawing a card.', 4),
-    (gen_random_uuid(), 'Favor', 'Forces another player to give you a card of their choice.', 4),
-    (gen_random_uuid(), 'Shuffle', 'Shuffles the deck.', 4),
-    (gen_random_uuid(), 'See the Future', 'Lets you peek at the top three cards of the deck.', 5),
-    (gen_random_uuid(), 'TacoCat', 'Part of the Cat Cards.', 4),
-    (gen_random_uuid(), 'Catermelon', 'Part of the Cat Cards.', 4),
-    (gen_random_uuid(), 'Hairy Potato Cat', 'Part of the Cat Cards.', 4),
-    (gen_random_uuid(), 'Rainbow Ralphing Cat', 'Part of the Cat Cards.', 4),
-    (gen_random_uuid(), 'Beard Cat', 'Part of the Cat Cards.', 4);
+    (gen_random_uuid(), 'Exploding Kitten', 'exploding_kitten', 'If you draw one, you explode and are out of the game unless you have a Defuse card.', 4),
+    (gen_random_uuid(), 'Defuse', 'defuse', 'Allows you to prevent an explosion and secretly place the Exploding Kitten back into the deck.', 6),
+    (gen_random_uuid(), 'Nope', 'nope', 'Cancels any action (except Exploding Kitten or Defuse).', 5),
+    (gen_random_uuid(), 'Attack', 'attack', 'Ends your turn without drawing and forces the next player to take two turns in a row.', 4),
+    (gen_random_uuid(), 'Skip', 'skip', 'Ends your turn immediately without drawing a card.', 4),
+    (gen_random_uuid(), 'Favor', 'favor', 'Forces another player to give you a card of their choice.', 4),
+    (gen_random_uuid(), 'Shuffle', 'shuffle', 'Shuffles the deck.', 4),
+    (gen_random_uuid(), 'See the Future', 'see_the_future', 'Lets you peek at the top three cards of the deck.', 5),
+    (gen_random_uuid(), 'TacoCat', 'taco_cat', 'Part of the Cat Cards.', 4),
+    (gen_random_uuid(), 'Catermelon', 'catermelon', 'Part of the Cat Cards.', 4),
+    (gen_random_uuid(), 'Hairy Potato Cat', 'hairy_potato_cat', 'Part of the Cat Cards.', 4),
+    (gen_random_uuid(), 'Rainbow Ralphing Cat', 'rainbow_ralphing_cat', 'Part of the Cat Cards.', 4),
+    (gen_random_uuid(), 'Beard Cat', 'beard_cat', 'Part of the Cat Cards.', 4);
 
 INSERT INTO card_effects (effect_id, card_id, effect) VALUES
     (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Exploding Kitten'), '{"type": "explode"}'),
