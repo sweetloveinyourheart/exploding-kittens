@@ -5,8 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"maps"
-
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
@@ -38,24 +36,25 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Gam
 }
 
 func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, data *GameCreated, entity *Game) (*Game, error) {
-	entity.GameID = data.GetGameID()
-	entity.GamePhase = GAME_PHASE_INITIALIZING
-
-	entity.PlayerHands = make(map[uuid.UUID]uuid.UUID)
+	players := make([]Player, 0)
 	for _, playerID := range data.GetPlayerIDs() {
-		entity.PlayerHands[playerID] = uuid.Nil
+		players = append(players, Player{PlayerID: playerID, Active: true})
 	}
+
+	entity.GameID = data.GetGameID()
+	entity.Players = players
+	entity.DiscardPile = make([]uuid.UUID, 0)
+	entity.CreatedAt = timeutil.NowRoundedForGranularity()
 
 	return entity, nil
 }
 
 func (p *Projector) HandleGameArgsInitialized(ctx context.Context, event common.Event, data *GameArgsInitialized, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
-	entity.GamePhase = GAME_PHASE_CARD_PLAYING
+	entity.GamePhase = GAME_PHASE_INITIALIZING
 	entity.Desk = data.GetDesk()
-
-	// assign player hand
-	maps.Copy(entity.PlayerHands, data.GetPlayerHands())
+	entity.PlayerTurn = data.GetPlayerTurn()
+	entity.PlayerHands = data.GetPlayerHands()
 
 	return entity, nil
 }

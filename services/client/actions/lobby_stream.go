@@ -51,6 +51,11 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 		return grpc.NotFoundError(err)
 	}
 
+	isAuthorized := slices.Contains(lobbyState.GetParticipants(), userID)
+	if !isAuthorized {
+		return grpc.NotFoundError(errors.Errorf("Lobby not found"))
+	}
+
 	lobbyChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
 	lobbyUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.LobbyStream, request.Msg.GetLobbyId()), lobbyChan)
 	if err != nil {

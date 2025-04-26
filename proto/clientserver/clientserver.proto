@@ -18,6 +18,8 @@ service ClientServer {
     rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
     rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
     rpc StartGame(StartGameRequest) returns (google.protobuf.Empty);
+
+    rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
 }
 
 // ========= User ==========
@@ -107,4 +109,47 @@ message LeaveLobbyResponse {
 // Message for start a game
 message StartGameRequest {
     string lobby_id = 1;
+}
+
+// ========== GAME ===========
+message Game {
+    enum Phase {
+        INITIALIZING = 0;    // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
+	    TURN_START   = 1;    // Active player begins their turn
+	    ACTION_PHASE = 2;    // Player can play as many action cards as they want
+	    CARD_DRAWING = 3;    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
+	    TURN_END     = 4;    // Finalize the turn, next player becomes active
+	    GAME_OVER    = 5;    // When only one player remains
+    }
+
+    message Player {
+        string player_id = 1;
+        bool active = 2;
+    }
+
+    message PlayerHand {
+        int32 remaining_cards = 1;
+        repeated string hands = 2;
+    }
+
+    message Desk {
+        string desk_id = 1;
+        int32 remaining_cards = 2;
+    }
+    
+    string game_id = 1;
+    Phase game_phase = 2;
+    string player_turn = 3;
+    repeated Player players = 4;
+    map<string, PlayerHand> player_hands = 5;
+    Desk desk = 6;
+    repeated string discard_pile = 7;
+}
+
+message StreamGameRequest {
+    string game_id = 1;
+}
+
+message StreamGameReply {
+    Game game_state = 1;
 }

@@ -30,6 +30,7 @@ const (
 	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
 	ClientServer_StartGame_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartGame"
+	ClientServer_StreamGame_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -46,6 +47,7 @@ type ClientServerClient interface {
 	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
 	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
 }
 
 type clientServerClient struct {
@@ -165,6 +167,25 @@ func (c *clientServerClient) StartGame(ctx context.Context, in *StartGameRequest
 	return out, nil
 }
 
+func (c *clientServerClient) StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ClientServer_ServiceDesc.Streams[1], ClientServer_StreamGame_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamGameRequest, StreamGameReply]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ClientServer_StreamGameClient = grpc.ServerStreamingClient[StreamGameReply]
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -179,6 +200,7 @@ type ClientServerServer interface {
 	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
 	StartGame(context.Context, *StartGameRequest) (*emptypb.Empty, error)
+	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -217,6 +239,9 @@ func (UnimplementedClientServerServer) LeaveLobby(context.Context, *LeaveLobbyRe
 }
 func (UnimplementedClientServerServer) StartGame(context.Context, *StartGameRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartGame not implemented")
+}
+func (UnimplementedClientServerServer) StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamGame not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -411,6 +436,17 @@ func _ClientServer_StartGame_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_StreamGame_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamGameRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ClientServerServer).StreamGame(m, &grpc.GenericServerStream[StreamGameRequest, StreamGameReply]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ClientServer_StreamGameServer = grpc.ServerStreamingServer[StreamGameReply]
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -459,6 +495,11 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamLobby",
 			Handler:       _ClientServer_StreamLobby_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamGame",
+			Handler:       _ClientServer_StreamGame_Handler,
 			ServerStreams: true,
 		},
 	},

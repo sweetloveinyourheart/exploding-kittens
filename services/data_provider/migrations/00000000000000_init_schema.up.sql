@@ -41,7 +41,7 @@ CREATE TABLE card_combo (
     FOREIGN KEY (combo_id) REFERENCES combo_effects(combo_id) ON DELETE CASCADE
 );
 
-INSERT INTO cards (card_id, name, description, quantity) VALUES
+INSERT INTO cards (card_id, name, code, description, quantity) VALUES
     (gen_random_uuid(), 'Exploding Kitten', 'exploding_kitten', 'If you draw one, you explode and are out of the game unless you have a Defuse card.', 4),
     (gen_random_uuid(), 'Defuse', 'defuse', 'Allows you to prevent an explosion and secretly place the Exploding Kitten back into the deck.', 6),
     (gen_random_uuid(), 'Nope', 'nope', 'Cancels any action (except Exploding Kitten or Defuse).', 5),
@@ -57,14 +57,14 @@ INSERT INTO cards (card_id, name, description, quantity) VALUES
     (gen_random_uuid(), 'Beard Cat', 'beard_cat', 'Part of the Cat Cards.', 4);
 
 INSERT INTO card_effects (effect_id, card_id, effect) VALUES
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Exploding Kitten'), '{"type": "explode"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Defuse'), '{"type": "prevent_explode", "action": "place back"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Nope'), '{"type": "cancel_action"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Attack'), '{"type": "skip_turn", "extra_turns": 2}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Skip'), '{"type": "skip_turn"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Favor'), '{"type": "steal_card", "from": "opponent"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'Shuffle'), '{"type": "shuffle_deck"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE name = 'See the Future'), '{"type": "peek_cards", "count": 3}');
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'exploding_kitten'), '{"type": "explode"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'defuse'), '{"type": "prevent_explode", "action": "place back"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'nope'), '{"type": "cancel_action"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'attack'), '{"type": "skip_turn", "extra_turns": 2}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'skip'), '{"type": "skip_turn"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'favor'), '{"type": "steal_card", "from": "opponent"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'shuffle'), '{"type": "shuffle_deck"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'see_the_future'), '{"type": "peek_cards", "count": 3}');
 
 INSERT INTO combo_effects (combo_id, required_cards, effect) VALUES
     (gen_random_uuid(), 2, '{"type": "steal_random_card"}'), -- Two of a Kind

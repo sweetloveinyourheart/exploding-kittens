@@ -71,7 +71,7 @@ type Aggregate struct {
 
 	currentGameID uuid.UUID
 	actived       bool
-	initializing  bool
+	creating      bool
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -92,12 +92,12 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameAlreadyCreated
 		}
 
-		if a.initializing {
-			return ErrGameIsInitializing
+		if len(typed.PlayerIDs) < 2 {
+			return ErrNotEnoughUsersToPlay
 		}
 
-		if len(typed.PlayerIDs) < 2 {
-			return ErrNotEnoughUserToPlay
+		if len(typed.PlayerIDs) > 5 {
+			return ErrTooManyUsersToPlay
 		}
 
 	case *InitGameArgs:
@@ -105,7 +105,6 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameAlreadyInitialized
 		}
 	}
-
 	return nil
 }
 
@@ -156,7 +155,6 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 
-		a.initializing = true
 		a.currentGameID = data.GetGameID()
 
 	case EventTypeGameArgsInitialized:
@@ -165,7 +163,6 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 
-		a.initializing = false
 		a.actived = true
 	}
 

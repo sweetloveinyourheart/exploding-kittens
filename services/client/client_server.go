@@ -5,13 +5,12 @@ import (
 	"fmt"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
-	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
-	consumerinvalidator "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/consumer_invalidator"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
-	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains/match"
 )
 
 func InitializeRepos(ctx context.Context) error {
@@ -23,24 +22,22 @@ func InitializeRepos(ctx context.Context) error {
 		return err
 	}
 
-	allEvents := []common.EventType{}
-	allEvents = append(allEvents, lobby.AllEventTypes...)
-	mw := consumerinvalidator.NewMiddleware(eventing.MatchEvents(allEvents), func(ctx context.Context, event common.Event) {
-		switch event.EventType() {
-		case lobby.EventTypeLobbyCreated:
-			if lobby, ok := event.Data().(match.LobbyIDer); ok {
-				domains.LobbySubscriber.Publish(lobby.GetLobbyId().String(), struct{}{})
-			}
-		}
+	domains.LobbyRepo, err = lobby.CreateNATSRepoLobbies(ctx, appID)
+	if err != nil {
+		return err
+	}
 
-		if event.AggregateType() == lobby.AggregateType {
-			if lobby, ok := event.Data().(match.LobbyIDer); ok {
-				domains.LobbySubscriber.Publish(lobby.GetLobbyId().String(), struct{}{})
-			}
-		}
-	})
+	domains.GameRepo, err = game.CreateNATSRepoGames(ctx, appID)
+	if err != nil {
+		return err
+	}
 
-	domains.LobbyRepo, err = lobby.CreateNATSRepoLobbies(ctx, appID, mw)
+	domains.DeskRepo, err = desk.CreateNATSRepoDesk(ctx, appID)
+	if err != nil {
+		return err
+	}
+
+	domains.HandRepo, err = hand.CreateNATSRepoHand(ctx, appID)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,11 @@
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
+    - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
+    - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
+    - [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player)
+    - [Game.PlayerHand](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHand)
+    - [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry)
     - [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply)
     - [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest)
     - [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest)
@@ -20,7 +25,11 @@
     - [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest)
     - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
     - [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest)
+    - [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply)
+    - [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
+  
+    - [Game.Phase](#com-sweetloveinyourheart-kittens-clients-Game-Phase)
   
     - [ClientServer](#com-sweetloveinyourheart-kittens-clients-ClientServer)
   
@@ -90,6 +99,91 @@ Message for creating a new guest user
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  | The user basic info |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game"></a>
+
+### Game
+========== GAME ===========
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| game_phase | [Game.Phase](#com-sweetloveinyourheart-kittens-clients-Game-Phase) |  |  |
+| player_turn | [string](#string) |  |  |
+| players | [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player) | repeated |  |
+| player_hands | [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry) | repeated |  |
+| desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
+| discard_pile | [string](#string) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Desk"></a>
+
+### Game.Desk
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| desk_id | [string](#string) |  |  |
+| remaining_cards | [int32](#int32) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Player"></a>
+
+### Game.Player
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| player_id | [string](#string) |  |  |
+| active | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-PlayerHand"></a>
+
+### Game.PlayerHand
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| remaining_cards | [int32](#int32) |  |  |
+| hands | [string](#string) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry"></a>
+
+### Game.PlayerHandsEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [Game.PlayerHand](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHand) |  |  |
 
 
 
@@ -282,6 +376,36 @@ Message for start a game
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-StreamGameReply"></a>
+
+### StreamGameReply
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_state | [Game](#com-sweetloveinyourheart-kittens-clients-Game) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-StreamGameRequest"></a>
+
+### StreamGameRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-User"></a>
 
 ### User
@@ -300,6 +424,22 @@ Message for start a game
 
 
  
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Phase"></a>
+
+### Game.Phase
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| INITIALIZING | 0 | Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck |
+| TURN_START | 1 | Active player begins their turn |
+| ACTION_PHASE | 2 | Player can play as many action cards as they want |
+| CARD_DRAWING | 3 | Player draws one card from the deck (mandatory if they didn&#39;t Skip/Attack) |
+| TURN_END | 4 | Finalize the turn, next player becomes active |
+| GAME_OVER | 5 | When only one player remains |
+
 
  
 
@@ -323,6 +463,7 @@ Message for start a game
 | JoinLobby | [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest) | [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse) |  |
 | LeaveLobby | [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest) | [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse) |  |
 | StartGame | [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 
  
 

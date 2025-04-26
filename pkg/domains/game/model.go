@@ -9,17 +9,22 @@ import (
 )
 
 const (
-	GAME_PHASE_INITIALIZING = "INITIALZING"
-	GAME_PHASE_CARD_PLAYING = "CARD_PLAYING"
-	GAME_PHASE_CARD_DRAWING = "CARD_DRAWING"
+	GAME_PHASE_INITIALIZING = iota // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
+	GAME_PHASE_TURN_START   = 1    // Active player begins their turn
+	GAME_PHASE_ACTION_PHASE = 2    // Player can play as many action cards as they want
+	GAME_PHASE_CARD_DRAWING = 3    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
+	GAME_PHASE_TURN_END     = 4    // Finalize the turn, next player becomes active
+	GAME_PHASE_GAME_OVER    = 5    // When only one player remains
 )
 
 type Game struct {
 	GameID      uuid.UUID               `json:"game_id"`
-	GamePhase   string                  `json:"game_phase"`
+	GamePhase   int                     `json:"game_phase"`
 	Desk        uuid.UUID               `json:"desk"`
+	Players     []Player                `json:"players"`
 	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
 	PlayerTurn  uuid.UUID               `json:"player_turn"`
+	DiscardPile []uuid.UUID             `json:"discard_pile"`
 	CreatedAt   time.Time               `json:"created_at"`
 	UpdatedAt   time.Time               `json:"updated_at"`
 }
@@ -38,11 +43,15 @@ func (d *Game) GetDesk() uuid.UUID {
 	return d.Desk
 }
 
-func (d *Game) GetPlayers() map[uuid.UUID]uuid.UUID {
+func (d *Game) GetPlayers() []Player {
+	return d.Players
+}
+
+func (d *Game) GetPlayerHands() map[uuid.UUID]uuid.UUID {
 	return d.PlayerHands
 }
 
-func (d *Game) GetGamePhase() string {
+func (d *Game) GetGamePhase() int {
 	return d.GamePhase
 }
 
@@ -50,10 +59,27 @@ func (d *Game) GetPlayerTurn() uuid.UUID {
 	return d.PlayerTurn
 }
 
-func (t *Game) GetCreatedAt() time.Time {
-	return t.CreatedAt
+func (d *Game) GetDiscardPile() []uuid.UUID {
+	return d.DiscardPile
 }
 
-func (t *Game) GetUpdatedAt() time.Time {
-	return t.UpdatedAt
+func (d *Game) GetCreatedAt() time.Time {
+	return d.CreatedAt
+}
+
+func (d *Game) GetUpdatedAt() time.Time {
+	return d.UpdatedAt
+}
+
+type Player struct {
+	PlayerID uuid.UUID `json:"player_id"`
+	Active   bool      `json:"active"`
+}
+
+func (p *Player) GetPlayerID() uuid.UUID {
+	return p.PlayerID
+}
+
+func (p *Player) IsActive() bool {
+	return p.Active
 }

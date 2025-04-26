@@ -34,8 +34,8 @@ func (a *actions) GetLobby(ctx context.Context, request *connect.Request[proto.G
 		return nil, grpc.NotFoundError(err)
 	}
 
-	isAuthorization := slices.Contains(lobbyState.GetParticipants(), userID)
-	if !isAuthorization {
+	isAuthorized := slices.Contains(lobbyState.GetParticipants(), userID)
+	if !isAuthorized {
 		return nil, grpc.NotFoundError(errors.Errorf("Lobby not found"))
 	}
 
