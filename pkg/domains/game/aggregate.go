@@ -71,7 +71,6 @@ type Aggregate struct {
 
 	currentGameID uuid.UUID
 	actived       bool
-	creating      bool
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
