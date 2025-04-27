@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"slices"
@@ -11,6 +12,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -55,6 +57,7 @@ type GameInteractionProcessor struct {
 	dataProvider dataProviderGrpc.DataProviderClient
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
+	bus   *nats.Conn
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
@@ -62,6 +65,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		ctx:          ctx,
 		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
 		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 	}
 
 	lip.GameProjector = game.NewGameProjection(lip)
@@ -279,6 +283,15 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	return nil
 }
 
+func (w *GameInteractionProcessor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
+	err := w.emitGameStateUpdateEvent(data.GetGameID())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type CardSetup struct {
 	StandardCards        []uuid.UUID
 	ExplodingKittenCards []uuid.UUID
@@ -336,4 +349,22 @@ func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int
 		ExplodingKittenCards: explodingKittenCardIDs,
 		DefuseCards:          defuseCardIDs,
 	}, nil
+}
+
+func (w *GameInteractionProcessor) emitGameStateUpdateEvent(gameID uuid.UUID) error {
+	msg := &game.Game{
+		GameID: gameID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.GameStream, msg.GetGameID().String()), msgBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

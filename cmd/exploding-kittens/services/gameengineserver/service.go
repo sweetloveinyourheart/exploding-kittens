@@ -3,8 +3,10 @@ package gameengineserver
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"connectrpc.com/connect"
+	"github.com/cockroachdb/errors"
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"go.uber.org/zap"
@@ -73,6 +75,8 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 }
 
 func setupDependencies() error {
+	timeout := 2 * time.Second
+
 	signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
 
 	dataProviderClient := dataProviderConnect.NewDataProviderClient(
@@ -83,6 +87,22 @@ func setupDependencies() error {
 			signingKey,
 		)...),
 	)
+
+	busConnection, err := nats.Connect(config.Instance().GetString("gameengineserver.nats.url"),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Name("kittens/gameengineserver/1.0/single"),
+		nats.ErrorHandler(func(nc *nats.Conn, sub *nats.Subscription, err error) {
+			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
+		}))
+
+	if err != nil {
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
+	}
+
+	if err := cmdutil.WaitForNatsConnection(timeout, busConnection); err != nil {
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
+	}
 
 	do.Provide[dataProviderConnect.DataProviderClient](nil, func(i *do.Injector) (dataProviderConnect.DataProviderClient, error) {
 		return dataProviderClient, nil
@@ -101,6 +121,11 @@ func setupDependencies() error {
 	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
 		func(i *do.Injector) (*pool.ConnPool, error) {
 			return connPool, nil
+		})
+
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
 		})
 
 	return nil
