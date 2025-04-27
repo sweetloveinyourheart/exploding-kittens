@@ -2,6 +2,7 @@ package game_test
 
 import (
 	"context"
+	"fmt"
 	goTesting "testing"
 
 	"connectrpc.com/connect"
@@ -82,6 +83,11 @@ func (gs *GameSuite) setupEnvironment() {
 	do.OverrideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
 		func(i *do.Injector) (*pool.ConnPool, error) {
 			return connPool, nil
+		})
+
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
 		})
 
 	config.Instance().Set("gameengineserver.id", uuid.Must(uuid.NewV7()).String())
