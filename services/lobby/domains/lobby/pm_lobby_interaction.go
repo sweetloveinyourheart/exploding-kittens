@@ -62,7 +62,7 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 		lobby.EventTypeLobbyCreated,
 		lobby.EventTypeLobbyJoined,
 		lobby.EventTypeLobbyLeft,
-		lobby.EventTypeGameStarted,
+		lobby.EventTypeLobbyMatchCreated,
 	)
 
 	lobbySubject := nats2.CreateConsumerSubject(constants.LobbyStream, lobbyMatcher)
@@ -242,11 +242,11 @@ func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event c
 	return nil
 }
 
-func (w *LobbyInteractionProcessor) HandleGameStarted(ctx context.Context, event common.Event, data *lobby.GameStarted) error {
-	log.Global().Info("Create new game", zap.String("game_id", data.GetGameID().String()), zap.String("lobby_id", data.GetLobbyID().String()))
+func (w *LobbyInteractionProcessor) HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *lobby.LobbyMatchCreated) error {
+	log.Global().Info("Create new game", zap.String("game_id", data.GetMatchID().String()), zap.String("lobby_id", data.GetLobbyID().String()))
 
 	if err := domains.CommandBus.HandleCommand(ctx, &game.CreateGame{
-		GameID:    data.GameID,
+		GameID:    data.MatchID,
 		PlayerIDs: w.playerIDs,
 	}); err != nil {
 		return err

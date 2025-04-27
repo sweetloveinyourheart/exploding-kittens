@@ -12,28 +12,28 @@ func init() {
 	eventing.RegisterCommand[CreateLobby, *CreateLobby]()
 	eventing.RegisterCommand[JoinLobby, *JoinLobby]()
 	eventing.RegisterCommand[LeaveLobby, *LeaveLobby]()
-	eventing.RegisterCommand[StartGame, *StartGame]()
+	eventing.RegisterCommand[CreateLobbyMatch, *CreateLobbyMatch]()
 }
 
 const (
-	CreateLobbyCommand = common.CommandType("lobby:create")
-	JoinLobbyCommand   = common.CommandType("lobby:join")
-	LeaveLobbyCommand  = common.CommandType("lobby:leave")
-	StartGameCommand   = common.CommandType("lobby:game:start")
+	CreateLobbyCommand      = common.CommandType("lobby:create")
+	JoinLobbyCommand        = common.CommandType("lobby:join")
+	LeaveLobbyCommand       = common.CommandType("lobby:leave")
+	CreateLobbyMatchCommand = common.CommandType("lobby:match:create")
 )
 
 var AllCommands = []common.CommandType{
 	CreateLobbyCommand,
 	JoinLobbyCommand,
 	LeaveLobbyCommand,
-	StartGameCommand,
+	CreateLobbyMatchCommand,
 }
 
 // Static type check that the eventing.Command interface is implemented.
 var _ = eventing.Command(&CreateLobby{})
 var _ = eventing.Command(&JoinLobby{})
 var _ = eventing.Command(&LeaveLobby{})
-var _ = eventing.Command(&StartGame{})
+var _ = eventing.Command(&CreateLobbyMatch{})
 
 type CreateLobby struct {
 	LobbyID    uuid.UUID `json:"lobby_id"`
@@ -114,19 +114,19 @@ func (c *LeaveLobby) Validate() error {
 	return nil
 }
 
-type StartGame struct {
+type CreateLobbyMatch struct {
 	LobbyID    uuid.UUID `json:"lobby_id"`
 	HostUserID uuid.UUID `json:"host_user_id"`
-	GameID     uuid.UUID `json:"game_id"`
+	MatchID    uuid.UUID `json:"match_id"`
 }
 
-func (c *StartGame) AggregateType() common.AggregateType { return AggregateType }
+func (c *CreateLobbyMatch) AggregateType() common.AggregateType { return AggregateType }
 
-func (c *StartGame) AggregateID() string { return c.LobbyID.String() }
+func (c *CreateLobbyMatch) AggregateID() string { return c.LobbyID.String() }
 
-func (c *StartGame) CommandType() common.CommandType { return StartGameCommand }
+func (c *CreateLobbyMatch) CommandType() common.CommandType { return CreateLobbyMatchCommand }
 
-func (c *StartGame) Validate() error {
+func (c *CreateLobbyMatch) Validate() error {
 	if c.LobbyID == uuid.Nil {
 		return &common.CommandFieldError{Field: "lobby_id", Details: "empty field"}
 	}
@@ -135,8 +135,8 @@ func (c *StartGame) Validate() error {
 		return &common.CommandFieldError{Field: "host_user_id", Details: "empty field"}
 	}
 
-	if c.GameID == uuid.Nil {
-		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	if c.MatchID == uuid.Nil {
+		return &common.CommandFieldError{Field: "match_id", Details: "empty field"}
 	}
 
 	return nil

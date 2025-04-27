@@ -46,7 +46,7 @@ func (a *actions) GetLobby(ctx context.Context, request *connect.Request[proto.G
 			LobbyName:    lobbyState.GetLobbyName(),
 			HostUserId:   lobbyState.GetHostUserID().String(),
 			Participants: stringsutil.ConvertUUIDsToStrings(lobbyState.GetParticipants()),
-			GameId:       stringsutil.ConvertUUIDToStringPtr(lobbyState.GetGameID()),
+			MatchId:      stringsutil.ConvertUUIDToStringPtr(lobbyState.GetMatchID()),
 		},
 	}), nil
 
@@ -164,11 +164,11 @@ func (a *actions) StartGame(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.InvalidArgumentError(errors.New("lobby_id must be in the correct format"))
 	}
 
-	gameID := uuid.Must(uuid.NewV7())
-	if err := domains.CommandBus.HandleCommand(ctx, &lobby.StartGame{
+	matchID := uuid.Must(uuid.NewV7())
+	if err := domains.CommandBus.HandleCommand(ctx, &lobby.CreateLobbyMatch{
 		LobbyID:    lobbyID,
 		HostUserID: userID,
-		GameID:     gameID,
+		MatchID:    matchID,
 	}); err != nil {
 		if errors.Is(err, lobby.ErrLobbyNotAvailable) {
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "lobby is not availale"))

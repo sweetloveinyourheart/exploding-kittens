@@ -2934,9 +2934,9 @@ var Lobby = class _Lobby extends Message {
    */
   participants = [];
   /**
-   * @generated from field: optional string game_id = 6;
+   * @generated from field: optional string match_id = 6;
    */
-  gameId;
+  matchId;
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -2973,7 +2973,7 @@ var Lobby = class _Lobby extends Message {
       /* ScalarType.STRING */
     },
     { no: 5, name: "participants", kind: "scalar", T: 9, repeated: true },
-    { no: 6, name: "game_id", kind: "scalar", T: 9, opt: true }
+    { no: 6, name: "match_id", kind: "scalar", T: 9, opt: true }
   ]);
   static fromBinary(bytes, options) {
     return new _Lobby().fromBinary(bytes, options);
@@ -3279,6 +3279,278 @@ var StartGameRequest = class _StartGameRequest extends Message {
     return proto3.util.equals(_StartGameRequest, a, b);
   }
 };
+var Game = class _Game extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: com.sweetloveinyourheart.kittens.clients.Game.Phase game_phase = 2;
+   */
+  gamePhase = 0 /* INITIALIZING */;
+  /**
+   * @generated from field: string player_turn = 3;
+   */
+  playerTurn = "";
+  /**
+   * @generated from field: repeated com.sweetloveinyourheart.kittens.clients.Game.Player players = 4;
+   */
+  players = [];
+  /**
+   * @generated from field: map<string, com.sweetloveinyourheart.kittens.clients.Game.PlayerHand> player_hands = 5;
+   */
+  playerHands = {};
+  /**
+   * @generated from field: com.sweetloveinyourheart.kittens.clients.Game.Desk desk = 6;
+   */
+  desk;
+  /**
+   * @generated from field: repeated string discard_pile = 7;
+   */
+  discardPile = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.Game";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "game_phase", kind: "enum", T: proto3.getEnumType(Game_Phase) },
+    {
+      no: 3,
+      name: "player_turn",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 4, name: "players", kind: "message", T: Game_Player, repeated: true },
+    { no: 5, name: "player_hands", kind: "map", K: 9, V: { kind: "message", T: Game_PlayerHand } },
+    { no: 6, name: "desk", kind: "message", T: Game_Desk },
+    { no: 7, name: "discard_pile", kind: "scalar", T: 9, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _Game().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _Game().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _Game().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_Game, a, b);
+  }
+};
+var Game_Phase = /* @__PURE__ */ ((Game_Phase2) => {
+  Game_Phase2[Game_Phase2["INITIALIZING"] = 0] = "INITIALIZING";
+  Game_Phase2[Game_Phase2["TURN_START"] = 1] = "TURN_START";
+  Game_Phase2[Game_Phase2["ACTION_PHASE"] = 2] = "ACTION_PHASE";
+  Game_Phase2[Game_Phase2["CARD_DRAWING"] = 3] = "CARD_DRAWING";
+  Game_Phase2[Game_Phase2["TURN_END"] = 4] = "TURN_END";
+  Game_Phase2[Game_Phase2["GAME_OVER"] = 5] = "GAME_OVER";
+  return Game_Phase2;
+})(Game_Phase || {});
+proto3.util.setEnumType(Game_Phase, "com.sweetloveinyourheart.kittens.clients.Game.Phase", [
+  { no: 0, name: "INITIALIZING" },
+  { no: 1, name: "TURN_START" },
+  { no: 2, name: "ACTION_PHASE" },
+  { no: 3, name: "CARD_DRAWING" },
+  { no: 4, name: "TURN_END" },
+  { no: 5, name: "GAME_OVER" }
+]);
+var Game_Player = class _Game_Player extends Message {
+  /**
+   * @generated from field: string player_id = 1;
+   */
+  playerId = "";
+  /**
+   * @generated from field: bool active = 2;
+   */
+  active = false;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.Game.Player";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "player_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "active",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _Game_Player().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _Game_Player().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _Game_Player().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_Game_Player, a, b);
+  }
+};
+var Game_PlayerHand = class _Game_PlayerHand extends Message {
+  /**
+   * @generated from field: int32 remaining_cards = 1;
+   */
+  remainingCards = 0;
+  /**
+   * @generated from field: repeated string hands = 2;
+   */
+  hands = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.Game.PlayerHand";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "remaining_cards",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    { no: 2, name: "hands", kind: "scalar", T: 9, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _Game_PlayerHand().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _Game_PlayerHand().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _Game_PlayerHand().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_Game_PlayerHand, a, b);
+  }
+};
+var Game_Desk = class _Game_Desk extends Message {
+  /**
+   * @generated from field: string desk_id = 1;
+   */
+  deskId = "";
+  /**
+   * @generated from field: int32 remaining_cards = 2;
+   */
+  remainingCards = 0;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.Game.Desk";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "desk_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "remaining_cards",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _Game_Desk().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _Game_Desk().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _Game_Desk().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_Game_Desk, a, b);
+  }
+};
+var StreamGameRequest = class _StreamGameRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.StreamGameRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _StreamGameRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _StreamGameRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _StreamGameRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_StreamGameRequest, a, b);
+  }
+};
+var StreamGameReply = class _StreamGameReply extends Message {
+  /**
+   * @generated from field: com.sweetloveinyourheart.kittens.clients.Game game_state = 1;
+   */
+  gameState;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.StreamGameReply";
+  static fields = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_state", kind: "message", T: Game }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _StreamGameReply().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _StreamGameReply().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _StreamGameReply().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_StreamGameReply, a, b);
+  }
+};
 
 // src/gen/clientserver_connect.ts
 var ClientServer = {
@@ -3373,6 +3645,15 @@ var ClientServer = {
       I: StartGameRequest,
       O: Empty,
       kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame
+     */
+    streamGame: {
+      name: "StreamGame",
+      I: StreamGameRequest,
+      O: StreamGameReply,
+      kind: MethodKind.ServerStreaming
     }
   }
 };
@@ -3382,6 +3663,11 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
+  Game,
+  Game_Desk,
+  Game_Phase,
+  Game_Player,
+  Game_PlayerHand,
   GetLobbyReply,
   GetLobbyRequest,
   GuestLoginRequest,
@@ -3394,5 +3680,7 @@ export {
   PlayerProfileRequest,
   PlayerProfileResponse,
   StartGameRequest,
+  StreamGameReply,
+  StreamGameRequest,
   User
 };

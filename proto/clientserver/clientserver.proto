@@ -68,7 +68,7 @@ message Lobby {
     string lobby_name = 3;
     string host_user_id = 4;
     repeated string participants = 5;
-    optional string game_id = 6;
+    optional string match_id = 6;
 }
 
 // Message for create a lobby

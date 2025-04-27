@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, StartGameRequest } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, StartGameRequest, StreamGameReply, StreamGameRequest } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -101,6 +101,15 @@ export const ClientServer = {
       I: StartGameRequest,
       O: Empty,
       kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame
+     */
+    streamGame: {
+      name: "StreamGame",
+      I: StreamGameRequest,
+      O: StreamGameReply,
+      kind: MethodKind.ServerStreaming,
     },
   }
 } as const;
