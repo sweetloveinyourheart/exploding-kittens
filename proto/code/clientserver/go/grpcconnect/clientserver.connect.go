@@ -57,8 +57,8 @@ const (
 	ClientServerJoinLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	// ClientServerLeaveLobbyProcedure is the fully-qualified name of the ClientServer's LeaveLobby RPC.
 	ClientServerLeaveLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
-	// ClientServerStartGameProcedure is the fully-qualified name of the ClientServer's StartGame RPC.
-	ClientServerStartGameProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartGame"
+	// ClientServerStartMatchProcedure is the fully-qualified name of the ClientServer's StartMatch RPC.
+	ClientServerStartMatchProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
 	// ClientServerStreamGameProcedure is the fully-qualified name of the ClientServer's StreamGame RPC.
 	ClientServerStreamGameProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
 )
@@ -75,7 +75,7 @@ type ClientServerClient interface {
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
-	StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error)
+	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest]) (*connect.ServerStreamForClient[_go.StreamGameReply], error)
 }
 
@@ -145,10 +145,10 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 			connect.WithClientOptions(opts...),
 		),
-		startGame: connect.NewClient[_go.StartGameRequest, emptypb.Empty](
+		startMatch: connect.NewClient[_go.StartMatchRequest, emptypb.Empty](
 			httpClient,
-			baseURL+ClientServerStartGameProcedure,
-			connect.WithSchema(clientServerMethods.ByName("StartGame")),
+			baseURL+ClientServerStartMatchProcedure,
+			connect.WithSchema(clientServerMethods.ByName("StartMatch")),
 			connect.WithClientOptions(opts...),
 		),
 		streamGame: connect.NewClient[_go.StreamGameRequest, _go.StreamGameReply](
@@ -171,7 +171,7 @@ type clientServerClient struct {
 	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
 	joinLobby          *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
 	leaveLobby         *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
-	startGame          *connect.Client[_go.StartGameRequest, emptypb.Empty]
+	startMatch         *connect.Client[_go.StartMatchRequest, emptypb.Empty]
 	streamGame         *connect.Client[_go.StreamGameRequest, _go.StreamGameReply]
 }
 
@@ -221,9 +221,9 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, req *connect.Reques
 	return c.leaveLobby.CallUnary(ctx, req)
 }
 
-// StartGame calls com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame.
-func (c *clientServerClient) StartGame(ctx context.Context, req *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.startGame.CallUnary(ctx, req)
+// StartMatch calls com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch.
+func (c *clientServerClient) StartMatch(ctx context.Context, req *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.startMatch.CallUnary(ctx, req)
 }
 
 // StreamGame calls com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame.
@@ -243,7 +243,7 @@ type ClientServerHandler interface {
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
-	StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error)
+	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error
 }
 
@@ -308,10 +308,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
-	clientServerStartGameHandler := connect.NewUnaryHandler(
-		ClientServerStartGameProcedure,
-		svc.StartGame,
-		connect.WithSchema(clientServerMethods.ByName("StartGame")),
+	clientServerStartMatchHandler := connect.NewUnaryHandler(
+		ClientServerStartMatchProcedure,
+		svc.StartMatch,
+		connect.WithSchema(clientServerMethods.ByName("StartMatch")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerStreamGameHandler := connect.NewServerStreamHandler(
@@ -340,8 +340,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerJoinLobbyHandler.ServeHTTP(w, r)
 		case ClientServerLeaveLobbyProcedure:
 			clientServerLeaveLobbyHandler.ServeHTTP(w, r)
-		case ClientServerStartGameProcedure:
-			clientServerStartGameHandler.ServeHTTP(w, r)
+		case ClientServerStartMatchProcedure:
+			clientServerStartMatchHandler.ServeHTTP(w, r)
 		case ClientServerStreamGameProcedure:
 			clientServerStreamGameHandler.ServeHTTP(w, r)
 		default:
@@ -389,8 +389,8 @@ func (UnimplementedClientServerHandler) LeaveLobby(context.Context, *connect.Req
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) StartGame(context.Context, *connect.Request[_go.StartGameRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame is not implemented"))
+func (UnimplementedClientServerHandler) StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error {

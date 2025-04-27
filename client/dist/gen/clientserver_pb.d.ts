@@ -339,23 +339,23 @@ export declare class LeaveLobbyResponse extends Message<LeaveLobbyResponse> {
     static equals(a: LeaveLobbyResponse | PlainMessage<LeaveLobbyResponse> | undefined, b: LeaveLobbyResponse | PlainMessage<LeaveLobbyResponse> | undefined): boolean;
 }
 /**
- * Message for start a game
+ * Message for start a match
  *
- * @generated from message com.sweetloveinyourheart.kittens.clients.StartGameRequest
+ * @generated from message com.sweetloveinyourheart.kittens.clients.StartMatchRequest
  */
-export declare class StartGameRequest extends Message<StartGameRequest> {
+export declare class StartMatchRequest extends Message<StartMatchRequest> {
     /**
      * @generated from field: string lobby_id = 1;
      */
     lobbyId: string;
-    constructor(data?: PartialMessage<StartGameRequest>);
+    constructor(data?: PartialMessage<StartMatchRequest>);
     static readonly runtime: typeof proto3;
-    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StartGameRequest";
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StartMatchRequest";
     static readonly fields: FieldList;
-    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartGameRequest;
-    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartGameRequest;
-    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartGameRequest;
-    static equals(a: StartGameRequest | PlainMessage<StartGameRequest> | undefined, b: StartGameRequest | PlainMessage<StartGameRequest> | undefined): boolean;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartMatchRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartMatchRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartMatchRequest;
+    static equals(a: StartMatchRequest | PlainMessage<StartMatchRequest> | undefined, b: StartMatchRequest | PlainMessage<StartMatchRequest> | undefined): boolean;
 }
 /**
  * ========== GAME ===========

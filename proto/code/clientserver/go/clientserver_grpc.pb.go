@@ -29,7 +29,7 @@ const (
 	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
 	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
-	ClientServer_StartGame_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartGame"
+	ClientServer_StartMatch_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
 	ClientServer_StreamGame_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
 )
 
@@ -46,7 +46,7 @@ type ClientServerClient interface {
 	StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error)
 	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
-	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
 }
 
@@ -157,10 +157,10 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, in *LeaveLobbyReque
 	return out, nil
 }
 
-func (c *clientServerClient) StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *clientServerClient) StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ClientServer_StartGame_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ClientServer_StartMatch_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ type ClientServerServer interface {
 	StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error
 	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
-	StartGame(context.Context, *StartGameRequest) (*emptypb.Empty, error)
+	StartMatch(context.Context, *StartMatchRequest) (*emptypb.Empty, error)
 	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
 }
 
@@ -237,8 +237,8 @@ func (UnimplementedClientServerServer) JoinLobby(context.Context, *JoinLobbyRequ
 func (UnimplementedClientServerServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveLobby not implemented")
 }
-func (UnimplementedClientServerServer) StartGame(context.Context, *StartGameRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartGame not implemented")
+func (UnimplementedClientServerServer) StartMatch(context.Context, *StartMatchRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMatch not implemented")
 }
 func (UnimplementedClientServerServer) StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamGame not implemented")
@@ -418,20 +418,20 @@ func _ClientServer_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ClientServer_StartGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartGameRequest)
+func _ClientServer_StartMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartMatchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClientServerServer).StartGame(ctx, in)
+		return srv.(ClientServerServer).StartMatch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ClientServer_StartGame_FullMethodName,
+		FullMethod: ClientServer_StartMatch_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServerServer).StartGame(ctx, req.(*StartGameRequest))
+		return srv.(ClientServerServer).StartMatch(ctx, req.(*StartMatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -487,8 +487,8 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ClientServer_LeaveLobby_Handler,
 		},
 		{
-			MethodName: "StartGame",
-			Handler:    _ClientServer_StartGame_Handler,
+			MethodName: "StartMatch",
+			Handler:    _ClientServer_StartMatch_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

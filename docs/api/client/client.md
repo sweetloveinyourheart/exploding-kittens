@@ -24,7 +24,7 @@
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
     - [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest)
     - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
-    - [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest)
+    - [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest)
     - [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply)
     - [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
@@ -361,10 +361,10 @@ Message for player profile
 
 
 
-<a name="com-sweetloveinyourheart-kittens-clients-StartGameRequest"></a>
+<a name="com-sweetloveinyourheart-kittens-clients-StartMatchRequest"></a>
 
-### StartGameRequest
-Message for start a game
+### StartMatchRequest
+Message for start a match
 
 
 | Field | Type | Label | Description |
@@ -462,7 +462,7 @@ Message for start a game
 | StreamLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) stream |  |
 | JoinLobby | [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest) | [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse) |  |
 | LeaveLobby | [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest) | [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse) |  |
-| StartGame | [StartGameRequest](#com-sweetloveinyourheart-kittens-clients-StartGameRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| StartMatch | [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 
  

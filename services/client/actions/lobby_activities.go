@@ -151,7 +151,7 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 	}), nil
 }
 
-func (a *actions) StartGame(ctx context.Context, request *connect.Request[proto.StartGameRequest]) (response *connect.Response[emptypb.Empty], err error) {
+func (a *actions) StartMatch(ctx context.Context, request *connect.Request[proto.StartMatchRequest]) (response *connect.Response[emptypb.Empty], err error) {
 	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
 	if !ok {
 		// This should never happen as this endpoint should be authenticated

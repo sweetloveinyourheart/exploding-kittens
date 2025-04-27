@@ -3246,7 +3246,7 @@ var LeaveLobbyResponse = class _LeaveLobbyResponse extends Message {
     return proto3.util.equals(_LeaveLobbyResponse, a, b);
   }
 };
-var StartGameRequest = class _StartGameRequest extends Message {
+var StartMatchRequest = class _StartMatchRequest extends Message {
   /**
    * @generated from field: string lobby_id = 1;
    */
@@ -3256,7 +3256,7 @@ var StartGameRequest = class _StartGameRequest extends Message {
     proto3.util.initPartial(data, this);
   }
   static runtime = proto3;
-  static typeName = "com.sweetloveinyourheart.kittens.clients.StartGameRequest";
+  static typeName = "com.sweetloveinyourheart.kittens.clients.StartMatchRequest";
   static fields = proto3.util.newFieldList(() => [
     {
       no: 1,
@@ -3267,16 +3267,16 @@ var StartGameRequest = class _StartGameRequest extends Message {
     }
   ]);
   static fromBinary(bytes, options) {
-    return new _StartGameRequest().fromBinary(bytes, options);
+    return new _StartMatchRequest().fromBinary(bytes, options);
   }
   static fromJson(jsonValue, options) {
-    return new _StartGameRequest().fromJson(jsonValue, options);
+    return new _StartMatchRequest().fromJson(jsonValue, options);
   }
   static fromJsonString(jsonString, options) {
-    return new _StartGameRequest().fromJsonString(jsonString, options);
+    return new _StartMatchRequest().fromJsonString(jsonString, options);
   }
   static equals(a, b) {
-    return proto3.util.equals(_StartGameRequest, a, b);
+    return proto3.util.equals(_StartMatchRequest, a, b);
   }
 };
 var Game = class _Game extends Message {
@@ -3638,11 +3638,11 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StartGame
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch
      */
-    startGame: {
-      name: "StartGame",
-      I: StartGameRequest,
+    startMatch: {
+      name: "StartMatch",
+      I: StartMatchRequest,
       O: Empty,
       kind: MethodKind.Unary
     },
@@ -3679,7 +3679,7 @@ export {
   Lobby,
   PlayerProfileRequest,
   PlayerProfileResponse,
-  StartGameRequest,
+  StartMatchRequest,
   StreamGameReply,
   StreamGameRequest,
   User

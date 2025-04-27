@@ -17,7 +17,7 @@ service ClientServer {
     rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
     rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
     rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
-    rpc StartGame(StartGameRequest) returns (google.protobuf.Empty);
+    rpc StartMatch(StartMatchRequest) returns (google.protobuf.Empty);
 
     rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
 }
@@ -106,8 +106,8 @@ message LeaveLobbyResponse {
     string lobby_id = 1;
 }
 
-// Message for start a game
-message StartGameRequest {
+// Message for start a match
+message StartMatchRequest {
     string lobby_id = 1;
 }
 
