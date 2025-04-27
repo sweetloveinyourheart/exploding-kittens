@@ -1,6 +1,52 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
 /**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.Card
+ */
+export declare class Card extends Message<Card> {
+    /**
+     * @generated from field: string card_id = 1;
+     */
+    cardId: string;
+    /**
+     * @generated from field: string name = 2;
+     */
+    name: string;
+    /**
+     * @generated from field: string code = 3;
+     */
+    code: string;
+    /**
+     * @generated from field: string description = 4;
+     */
+    description: string;
+    constructor(data?: PartialMessage<Card>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.Card";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Card;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Card;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Card;
+    static equals(a: Card | PlainMessage<Card> | undefined, b: Card | PlainMessage<Card> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.RetrieveCardsDataResponse
+ */
+export declare class RetrieveCardsDataResponse extends Message<RetrieveCardsDataResponse> {
+    /**
+     * @generated from field: repeated com.sweetloveinyourheart.kittens.clients.Card cards = 1;
+     */
+    cards: Card[];
+    constructor(data?: PartialMessage<RetrieveCardsDataResponse>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.RetrieveCardsDataResponse";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RetrieveCardsDataResponse;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RetrieveCardsDataResponse;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RetrieveCardsDataResponse;
+    static equals(a: RetrieveCardsDataResponse | PlainMessage<RetrieveCardsDataResponse> | undefined, b: RetrieveCardsDataResponse | PlainMessage<RetrieveCardsDataResponse> | undefined): boolean;
+}
+/**
  * @generated from message com.sweetloveinyourheart.kittens.clients.User
  */
 export declare class User extends Message<User> {
@@ -358,8 +404,6 @@ export declare class StartMatchRequest extends Message<StartMatchRequest> {
     static equals(a: StartMatchRequest | PlainMessage<StartMatchRequest> | undefined, b: StartMatchRequest | PlainMessage<StartMatchRequest> | undefined): boolean;
 }
 /**
- * ========== GAME ===========
- *
  * @generated from message com.sweetloveinyourheart.kittens.clients.Game
  */
 export declare class Game extends Message<Game> {
@@ -507,6 +551,27 @@ export declare class Game_Desk extends Message<Game_Desk> {
     static equals(a: Game_Desk | PlainMessage<Game_Desk> | undefined, b: Game_Desk | PlainMessage<Game_Desk> | undefined): boolean;
 }
 /**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.GameMetaData
+ */
+export declare class GameMetaData extends Message<GameMetaData> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * @generated from field: repeated string players = 2;
+     */
+    players: string[];
+    constructor(data?: PartialMessage<GameMetaData>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.GameMetaData";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GameMetaData;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GameMetaData;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GameMetaData;
+    static equals(a: GameMetaData | PlainMessage<GameMetaData> | undefined, b: GameMetaData | PlainMessage<GameMetaData> | undefined): boolean;
+}
+/**
  * @generated from message com.sweetloveinyourheart.kittens.clients.StreamGameRequest
  */
 export declare class StreamGameRequest extends Message<StreamGameRequest> {
@@ -539,4 +604,38 @@ export declare class StreamGameReply extends Message<StreamGameReply> {
     static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StreamGameReply;
     static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StreamGameReply;
     static equals(a: StreamGameReply | PlainMessage<StreamGameReply> | undefined, b: StreamGameReply | PlainMessage<StreamGameReply> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.GetGameMetaDataRequest
+ */
+export declare class GetGameMetaDataRequest extends Message<GetGameMetaDataRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    constructor(data?: PartialMessage<GetGameMetaDataRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.GetGameMetaDataRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetGameMetaDataRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetGameMetaDataRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetGameMetaDataRequest;
+    static equals(a: GetGameMetaDataRequest | PlainMessage<GetGameMetaDataRequest> | undefined, b: GetGameMetaDataRequest | PlainMessage<GetGameMetaDataRequest> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.GetGameMetaDataResponse
+ */
+export declare class GetGameMetaDataResponse extends Message<GetGameMetaDataResponse> {
+    /**
+     * @generated from field: com.sweetloveinyourheart.kittens.clients.GameMetaData meta = 1;
+     */
+    meta?: GameMetaData;
+    constructor(data?: PartialMessage<GetGameMetaDataResponse>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.GetGameMetaDataResponse";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetGameMetaDataResponse;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetGameMetaDataResponse;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetGameMetaDataResponse;
+    static equals(a: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined, b: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined): boolean;
 }

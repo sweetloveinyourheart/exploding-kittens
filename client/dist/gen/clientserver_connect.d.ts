@@ -1,11 +1,20 @@
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, StartMatchRequest, StreamGameReply, StreamGameRequest } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest } from "./clientserver_pb.js";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
  */
 export declare const ClientServer: {
     readonly typeName: "com.sweetloveinyourheart.kittens.clients.ClientServer";
     readonly methods: {
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData
+         */
+        readonly retrieveCardsData: {
+            readonly name: "RetrieveCardsData";
+            readonly I: typeof Empty;
+            readonly O: typeof RetrieveCardsDataResponse;
+            readonly kind: MethodKind.Unary;
+        };
         /**
          * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.CreateNewGuestUser
          */
@@ -94,6 +103,15 @@ export declare const ClientServer: {
             readonly name: "StartMatch";
             readonly I: typeof StartMatchRequest;
             readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetGameMetaData
+         */
+        readonly getGameMetaData: {
+            readonly name: "GetGameMetaData";
+            readonly I: typeof GetGameMetaDataRequest;
+            readonly O: typeof GetGameMetaDataResponse;
             readonly kind: MethodKind.Unary;
         };
         /**

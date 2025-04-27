@@ -7,6 +7,8 @@ option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/cod
 package com.sweetloveinyourheart.kittens.clients;
 
 service ClientServer {
+    rpc RetrieveCardsData(google.protobuf.Empty) returns (RetrieveCardsDataResponse);
+
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
     rpc GetUserProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
@@ -19,7 +21,21 @@ service ClientServer {
     rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
     rpc StartMatch(StartMatchRequest) returns (google.protobuf.Empty);
 
+    rpc GetGameMetaData(GetGameMetaDataRequest) returns (GetGameMetaDataResponse);
     rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
+}
+
+// ========= Data Provider =============
+
+message Card {
+    string card_id = 1;
+    string name = 2;
+    string code = 3;
+    string description = 4;
+}
+
+message RetrieveCardsDataResponse {
+    repeated Card cards = 1;
 }
 
 // ========= User ==========
@@ -111,7 +127,8 @@ message StartMatchRequest {
     string lobby_id = 1;
 }
 
-// ========== GAME ===========
+// ========== Game ===========
+
 message Game {
     enum Phase {
         INITIALIZING = 0;    // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
@@ -146,10 +163,23 @@ message Game {
     repeated string discard_pile = 7;
 }
 
+message GameMetaData {
+    string game_id = 1;
+    repeated string players = 2;
+}
+
 message StreamGameRequest {
     string game_id = 1;
 }
 
 message StreamGameReply {
     Game game_state = 1;
+}
+
+message GetGameMetaDataRequest {
+    string game_id = 1;
+}
+
+message GetGameMetaDataResponse {
+    GameMetaData meta = 1;
 }

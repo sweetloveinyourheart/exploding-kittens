@@ -55,6 +55,16 @@
     "defaultDatabaseName": "",
     "Config": [
       {
+        "name": "dataprovider-url",
+        "usage": "Dataprovider connection URL",
+        "default": "http://dataprovider:50055",
+        "valueType": "string",
+        "path": "clientserver.dataprovider.url",
+        "env": [
+          "CLIENTSERVER_DATAPROVIDER_URL"
+        ]
+      },
+      {
         "name": "grpc-port",
         "usage": "GRPC Port to listen on",
         "default": 50051,
