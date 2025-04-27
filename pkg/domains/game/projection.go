@@ -14,12 +14,12 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 
 type AllEventsProjector interface {
 	HandleGameCreated(ctx context.Context, event common.Event, data *GameCreated, entity *Game) (*Game, error)
-	HandleGameArgsInitialized(ctx context.Context, event common.Event, data *GameArgsInitialized, entity *Game) (*Game, error)
+	HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
 	handleGameCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
-	handleGameArgsInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -133,8 +133,8 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 	switch event.EventType() {
 	case EventTypeGameCreated:
 		eventHandler = p.handleGameCreated
-	case EventTypeGameArgsInitialized:
-		eventHandler = p.handleGameArgsInitialized
+	case EventTypeGameInitialized:
+		eventHandler = p.handleGameInitialized
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -170,23 +170,23 @@ func (p *GameProjector) handleGameCreated(ctx context.Context, event common.Even
 	return entity, nil
 }
 
-// handleGameArgsInitialized handles game created events.
-func (p *GameProjector) handleGameArgsInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
-	data, ok := event.Data().(*GameArgsInitialized)
+// handleGameInitialized handles game created events.
+func (p *GameProjector) handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*GameInitialized)
 	if !ok {
-		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleGameArgsInitialized"))
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleGameInitialized"))
 	}
 
 	if handler, ok := p.handler.(interface {
-		HandleGameArgsInitialized(ctx context.Context, event common.Event, data *GameArgsInitialized, entity *Game) (*Game, error)
+		HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error)
 	}); ok {
-		return handler.HandleGameArgsInitialized(ctx, event, data, entity)
+		return handler.HandleGameInitialized(ctx, event, data, entity)
 	}
 
 	if handler, ok := p.handler.(interface {
-		HandleGameArgsInitialized(ctx context.Context, event common.Event, data *GameArgsInitialized) error
+		HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized) error
 	}); ok {
-		return entity, handler.HandleGameArgsInitialized(ctx, event, data)
+		return entity, handler.HandleGameInitialized(ctx, event, data)
 	}
 
 	return entity, nil

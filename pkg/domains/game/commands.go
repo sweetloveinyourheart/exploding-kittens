@@ -9,17 +9,17 @@ import (
 
 func init() {
 	eventing.RegisterCommand[CreateGame, *CreateGame]()
-	eventing.RegisterCommand[InitGameArgs, *InitGameArgs]()
+	eventing.RegisterCommand[InitializeGame, *InitializeGame]()
 }
 
 const (
-	CreateGameCommand   = common.CommandType("game:create")
-	InitGameArgsCommand = common.CommandType("game:init_args")
+	CreateGameCommand     = common.CommandType("game:create")
+	InitializeGameCommand = common.CommandType("game:init_args")
 )
 
 var AllCommands = []common.CommandType{
 	CreateGameCommand,
-	InitGameArgsCommand,
+	InitializeGameCommand,
 }
 
 var _ = eventing.Command(&CreateGame{})
@@ -47,22 +47,30 @@ func (c *CreateGame) Validate() error {
 	return nil
 }
 
-type InitGameArgs struct {
+type InitializeGame struct {
 	GameID      uuid.UUID               `json:"game_id"`
-	Desk        uuid.UUID               `json:"desk"`
+	Desk        uuid.UUID               `json:"desk_id"`
 	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
 	PlayerTurn  uuid.UUID               `json:"player_turn"`
 }
 
-func (c *InitGameArgs) AggregateType() common.AggregateType { return AggregateType }
+func (c *InitializeGame) AggregateType() common.AggregateType { return AggregateType }
 
-func (c *InitGameArgs) AggregateID() string { return c.GameID.String() }
+func (c *InitializeGame) AggregateID() string { return c.GameID.String() }
 
-func (c *InitGameArgs) CommandType() common.CommandType { return InitGameArgsCommand }
+func (c *InitializeGame) CommandType() common.CommandType { return InitializeGameCommand }
 
-func (c *InitGameArgs) Validate() error {
+func (c *InitializeGame) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.Desk == uuid.Nil {
+		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	if c.PlayerTurn == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_turn", Details: "empty field"}
 	}
 
 	return nil

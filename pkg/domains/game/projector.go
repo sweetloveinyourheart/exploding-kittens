@@ -49,7 +49,7 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 	return entity, nil
 }
 
-func (p *Projector) HandleGameArgsInitialized(ctx context.Context, event common.Event, data *GameArgsInitialized, entity *Game) (*Game, error) {
+func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_INITIALIZING
 	entity.Desk = data.GetDesk()

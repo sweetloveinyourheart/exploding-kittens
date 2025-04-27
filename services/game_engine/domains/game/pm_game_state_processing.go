@@ -267,7 +267,7 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	}
 
 	// Init game args
-	if err := domains.CommandBus.HandleCommand(ctx, &game.InitGameArgs{
+	if err := domains.CommandBus.HandleCommand(ctx, &game.InitializeGame{
 		GameID:      data.GetGameID(),
 		Desk:        deskID,
 		PlayerHands: playerHands,

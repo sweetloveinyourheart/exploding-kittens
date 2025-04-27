@@ -99,7 +99,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrTooManyUsersToPlay
 		}
 
-	case *InitGameArgs:
+	case *InitializeGame:
 		if a.actived {
 			return ErrGameAlreadyInitialized
 		}
@@ -115,8 +115,8 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			PlayerIDs: cmd.PlayerIDs,
 		}, TimeNow())
 
-	case *InitGameArgs:
-		a.AppendEvent(EventTypeGameArgsInitialized, &GameArgsInitialized{
+	case *InitializeGame:
+		a.AppendEvent(EventTypeGameInitialized, &GameInitialized{
 			GameID:      cmd.GameID,
 			Desk:        cmd.Desk,
 			PlayerHands: cmd.PlayerHands,
@@ -156,8 +156,8 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 
 		a.currentGameID = data.GetGameID()
 
-	case EventTypeGameArgsInitialized:
-		_, ok := event.Data().(*GameArgsInitialized)
+	case EventTypeGameInitialized:
+		_, ok := event.Data().(*GameInitialized)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
