@@ -1,5 +1,5 @@
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
  */
@@ -39,16 +39,16 @@ export declare const ClientServer: {
         readonly getUserProfile: {
             readonly name: "GetUserProfile";
             readonly I: typeof Empty;
-            readonly O: typeof PlayerProfileResponse;
+            readonly O: typeof UserProfileResponse;
             readonly kind: MethodKind.Unary;
         };
         /**
-         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile
          */
-        readonly getPlayerProfile: {
-            readonly name: "GetPlayerProfile";
-            readonly I: typeof PlayerProfileRequest;
-            readonly O: typeof PlayerProfileResponse;
+        readonly getPlayersProfile: {
+            readonly name: "GetPlayersProfile";
+            readonly I: typeof PlayersProfileRequest;
+            readonly O: typeof PlayersProfileResponse;
             readonly kind: MethodKind.Unary;
         };
         /**

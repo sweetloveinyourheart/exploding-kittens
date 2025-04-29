@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -45,16 +45,16 @@ export const ClientServer = {
     getUserProfile: {
       name: "GetUserProfile",
       I: Empty,
-      O: PlayerProfileResponse,
+      O: UserProfileResponse,
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile
      */
-    getPlayerProfile: {
-      name: "GetPlayerProfile",
-      I: PlayerProfileRequest,
-      O: PlayerProfileResponse,
+    getPlayersProfile: {
+      name: "GetPlayersProfile",
+      I: PlayersProfileRequest,
+      O: PlayersProfileResponse,
       kind: MethodKind.Unary,
     },
     /**

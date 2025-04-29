@@ -26,13 +26,14 @@
     - [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest)
     - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
-    - [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest)
-    - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
+    - [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest)
+    - [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse)
     - [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse)
     - [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest)
     - [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply)
     - [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
+    - [UserProfileResponse](#com-sweetloveinyourheart-kittens-clients-UserProfileResponse)
   
     - [Game.Phase](#com-sweetloveinyourheart-kittens-clients-Game-Phase)
   
@@ -400,30 +401,30 @@ Message for leave a lobby
 
 
 
-<a name="com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest"></a>
+<a name="com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest"></a>
 
-### PlayerProfileRequest
-Message for player profile
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| user_id | [string](#string) |  | Required: UUID of the guest user |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse"></a>
-
-### PlayerProfileResponse
-
+### PlayersProfileRequest
+Message for players profile
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  |  |
+| user_ids | [string](#string) | repeated | Required: UUID of the guest user |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse"></a>
+
+### PlayersProfileResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| users | [User](#com-sweetloveinyourheart-kittens-clients-User) | repeated |  |
 
 
 
@@ -507,6 +508,21 @@ Message for start a match
 
 
 
+
+<a name="com-sweetloveinyourheart-kittens-clients-UserProfileResponse"></a>
+
+### UserProfileResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  |  |
+
+
+
+
+
  
 
 
@@ -540,8 +556,8 @@ Message for start a match
 | RetrieveCardsData | [.google.protobuf.Empty](#google-protobuf-Empty) | [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse) |  |
 | CreateNewGuestUser | [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest) | [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse) |  |
 | GuestLogin | [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest) | [GuestLoginResponse](#com-sweetloveinyourheart-kittens-clients-GuestLoginResponse) |  |
-| GetUserProfile | [.google.protobuf.Empty](#google-protobuf-Empty) | [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse) |  |
-| GetPlayerProfile | [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest) | [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse) |  |
+| GetUserProfile | [.google.protobuf.Empty](#google-protobuf-Empty) | [UserProfileResponse](#com-sweetloveinyourheart-kittens-clients-UserProfileResponse) |  |
+| GetPlayersProfile | [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest) | [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse) |  |
 | CreateLobby | [CreateLobbyRequest](#com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest) | [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse) |  |
 | GetLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) |  |
 | StreamLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) stream |  |

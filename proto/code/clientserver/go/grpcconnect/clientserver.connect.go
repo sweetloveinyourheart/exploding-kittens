@@ -45,9 +45,9 @@ const (
 	// ClientServerGetUserProfileProcedure is the fully-qualified name of the ClientServer's
 	// GetUserProfile RPC.
 	ClientServerGetUserProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
-	// ClientServerGetPlayerProfileProcedure is the fully-qualified name of the ClientServer's
-	// GetPlayerProfile RPC.
-	ClientServerGetPlayerProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
+	// ClientServerGetPlayersProfileProcedure is the fully-qualified name of the ClientServer's
+	// GetPlayersProfile RPC.
+	ClientServerGetPlayersProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
 	// ClientServerCreateLobbyProcedure is the fully-qualified name of the ClientServer's CreateLobby
 	// RPC.
 	ClientServerCreateLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
@@ -75,8 +75,8 @@ type ClientServerClient interface {
 	RetrieveCardsData(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error)
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
-	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
-	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
+	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error)
+	GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
 	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
@@ -117,16 +117,16 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("GuestLogin")),
 			connect.WithClientOptions(opts...),
 		),
-		getUserProfile: connect.NewClient[emptypb.Empty, _go.PlayerProfileResponse](
+		getUserProfile: connect.NewClient[emptypb.Empty, _go.UserProfileResponse](
 			httpClient,
 			baseURL+ClientServerGetUserProfileProcedure,
 			connect.WithSchema(clientServerMethods.ByName("GetUserProfile")),
 			connect.WithClientOptions(opts...),
 		),
-		getPlayerProfile: connect.NewClient[_go.PlayerProfileRequest, _go.PlayerProfileResponse](
+		getPlayersProfile: connect.NewClient[_go.PlayersProfileRequest, _go.PlayersProfileResponse](
 			httpClient,
-			baseURL+ClientServerGetPlayerProfileProcedure,
-			connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
+			baseURL+ClientServerGetPlayersProfileProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GetPlayersProfile")),
 			connect.WithClientOptions(opts...),
 		),
 		createLobby: connect.NewClient[_go.CreateLobbyRequest, _go.CreateLobbyResponse](
@@ -185,8 +185,8 @@ type clientServerClient struct {
 	retrieveCardsData  *connect.Client[emptypb.Empty, _go.RetrieveCardsDataResponse]
 	createNewGuestUser *connect.Client[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse]
 	guestLogin         *connect.Client[_go.GuestLoginRequest, _go.GuestLoginResponse]
-	getUserProfile     *connect.Client[emptypb.Empty, _go.PlayerProfileResponse]
-	getPlayerProfile   *connect.Client[_go.PlayerProfileRequest, _go.PlayerProfileResponse]
+	getUserProfile     *connect.Client[emptypb.Empty, _go.UserProfileResponse]
+	getPlayersProfile  *connect.Client[_go.PlayersProfileRequest, _go.PlayersProfileResponse]
 	createLobby        *connect.Client[_go.CreateLobbyRequest, _go.CreateLobbyResponse]
 	getLobby           *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
 	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
@@ -214,13 +214,13 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, req *connect.Reques
 }
 
 // GetUserProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile.
-func (c *clientServerClient) GetUserProfile(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+func (c *clientServerClient) GetUserProfile(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error) {
 	return c.getUserProfile.CallUnary(ctx, req)
 }
 
-// GetPlayerProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile.
-func (c *clientServerClient) GetPlayerProfile(ctx context.Context, req *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error) {
-	return c.getPlayerProfile.CallUnary(ctx, req)
+// GetPlayersProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile.
+func (c *clientServerClient) GetPlayersProfile(ctx context.Context, req *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error) {
+	return c.getPlayersProfile.CallUnary(ctx, req)
 }
 
 // CreateLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby.
@@ -269,8 +269,8 @@ type ClientServerHandler interface {
 	RetrieveCardsData(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error)
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
-	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
-	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
+	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error)
+	GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
 	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
@@ -312,10 +312,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("GetUserProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
-	clientServerGetPlayerProfileHandler := connect.NewUnaryHandler(
-		ClientServerGetPlayerProfileProcedure,
-		svc.GetPlayerProfile,
-		connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
+	clientServerGetPlayersProfileHandler := connect.NewUnaryHandler(
+		ClientServerGetPlayersProfileProcedure,
+		svc.GetPlayersProfile,
+		connect.WithSchema(clientServerMethods.ByName("GetPlayersProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerCreateLobbyHandler := connect.NewUnaryHandler(
@@ -376,8 +376,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerGuestLoginHandler.ServeHTTP(w, r)
 		case ClientServerGetUserProfileProcedure:
 			clientServerGetUserProfileHandler.ServeHTTP(w, r)
-		case ClientServerGetPlayerProfileProcedure:
-			clientServerGetPlayerProfileHandler.ServeHTTP(w, r)
+		case ClientServerGetPlayersProfileProcedure:
+			clientServerGetPlayersProfileHandler.ServeHTTP(w, r)
 		case ClientServerCreateLobbyProcedure:
 			clientServerCreateLobbyHandler.ServeHTTP(w, r)
 		case ClientServerGetLobbyProcedure:
@@ -415,12 +415,12 @@ func (UnimplementedClientServerHandler) GuestLogin(context.Context, *connect.Req
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GuestLogin is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+func (UnimplementedClientServerHandler) GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile is not implemented"))
+func (UnimplementedClientServerHandler) GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error) {

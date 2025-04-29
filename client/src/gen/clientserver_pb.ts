@@ -330,80 +330,117 @@ export class GuestLoginResponse extends Message<GuestLoginResponse> {
 }
 
 /**
- * Message for player profile
- *
- * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest
+ * @generated from message com.sweetloveinyourheart.kittens.clients.UserProfileResponse
  */
-export class PlayerProfileRequest extends Message<PlayerProfileRequest> {
-  /**
-   * Required: UUID of the guest user
-   *
-   * @generated from field: string user_id = 1;
-   */
-  userId = "";
-
-  constructor(data?: PartialMessage<PlayerProfileRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayerProfileRequest {
-    return new PlayerProfileRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayerProfileRequest {
-    return new PlayerProfileRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayerProfileRequest {
-    return new PlayerProfileRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined, b: PlayerProfileRequest | PlainMessage<PlayerProfileRequest> | undefined): boolean {
-    return proto3.util.equals(PlayerProfileRequest, a, b);
-  }
-}
-
-/**
- * @generated from message com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse
- */
-export class PlayerProfileResponse extends Message<PlayerProfileResponse> {
+export class UserProfileResponse extends Message<UserProfileResponse> {
   /**
    * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
    */
   user?: User;
 
-  constructor(data?: PartialMessage<PlayerProfileResponse>) {
+  constructor(data?: PartialMessage<UserProfileResponse>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse";
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.UserProfileResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "user", kind: "message", T: User },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayerProfileResponse {
-    return new PlayerProfileResponse().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserProfileResponse {
+    return new UserProfileResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayerProfileResponse {
-    return new PlayerProfileResponse().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UserProfileResponse {
+    return new UserProfileResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayerProfileResponse {
-    return new PlayerProfileResponse().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UserProfileResponse {
+    return new UserProfileResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: PlayerProfileResponse | PlainMessage<PlayerProfileResponse> | undefined, b: PlayerProfileResponse | PlainMessage<PlayerProfileResponse> | undefined): boolean {
-    return proto3.util.equals(PlayerProfileResponse, a, b);
+  static equals(a: UserProfileResponse | PlainMessage<UserProfileResponse> | undefined, b: UserProfileResponse | PlainMessage<UserProfileResponse> | undefined): boolean {
+    return proto3.util.equals(UserProfileResponse, a, b);
+  }
+}
+
+/**
+ * Message for players profile
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlayersProfileRequest
+ */
+export class PlayersProfileRequest extends Message<PlayersProfileRequest> {
+  /**
+   * Required: UUID of the guest user
+   *
+   * @generated from field: repeated string user_ids = 1;
+   */
+  userIds: string[] = [];
+
+  constructor(data?: PartialMessage<PlayersProfileRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayersProfileRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user_ids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayersProfileRequest {
+    return new PlayersProfileRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayersProfileRequest {
+    return new PlayersProfileRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayersProfileRequest {
+    return new PlayersProfileRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PlayersProfileRequest | PlainMessage<PlayersProfileRequest> | undefined, b: PlayersProfileRequest | PlainMessage<PlayersProfileRequest> | undefined): boolean {
+    return proto3.util.equals(PlayersProfileRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlayersProfileResponse
+ */
+export class PlayersProfileResponse extends Message<PlayersProfileResponse> {
+  /**
+   * @generated from field: repeated com.sweetloveinyourheart.kittens.clients.User users = 1;
+   */
+  users: User[] = [];
+
+  constructor(data?: PartialMessage<PlayersProfileResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayersProfileResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "users", kind: "message", T: User, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayersProfileResponse {
+    return new PlayersProfileResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayersProfileResponse {
+    return new PlayersProfileResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayersProfileResponse {
+    return new PlayersProfileResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PlayersProfileResponse | PlainMessage<PlayersProfileResponse> | undefined, b: PlayersProfileResponse | PlainMessage<PlayersProfileResponse> | undefined): boolean {
+    return proto3.util.equals(PlayersProfileResponse, a, b);
   }
 }
 

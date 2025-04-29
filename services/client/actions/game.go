@@ -35,7 +35,6 @@ func (a *actions) GetGameMetaData(ctx context.Context, request *connect.Request[
 	for _, player := range gameState.GetPlayers() {
 		if player.GetPlayerID() == userID {
 			isAuthorized = true
-			break
 		}
 
 		players = append(players, player.GetPlayerID().String())

@@ -11,8 +11,8 @@ service ClientServer {
 
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
-    rpc GetUserProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
-    rpc GetPlayerProfile(PlayerProfileRequest) returns (PlayerProfileResponse);
+    rpc GetUserProfile(google.protobuf.Empty) returns (UserProfileResponse);
+    rpc GetPlayersProfile(PlayersProfileRequest) returns (PlayersProfileResponse);
     
     rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
     rpc GetLobby(GetLobbyRequest) returns (GetLobbyReply);
@@ -67,13 +67,18 @@ message GuestLoginResponse {
     string token = 2; // The session token for this user.
 }
 
-// Message for player profile
-message PlayerProfileRequest {
-    string user_id = 1; // Required: UUID of the guest user
+message UserProfileResponse {
+    User user = 1;
 }
 
-message PlayerProfileResponse {
-    User user = 1;
+// Message for players profile
+message PlayersProfileRequest {
+    repeated string user_ids = 1; // Required: UUID of the guest user
+}
+
+
+message PlayersProfileResponse {
+    repeated User users = 1;
 }
 
 // ========= Lobby ==========

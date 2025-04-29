@@ -2943,42 +2943,7 @@ var GuestLoginResponse = class _GuestLoginResponse extends Message {
     return proto3.util.equals(_GuestLoginResponse, a, b);
   }
 };
-var PlayerProfileRequest = class _PlayerProfileRequest extends Message {
-  /**
-   * Required: UUID of the guest user
-   *
-   * @generated from field: string user_id = 1;
-   */
-  userId = "";
-  constructor(data) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-  static runtime = proto3;
-  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileRequest";
-  static fields = proto3.util.newFieldList(() => [
-    {
-      no: 1,
-      name: "user_id",
-      kind: "scalar",
-      T: 9
-      /* ScalarType.STRING */
-    }
-  ]);
-  static fromBinary(bytes, options) {
-    return new _PlayerProfileRequest().fromBinary(bytes, options);
-  }
-  static fromJson(jsonValue, options) {
-    return new _PlayerProfileRequest().fromJson(jsonValue, options);
-  }
-  static fromJsonString(jsonString, options) {
-    return new _PlayerProfileRequest().fromJsonString(jsonString, options);
-  }
-  static equals(a, b) {
-    return proto3.util.equals(_PlayerProfileRequest, a, b);
-  }
-};
-var PlayerProfileResponse = class _PlayerProfileResponse extends Message {
+var UserProfileResponse = class _UserProfileResponse extends Message {
   /**
    * @generated from field: com.sweetloveinyourheart.kittens.clients.User user = 1;
    */
@@ -2988,21 +2953,77 @@ var PlayerProfileResponse = class _PlayerProfileResponse extends Message {
     proto3.util.initPartial(data, this);
   }
   static runtime = proto3;
-  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayerProfileResponse";
+  static typeName = "com.sweetloveinyourheart.kittens.clients.UserProfileResponse";
   static fields = proto3.util.newFieldList(() => [
     { no: 1, name: "user", kind: "message", T: User }
   ]);
   static fromBinary(bytes, options) {
-    return new _PlayerProfileResponse().fromBinary(bytes, options);
+    return new _UserProfileResponse().fromBinary(bytes, options);
   }
   static fromJson(jsonValue, options) {
-    return new _PlayerProfileResponse().fromJson(jsonValue, options);
+    return new _UserProfileResponse().fromJson(jsonValue, options);
   }
   static fromJsonString(jsonString, options) {
-    return new _PlayerProfileResponse().fromJsonString(jsonString, options);
+    return new _UserProfileResponse().fromJsonString(jsonString, options);
   }
   static equals(a, b) {
-    return proto3.util.equals(_PlayerProfileResponse, a, b);
+    return proto3.util.equals(_UserProfileResponse, a, b);
+  }
+};
+var PlayersProfileRequest = class _PlayersProfileRequest extends Message {
+  /**
+   * Required: UUID of the guest user
+   *
+   * @generated from field: repeated string user_ids = 1;
+   */
+  userIds = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayersProfileRequest";
+  static fields = proto3.util.newFieldList(() => [
+    { no: 1, name: "user_ids", kind: "scalar", T: 9, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PlayersProfileRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PlayersProfileRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PlayersProfileRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PlayersProfileRequest, a, b);
+  }
+};
+var PlayersProfileResponse = class _PlayersProfileResponse extends Message {
+  /**
+   * @generated from field: repeated com.sweetloveinyourheart.kittens.clients.User users = 1;
+   */
+  users = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayersProfileResponse";
+  static fields = proto3.util.newFieldList(() => [
+    { no: 1, name: "users", kind: "message", T: User, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PlayersProfileResponse().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PlayersProfileResponse().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PlayersProfileResponse().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PlayersProfileResponse, a, b);
   }
 };
 var Lobby = class _Lobby extends Message {
@@ -3780,16 +3801,16 @@ var ClientServer = {
     getUserProfile: {
       name: "GetUserProfile",
       I: Empty,
-      O: PlayerProfileResponse,
+      O: UserProfileResponse,
       kind: MethodKind.Unary
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile
      */
-    getPlayerProfile: {
-      name: "GetPlayerProfile",
-      I: PlayerProfileRequest,
-      O: PlayerProfileResponse,
+    getPlayersProfile: {
+      name: "GetPlayersProfile",
+      I: PlayersProfileRequest,
+      O: PlayersProfileResponse,
       kind: MethodKind.Unary
     },
     /**
@@ -3890,11 +3911,12 @@ export {
   LeaveLobbyRequest,
   LeaveLobbyResponse,
   Lobby,
-  PlayerProfileRequest,
-  PlayerProfileResponse,
+  PlayersProfileRequest,
+  PlayersProfileResponse,
   RetrieveCardsDataResponse,
   StartMatchRequest,
   StreamGameReply,
   StreamGameRequest,
-  User
+  User,
+  UserProfileResponse
 };
