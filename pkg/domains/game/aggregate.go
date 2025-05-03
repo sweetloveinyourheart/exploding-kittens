@@ -69,8 +69,9 @@ const AggregateType = common.AggregateType("game")
 type Aggregate struct {
 	*aggregate.AggregateBase
 
-	currentGameID uuid.UUID
 	actived       bool
+	currentGameID uuid.UUID
+	playerTurn    uuid.UUID
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -100,8 +101,21 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		}
 
 	case *InitializeGame:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
 		if a.actived {
 			return ErrGameAlreadyInitialized
+		}
+
+	case *PlayCard:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
 		}
 	}
 	return nil
@@ -120,7 +134,13 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			GameID:      cmd.GameID,
 			Desk:        cmd.Desk,
 			PlayerHands: cmd.PlayerHands,
-			PlayerTurn:  cmd.PlayerTurn,
+		}, TimeNow())
+
+	case *PlayCard:
+		a.AppendEvent(EventTypeCardPlayed, &CardPlayed{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+			CardIDs:  cmd.CardIDs,
 		}, TimeNow())
 
 	default:
@@ -157,12 +177,15 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.currentGameID = data.GetGameID()
 
 	case EventTypeGameInitialized:
-		_, ok := event.Data().(*GameInitialized)
+		data, ok := event.Data().(*GameInitialized)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 
 		a.actived = true
+		a.playerTurn = data.GetPlayerTurn()
+
+	case EventTypeCardPlayed:
 	}
 
 	return nil

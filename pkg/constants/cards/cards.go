@@ -15,3 +15,22 @@ const (
 	RainbowRalphingCat = "rainbow_ralphing_cat"
 	BeardCat           = "beard_cat"
 )
+
+// Cards that must be played alone
+var MustPlayAlone = map[string]bool{
+	Attack:       true,
+	Skip:         true,
+	Favor:        true,
+	Shuffle:      true,
+	SeeTheFuture: true,
+	Nope:         true, // special case: reaction, not turn-based play
+}
+
+// Combo cards
+var ComboCards = map[string]bool{
+	TacoCat:            true,
+	Catermelon:         true,
+	HairyPotatoCat:     true,
+	RainbowRalphingCat: true,
+	BeardCat:           true,
+}

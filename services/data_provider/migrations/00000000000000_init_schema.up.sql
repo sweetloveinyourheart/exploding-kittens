@@ -58,13 +58,13 @@ INSERT INTO cards (card_id, name, code, description, quantity) VALUES
 
 INSERT INTO card_effects (effect_id, card_id, effect) VALUES
     (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'exploding_kitten'), '{"type": "explode"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'defuse'), '{"type": "prevent_explode", "action": "place back"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'defuse'), '{"type": "prevent_explode"}'),
     (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'nope'), '{"type": "cancel_action"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'attack'), '{"type": "skip_turn", "extra_turns": 2}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'attack'), '{"type": "skip_turn_and_attack"}'),
     (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'skip'), '{"type": "skip_turn"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'favor'), '{"type": "steal_card", "from": "opponent"}'),
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'favor'), '{"type": "steal_card"}'),
     (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'shuffle'), '{"type": "shuffle_deck"}'),
-    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'see_the_future'), '{"type": "peek_cards", "count": 3}');
+    (gen_random_uuid(), (SELECT card_id FROM cards WHERE code = 'see_the_future'), '{"type": "peek_cards"}');
 
 INSERT INTO combo_effects (combo_id, required_cards, effect) VALUES
     (gen_random_uuid(), 2, '{"type": "steal_random_card"}'), -- Two of a Kind

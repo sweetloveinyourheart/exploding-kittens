@@ -50,11 +50,16 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 }
 
 func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error) {
-	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_INITIALIZING
 	entity.Desk = data.GetDesk()
 	entity.PlayerTurn = data.GetPlayerTurn()
 	entity.PlayerHands = data.GetPlayerHands()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error) {
+	entity.DiscardPile = append(entity.DiscardPile, data.GetCardIDs()...)
 
 	return entity, nil
 }

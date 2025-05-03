@@ -32,7 +32,7 @@ func (as *ActionsSuite) Test_GetUserByID_NoUserWasFound() {
 		),
 	)
 
-	as.Error(err, "not found: no user was found")
+	as.ErrorContains(err, "not found: no user was found")
 	as.Nil(resp)
 
 	as.mockUserRepository.AssertExpectations(as.T())

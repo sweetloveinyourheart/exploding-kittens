@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go;grpc";
+
+package com.sweetloveinyourheart.kittens.games;
+
+service GameServer {
+    rpc PlayCards(PlayCardsRequest) returns(google.protobuf.Empty);
+}
+
+message PlayCardsRequest {
+    repeated string card_ids = 1;
+}

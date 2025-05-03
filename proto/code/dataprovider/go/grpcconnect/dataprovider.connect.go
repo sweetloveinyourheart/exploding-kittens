@@ -36,6 +36,9 @@ const (
 const (
 	// DataProviderGetCardsProcedure is the fully-qualified name of the DataProvider's GetCards RPC.
 	DataProviderGetCardsProcedure = "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/GetCards"
+	// DataProviderGetMapCardsProcedure is the fully-qualified name of the DataProvider's GetMapCards
+	// RPC.
+	DataProviderGetMapCardsProcedure = "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/GetMapCards"
 )
 
 // DataProviderClient is a client for the
@@ -43,6 +46,8 @@ const (
 type DataProviderClient interface {
 	// Get cards
 	GetCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetCardsResponse], error)
+	// Get cards as map
+	GetMapCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetMapCardsResponse], error)
 }
 
 // NewDataProviderClient constructs a client for the
@@ -63,12 +68,19 @@ func NewDataProviderClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(dataProviderMethods.ByName("GetCards")),
 			connect.WithClientOptions(opts...),
 		),
+		getMapCards: connect.NewClient[emptypb.Empty, _go.GetMapCardsResponse](
+			httpClient,
+			baseURL+DataProviderGetMapCardsProcedure,
+			connect.WithSchema(dataProviderMethods.ByName("GetMapCards")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // dataProviderClient implements DataProviderClient.
 type dataProviderClient struct {
-	getCards *connect.Client[emptypb.Empty, _go.GetCardsResponse]
+	getCards    *connect.Client[emptypb.Empty, _go.GetCardsResponse]
+	getMapCards *connect.Client[emptypb.Empty, _go.GetMapCardsResponse]
 }
 
 // GetCards calls com.sweetloveinyourheart.kittens.dataproviders.DataProvider.GetCards.
@@ -76,11 +88,18 @@ func (c *dataProviderClient) GetCards(ctx context.Context, req *connect.Request[
 	return c.getCards.CallUnary(ctx, req)
 }
 
+// GetMapCards calls com.sweetloveinyourheart.kittens.dataproviders.DataProvider.GetMapCards.
+func (c *dataProviderClient) GetMapCards(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetMapCardsResponse], error) {
+	return c.getMapCards.CallUnary(ctx, req)
+}
+
 // DataProviderHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.dataproviders.DataProvider service.
 type DataProviderHandler interface {
 	// Get cards
 	GetCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetCardsResponse], error)
+	// Get cards as map
+	GetMapCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetMapCardsResponse], error)
 }
 
 // NewDataProviderHandler builds an HTTP handler from the service implementation. It returns the
@@ -96,10 +115,18 @@ func NewDataProviderHandler(svc DataProviderHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(dataProviderMethods.ByName("GetCards")),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataProviderGetMapCardsHandler := connect.NewUnaryHandler(
+		DataProviderGetMapCardsProcedure,
+		svc.GetMapCards,
+		connect.WithSchema(dataProviderMethods.ByName("GetMapCards")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataProviderGetCardsProcedure:
 			dataProviderGetCardsHandler.ServeHTTP(w, r)
+		case DataProviderGetMapCardsProcedure:
+			dataProviderGetMapCardsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -111,4 +138,8 @@ type UnimplementedDataProviderHandler struct{}
 
 func (UnimplementedDataProviderHandler) GetCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetCardsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.dataproviders.DataProvider.GetCards is not implemented"))
+}
+
+func (UnimplementedDataProviderHandler) GetMapCards(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.GetMapCardsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.dataproviders.DataProvider.GetMapCards is not implemented"))
 }

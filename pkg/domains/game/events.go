@@ -17,6 +17,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 
 	eventing.RegisterEventData[GameCreated](EventTypeGameCreated, args...)
 	eventing.RegisterEventData[GameInitialized](EventTypeGameInitialized, args...)
+	eventing.RegisterEventData[CardPlayed](EventTypeCardPlayed, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -25,9 +26,13 @@ var EventTypeGameCreated = (&GameCreated{}).EventType()
 // EventTypeGameInitialized is the event type for when a game is initialized
 var EventTypeGameInitialized = (&GameInitialized{}).EventType()
 
+// EventTypeCardPlayed is the event type for when a card is played
+var EventTypeCardPlayed = (&CardPlayed{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
+	EventTypeCardPlayed,
 }
 
 type GameCreated struct {
@@ -57,3 +62,17 @@ func (p *GameInitialized) GetDesk() uuid.UUID { return p.Desk }
 func (p *GameInitialized) GetPlayerHands() map[uuid.UUID]uuid.UUID { return p.PlayerHands }
 
 func (p *GameInitialized) GetPlayerTurn() uuid.UUID { return p.PlayerTurn }
+
+type CardPlayed struct {
+	GameID   uuid.UUID   `json:"game_id"`
+	PlayerID uuid.UUID   `json:"player_id"`
+	CardIDs  []uuid.UUID `json:"card_ids"`
+}
+
+func (p *CardPlayed) EventType() common.EventType { return "CARD_PLAYED" }
+
+func (p *CardPlayed) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *CardPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *CardPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }

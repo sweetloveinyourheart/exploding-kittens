@@ -21,3 +21,8 @@ func (mdpc *MockDataProviderClient) GetCards(ctx context.Context, req *connect.R
 	args := mdpc.Called(ctx, req)
 	return args.Get(0).(*connect.Response[dataProviderProto.GetCardsResponse]), args.Error(1)
 }
+
+func (mdpc *MockDataProviderClient) GetMapCards(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[dataProviderProto.GetMapCardsResponse], error) {
+	args := mdpc.Called(ctx, req)
+	return args.Get(0).(*connect.Response[dataProviderProto.GetMapCardsResponse]), args.Error(1)
+}

@@ -20,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DataProvider_GetCards_FullMethodName = "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/GetCards"
+	DataProvider_GetCards_FullMethodName    = "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/GetCards"
+	DataProvider_GetMapCards_FullMethodName = "/com.sweetloveinyourheart.kittens.dataproviders.DataProvider/GetMapCards"
 )
 
 // DataProviderClient is the client API for DataProvider service.
@@ -29,6 +30,8 @@ const (
 type DataProviderClient interface {
 	// Get cards
 	GetCards(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCardsResponse, error)
+	// Get cards as map
+	GetMapCards(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMapCardsResponse, error)
 }
 
 type dataProviderClient struct {
@@ -49,12 +52,24 @@ func (c *dataProviderClient) GetCards(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *dataProviderClient) GetMapCards(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMapCardsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMapCardsResponse)
+	err := c.cc.Invoke(ctx, DataProvider_GetMapCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DataProviderServer is the server API for DataProvider service.
 // All implementations should embed UnimplementedDataProviderServer
 // for forward compatibility.
 type DataProviderServer interface {
 	// Get cards
 	GetCards(context.Context, *emptypb.Empty) (*GetCardsResponse, error)
+	// Get cards as map
+	GetMapCards(context.Context, *emptypb.Empty) (*GetMapCardsResponse, error)
 }
 
 // UnimplementedDataProviderServer should be embedded to have
@@ -66,6 +81,9 @@ type UnimplementedDataProviderServer struct{}
 
 func (UnimplementedDataProviderServer) GetCards(context.Context, *emptypb.Empty) (*GetCardsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCards not implemented")
+}
+func (UnimplementedDataProviderServer) GetMapCards(context.Context, *emptypb.Empty) (*GetMapCardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMapCards not implemented")
 }
 func (UnimplementedDataProviderServer) testEmbeddedByValue() {}
 
@@ -105,6 +123,24 @@ func _DataProvider_GetCards_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DataProvider_GetMapCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataProviderServer).GetMapCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataProvider_GetMapCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataProviderServer).GetMapCards(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DataProvider_ServiceDesc is the grpc.ServiceDesc for DataProvider service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -115,6 +151,10 @@ var DataProvider_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCards",
 			Handler:    _DataProvider_GetCards_Handler,
+		},
+		{
+			MethodName: "GetMapCards",
+			Handler:    _DataProvider_GetMapCards_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

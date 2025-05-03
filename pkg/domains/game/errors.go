@@ -7,5 +7,7 @@ var (
 	ErrTooManyUsersToPlay     = errors.New("game has too many players to run")
 	ErrGameAlreadyCreated     = errors.New("game already created")
 	ErrGameNotAvailable       = errors.New("game is not available")
+	ErrGameNotFound           = errors.New("game is not found")
 	ErrGameAlreadyInitialized = errors.New("game has already been initialized")
+	ErrPlayerNotInTheirTurn   = errors.New("player is not in their turn")
 )

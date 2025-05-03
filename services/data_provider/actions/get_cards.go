@@ -39,3 +39,29 @@ func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb
 	})
 	return response, nil
 }
+
+func (a *actions) GetMapCards(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.GetMapCardsResponse], err error) {
+	cards, err := a.cardRepo.GetCards(ctx)
+	if err != nil {
+		log.Global().Error("error getting card map", zap.Error(err))
+		return nil, grpc.NotFoundError(err)
+	}
+
+	cardMap := make(map[string]*proto.Card, 0)
+	for _, card := range cards {
+		cardMap[card.CardID.String()] = &proto.Card{
+			CardId:       card.CardID.String(),
+			Code:         card.Code,
+			Name:         card.Name,
+			Description:  card.Description,
+			Quantity:     int32(card.Quantity),
+			Effects:      card.Effects,
+			ComboEffects: card.ComboEffects,
+		}
+	}
+
+	response = connect.NewResponse(&proto.GetMapCardsResponse{
+		Cards: cardMap,
+	})
+	return response, nil
+}

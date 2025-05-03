@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"slices"
 	"strings"
 	"time"
@@ -47,7 +46,7 @@ var (
 	ProcessingTimeout                     = 10 * time.Second
 	BatchSize                             = 1024
 	GameInteractionHandlerType            = "game-interaction-processing"
-	GameInteractionConsumerandDurableName = "game-cancelled-void-choices-consumer"
+	GameInteractionConsumerAndDurableName = "game-interaction-processing-consumer-and-durable"
 )
 
 type GameInteractionProcessor struct {
@@ -61,17 +60,18 @@ type GameInteractionProcessor struct {
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
-	lip := &GameInteractionProcessor{
+	gip := &GameInteractionProcessor{
 		ctx:          ctx,
 		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
 		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 	}
 
-	lip.GameProjector = game.NewGameProjection(lip)
+	gip.GameProjector = game.NewGameProjection(gip)
 
 	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
 		game.EventTypeGameCreated,
+		game.EventTypeGameInitialized,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -101,8 +101,8 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 	}
 
 	gameConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.GameStream, jetstream.ConsumerConfig{
-		Name:        GameInteractionConsumerandDurableName,
-		Durable:     GameInteractionConsumerandDurableName,
+		Name:        GameInteractionConsumerAndDurableName,
+		Durable:     GameInteractionConsumerAndDurableName,
 		Description: "Responsible for reading game events related to game state",
 		FilterSubjects: []string{
 			gameSubject,
@@ -165,7 +165,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 					continue
 				}
 
-				lip.queue <- lo.T3(eventCtx, event, msg)
+				gip.queue <- lo.T3(eventCtx, event, msg)
 			}
 		}
 	}()
@@ -180,8 +180,8 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 				}
 				timer.Stop()
 				return
-			case tuple := <-lip.queue:
-				if err := lip.HandleEvent(tuple.A, tuple.B); err != nil {
+			case tuple := <-gip.queue:
+				if err := gip.HandleEvent(tuple.A, tuple.B); err != nil {
 					log.Global().ErrorContext(tuple.A, "failed to handle event", zap.Error(err))
 				}
 				if err := tuple.C.Ack(); err != nil {
@@ -193,7 +193,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 
 	log.Global().InfoContext(ctx, "initialized game interaction processing")
 
-	return lip, nil
+	return gip, nil
 }
 
 func (w *GameInteractionProcessor) HandlerType() common.EventHandlerType {
@@ -218,7 +218,7 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	// Pre setup cards
 	cards, err := w.setupCards(ctx, playerCount)
 	if err != nil {
-		return fmt.Errorf("error setting up cards")
+		return errors.Errorf("error setting up cards")
 	}
 
 	// Ensure we have enough cards for all players
@@ -247,7 +247,7 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 			HandID: handID,
 			Cards:  handCards,
 		}); err != nil {
-			return fmt.Errorf("failed to create hand for player %s: %w", playerID, err)
+			return errors.Errorf("failed to create hand for player %s: %w", playerID, err)
 		}
 		playerHands[playerID] = handID
 	}
@@ -275,7 +275,6 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 		GameID:      data.GetGameID(),
 		Desk:        deskID,
 		PlayerHands: playerHands,
-		PlayerTurn:  data.GetPlayerIDs()[rand.Intn(playerCount)],
 	}); err != nil {
 		return err
 	}
@@ -288,6 +287,8 @@ func (w *GameInteractionProcessor) HandleGameInitialized(ctx context.Context, ev
 	if err != nil {
 		return err
 	}
+
+	log.Global().InfoContext(ctx, "Game initialized", zap.String("gameID", data.GameID.String()))
 
 	return nil
 }

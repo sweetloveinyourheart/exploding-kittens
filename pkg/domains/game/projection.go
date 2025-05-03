@@ -15,11 +15,13 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 type AllEventsProjector interface {
 	HandleGameCreated(ctx context.Context, event common.Event, data *GameCreated, entity *Game) (*Game, error)
 	HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error)
+	HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
 	handleGameCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleCardPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -135,6 +137,8 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleGameCreated
 	case EventTypeGameInitialized:
 		eventHandler = p.handleGameInitialized
+	case EventTypeCardPlayed:
+		eventHandler = p.handleCardPlayed
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -170,7 +174,7 @@ func (p *GameProjector) handleGameCreated(ctx context.Context, event common.Even
 	return entity, nil
 }
 
-// handleGameInitialized handles game created events.
+// handleGameInitialized handles game initialized events.
 func (p *GameProjector) handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
 	data, ok := event.Data().(*GameInitialized)
 	if !ok {
@@ -187,6 +191,28 @@ func (p *GameProjector) handleGameInitialized(ctx context.Context, event common.
 		HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized) error
 	}); ok {
 		return entity, handler.HandleGameInitialized(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardPlayed handles card played events.
+func (p *GameProjector) handleCardPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*CardPlayed)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardPlayed"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleCardPlayed(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed) error
+	}); ok {
+		return entity, handler.HandleCardPlayed(ctx, event, data)
 	}
 
 	return entity, nil

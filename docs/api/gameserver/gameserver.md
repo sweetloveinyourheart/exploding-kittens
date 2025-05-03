@@ -3,86 +3,31 @@
 
 ## Table of Contents
 
-- [dataprovider.proto](#dataprovider-proto)
-    - [Card](#com-sweetloveinyourheart-kittens-dataproviders-Card)
-    - [GetCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse)
-    - [GetMapCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse)
-    - [GetMapCardsResponse.CardsEntry](#com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse-CardsEntry)
+- [gameserver.proto](#gameserver-proto)
+    - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest)
   
-    - [DataProvider](#com-sweetloveinyourheart-kittens-dataproviders-DataProvider)
+    - [GameServer](#com-sweetloveinyourheart-kittens-games-GameServer)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="dataprovider-proto"></a>
+<a name="gameserver-proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## dataprovider.proto
+## gameserver.proto
 
 
 
-<a name="com-sweetloveinyourheart-kittens-dataproviders-Card"></a>
+<a name="com-sweetloveinyourheart-kittens-games-PlayCardsRequest"></a>
 
-### Card
-The Card message definition
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| card_id | [string](#string) |  |  |
-| code | [string](#string) |  |  |
-| name | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| quantity | [int32](#int32) |  |  |
-| effects | [bytes](#bytes) |  |  |
-| combo_effects | [bytes](#bytes) |  |  |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse"></a>
-
-### GetCardsResponse
+### PlayCardsRequest
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| cards | [Card](#com-sweetloveinyourheart-kittens-dataproviders-Card) | repeated |  |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse"></a>
-
-### GetMapCardsResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| cards | [GetMapCardsResponse.CardsEntry](#com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse-CardsEntry) | repeated |  |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse-CardsEntry"></a>
-
-### GetMapCardsResponse.CardsEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [Card](#com-sweetloveinyourheart-kittens-dataproviders-Card) |  |  |
+| card_ids | [string](#string) | repeated |  |
 
 
 
@@ -95,15 +40,14 @@ The Card message definition
  
 
 
-<a name="com-sweetloveinyourheart-kittens-dataproviders-DataProvider"></a>
+<a name="com-sweetloveinyourheart-kittens-games-GameServer"></a>
 
-### DataProvider
+### GameServer
 
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| GetCards | [.google.protobuf.Empty](#google-protobuf-Empty) | [GetCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetCardsResponse) | Get cards |
-| GetMapCards | [.google.protobuf.Empty](#google-protobuf-Empty) | [GetMapCardsResponse](#com-sweetloveinyourheart-kittens-dataproviders-GetMapCardsResponse) | Get cards as map |
+| PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 
