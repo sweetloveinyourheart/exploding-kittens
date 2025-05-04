@@ -21,7 +21,7 @@ import (
 
 func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 	gs.setupEnvironment()
-	cards := gs.prepareCards()
+	cards, _, _ := gs.prepareCards()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()

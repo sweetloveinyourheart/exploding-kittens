@@ -17,9 +17,11 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 
 	eventing.RegisterEventData[GameCreated](EventTypeGameCreated, args...)
 	eventing.RegisterEventData[GameInitialized](EventTypeGameInitialized, args...)
-	eventing.RegisterEventData[TurnStarted](EventTypeStartTurn, args...)
-	eventing.RegisterEventData[TurnFinished](EventTypeFinishTurn, args...)
+	eventing.RegisterEventData[TurnStarted](EventTypeTurnStarted, args...)
+	eventing.RegisterEventData[TurnFinished](EventTypeTurnFinished, args...)
 	eventing.RegisterEventData[CardPlayed](EventTypeCardPlayed, args...)
+	eventing.RegisterEventData[ActionCreated](EventTypeActionCreated, args...)
+	eventing.RegisterEventData[ActionExecuted](EventTypeActionExecuted, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -31,18 +33,26 @@ var EventTypeGameInitialized = (&GameInitialized{}).EventType()
 // EventTypeCardPlayed is the event type for when a card is played
 var EventTypeCardPlayed = (&CardPlayed{}).EventType()
 
-// EventTypeStartTurn is the event type for when a turn starts
-var EventTypeStartTurn = (&TurnStarted{}).EventType()
+// EventTypeTurnStarted is the event type for when a turn starts
+var EventTypeTurnStarted = (&TurnStarted{}).EventType()
 
-// EventTypeFinishTurn is the event type for when a turn finishes
-var EventTypeFinishTurn = (&TurnFinished{}).EventType()
+// EventTypeTurnFinished is the event type for when a turn finishes
+var EventTypeTurnFinished = (&TurnFinished{}).EventType()
+
+// EventTypeActionCreated is the event type for when an action is created
+var EventTypeActionCreated = (&ActionCreated{}).EventType()
+
+// EventTypeActionExecuted is the event type for when an action is executed
+var EventTypeActionExecuted = (&ActionExecuted{}).EventType()
 
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
-	EventTypeStartTurn,
-	EventTypeFinishTurn,
+	EventTypeTurnStarted,
+	EventTypeTurnFinished,
 	EventTypeCardPlayed,
+	EventTypeActionCreated,
+	EventTypeActionExecuted,
 }
 
 type GameCreated struct {
@@ -105,3 +115,31 @@ func (p *CardPlayed) GetGameID() uuid.UUID { return p.GameID }
 func (p *CardPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 func (p *CardPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
+
+type ActionCreated struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Effect   string    `json:"effect"`
+}
+
+func (p *ActionCreated) EventType() common.EventType { return "ACTION_CREATED" }
+
+func (p *ActionCreated) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ActionCreated) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *ActionCreated) GetEffect() string { return p.Effect }
+
+type ActionExecuted struct {
+	GameID   uuid.UUID `json:"game_id"`
+	Effect   string    `json:"effect"`
+	TargetID uuid.UUID `json:"target_id"`
+}
+
+func (p *ActionExecuted) EventType() common.EventType { return "ACTION_EXECUTED" }
+
+func (p *ActionExecuted) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ActionExecuted) GetTargetID() uuid.UUID { return p.TargetID }
+
+func (p *ActionExecuted) GetEffect() string { return p.Effect }

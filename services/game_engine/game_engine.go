@@ -33,6 +33,11 @@ func InitializeRepos(ctx context.Context) error {
 		return err
 	}
 
+	_, err = gameDomain.NewGamePlayExecutor(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

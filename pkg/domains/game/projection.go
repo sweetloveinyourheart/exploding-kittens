@@ -18,6 +18,8 @@ type AllEventsProjector interface {
 	HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error)
 	HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error)
 	HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error)
+	HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error)
+	HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
@@ -26,6 +28,8 @@ type eventsProjector interface {
 	handleTurnStarted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleTurnFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleCardPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleActionCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleActionExecuted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -141,6 +145,14 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleGameCreated
 	case EventTypeGameInitialized:
 		eventHandler = p.handleGameInitialized
+	case EventTypeTurnStarted:
+		eventHandler = p.handleTurnStarted
+	case EventTypeTurnFinished:
+		eventHandler = p.handleTurnFinished
+	case EventTypeActionCreated:
+		eventHandler = p.handleActionCreated
+	case EventTypeActionExecuted:
+		eventHandler = p.handleActionExecuted
 	case EventTypeCardPlayed:
 		eventHandler = p.handleCardPlayed
 	default:
@@ -261,6 +273,50 @@ func (p *GameProjector) handleCardPlayed(ctx context.Context, event common.Event
 		HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed) error
 	}); ok {
 		return entity, handler.HandleCardPlayed(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleActionCreated handles action created events.
+func (p *GameProjector) handleActionCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*ActionCreated)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleActionCreated"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleActionCreated(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated) error
+	}); ok {
+		return entity, handler.HandleActionCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleActionExecuted handles action executed events.
+func (p *GameProjector) handleActionExecuted(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*ActionExecuted)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleActionExecuted"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleActionExecuted(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted) error
+	}); ok {
+		return entity, handler.HandleActionExecuted(ctx, event, data)
 	}
 
 	return entity, nil

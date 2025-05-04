@@ -71,8 +71,17 @@ func (p *Projector) HandleTurnFinished(ctx context.Context, event common.Event, 
 }
 
 func (p *Projector) HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error) {
-	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	entity.DiscardPile = append(entity.DiscardPile, data.GetCardIDs()...)
 
+	return entity, nil
+}
+
+func (p *Projector) HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_ACTION_PHASE
+
+	return entity, nil
+}
+
+func (p *Projector) HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error) {
 	return entity, nil
 }

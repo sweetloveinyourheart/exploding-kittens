@@ -135,6 +135,21 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.playerTurn != typed.PlayerID {
 			return ErrPlayerNotInTheirTurn
 		}
+
+	case *CreateAction:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
+	case *ExecuteAction:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
 	}
 	return nil
 }
@@ -155,13 +170,13 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		}, TimeNow())
 
 	case *StartTurn:
-		a.AppendEvent(EventTypeStartTurn, &TurnStarted{
+		a.AppendEvent(EventTypeTurnStarted, &TurnStarted{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
 		}, TimeNow())
 
 	case *FinishTurn:
-		a.AppendEvent(EventTypeFinishTurn, &TurnFinished{
+		a.AppendEvent(EventTypeTurnFinished, &TurnFinished{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
 		}, TimeNow())
@@ -173,6 +188,19 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			CardIDs:  cmd.CardIDs,
 		}, TimeNow())
 
+	case *CreateAction:
+		a.AppendEvent(EventTypeActionCreated, &ActionCreated{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+			Effect:   cmd.Effect,
+		}, TimeNow())
+
+	case *ExecuteAction:
+		a.AppendEvent(EventTypeActionExecuted, &ActionExecuted{
+			GameID:   cmd.GameID,
+			TargetID: cmd.TargetID,
+			Effect:   cmd.Effect,
+		}, TimeNow())
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -209,17 +237,19 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 	case EventTypeGameInitialized:
 		a.actived = true
 
-	case EventTypeStartTurn:
+	case EventTypeTurnStarted:
 		data, ok := event.Data().(*TurnStarted)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.playerTurn = data.GetPlayerID()
 
-	case EventTypeFinishTurn:
+	case EventTypeTurnFinished:
 		a.playerTurn = uuid.Nil
 
 	case EventTypeCardPlayed:
+	case EventTypeActionCreated:
+	case EventTypeActionExecuted:
 	}
 
 	return nil

@@ -75,6 +75,8 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
 		game.EventTypeGameCreated,
 		game.EventTypeGameInitialized,
+		game.EventTypeTurnStarted,
+		game.EventTypeTurnFinished,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -334,6 +336,24 @@ func (w *GameInteractionProcessor) HandleTurnStarted(ctx context.Context, event 
 }
 
 func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event common.Event, data *game.TurnFinished) error {
+	var nextTurn uuid.UUID
+	players := w.gamePlayers[data.GetGameID().String()]
+
+	for i, player := range players {
+		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
+			nextTurn = players[(i+1)%len(players)].GetPlayerID()
+			break
+		}
+	}
+
+	if err := domains.CommandBus.HandleCommand(ctx, &game.StartTurn{
+		GameID:   data.GetGameID(),
+		PlayerID: nextTurn,
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to start new turn", zap.Error(err))
+		return err
+	}
+
 	return nil
 }
 

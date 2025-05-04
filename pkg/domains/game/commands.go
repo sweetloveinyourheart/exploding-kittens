@@ -1,8 +1,11 @@
 package game
 
 import (
+	"slices"
+
 	"github.com/gofrs/uuid"
 
+	card_effects "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/card-effects"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )
@@ -10,8 +13,12 @@ import (
 func init() {
 	eventing.RegisterCommand[CreateGame, *CreateGame]()
 	eventing.RegisterCommand[InitializeGame, *InitializeGame]()
+	eventing.RegisterCommand[StartTurn, *StartTurn]()
+	eventing.RegisterCommand[FinishTurn, *FinishTurn]()
 
 	eventing.RegisterCommand[PlayCard, *PlayCard]()
+	eventing.RegisterCommand[CreateAction, *CreateAction]()
+	eventing.RegisterCommand[ExecuteAction, *ExecuteAction]()
 }
 
 const (
@@ -20,7 +27,9 @@ const (
 	StartTurnCommand      = common.CommandType("game:turn:start")
 	FinishTurnCommand     = common.CommandType("game:turn:finish")
 
-	PlayCardCommand = common.CommandType("game:card:play")
+	PlayCardCommand      = common.CommandType("game:card:play")
+	CreateActionCommand  = common.CommandType("game:action:create")
+	ExecuteActionCommand = common.CommandType("game:action:execute")
 )
 
 var AllCommands = []common.CommandType{
@@ -30,6 +39,8 @@ var AllCommands = []common.CommandType{
 	FinishTurnCommand,
 
 	PlayCardCommand,
+	CreateActionCommand,
+	ExecuteActionCommand,
 }
 
 var _ = eventing.Command(&CreateGame{})
@@ -37,6 +48,8 @@ var _ = eventing.Command(&InitializeGame{})
 var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&PlayCard{})
+var _ = eventing.Command(&CreateAction{})
+var _ = eventing.Command(&ExecuteAction{})
 
 type CreateGame struct {
 	GameID    uuid.UUID   `json:"game_id"`
@@ -148,6 +161,72 @@ func (c *PlayCard) Validate() error {
 
 	if len(c.CardIDs) == 0 {
 		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
+	}
+
+	return nil
+}
+
+type CreateAction struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Effect   string    `json:"effect"`
+}
+
+func (c *CreateAction) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *CreateAction) AggregateID() string { return c.GameID.String() }
+
+func (c *CreateAction) CommandType() common.CommandType { return CreateActionCommand }
+
+func (c *CreateAction) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	if c.Effect == "" {
+		return &common.CommandFieldError{Field: "effect", Details: "empty field"}
+	}
+
+	// Check if the effect is valid
+	if !slices.Contains(card_effects.AllCardEffects, c.Effect) {
+		return &common.CommandFieldError{Field: "effect", Details: "invalid effect"}
+	}
+
+	return nil
+}
+
+type ExecuteAction struct {
+	GameID   uuid.UUID `json:"game_id"`
+	TargetID uuid.UUID `json:"target_id"`
+	Effect   string    `json:"effect"`
+}
+
+func (c *ExecuteAction) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *ExecuteAction) AggregateID() string { return c.GameID.String() }
+
+func (c *ExecuteAction) CommandType() common.CommandType { return ExecuteActionCommand }
+
+func (c *ExecuteAction) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.TargetID == uuid.Nil {
+		return &common.CommandFieldError{Field: "target_id", Details: "empty field"}
+	}
+
+	if c.Effect == "" {
+		return &common.CommandFieldError{Field: "effect", Details: "empty field"}
+	}
+
+	// Check if the effect is valid
+	if !slices.Contains(card_effects.AllCardEffects, c.Effect) {
+		return &common.CommandFieldError{Field: "effect", Details: "invalid effect"}
 	}
 
 	return nil

@@ -13,15 +13,15 @@ import (
 
 func (as *ActionsSuite) Test_Validate_NultiCardPlay_CardMustPlayAlone() {
 	as.setupEnvironment()
-	cardMap := as.prepareCards()
+	_, cardsMapByCode := as.prepareCards()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	playCardsRequest := &proto.PlayCardsRequest{
 		CardIds: []string{
-			cardMap[cards.Skip].GetCardId(),
-			cardMap[cards.SeeTheFuture].GetCardId(),
+			cardsMapByCode[cards.Skip].GetCardId(),
+			cardsMapByCode[cards.SeeTheFuture].GetCardId(),
 		},
 	}
 
@@ -40,15 +40,15 @@ func (as *ActionsSuite) Test_Validate_NultiCardPlay_CardMustPlayAlone() {
 
 func (as *ActionsSuite) Test_Validate_ComboCardPlay_NotAllowedCard() {
 	as.setupEnvironment()
-	cardMap := as.prepareCards()
+	_, cardsMapByCode := as.prepareCards()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	playCardsRequest := &proto.PlayCardsRequest{
 		CardIds: []string{
-			cardMap[cards.TacoCat].GetCardId(),
-			cardMap[cards.Shuffle].GetCardId(),
+			cardsMapByCode[cards.TacoCat].GetCardId(),
+			cardsMapByCode[cards.Shuffle].GetCardId(),
 		},
 	}
 
@@ -67,15 +67,15 @@ func (as *ActionsSuite) Test_Validate_ComboCardPlay_NotAllowedCard() {
 
 func (as *ActionsSuite) Test_Validate_ComboCardPlay_DifferenceCards() {
 	as.setupEnvironment()
-	cardMap := as.prepareCards()
+	_, cardsMapByCode := as.prepareCards()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	playCardsRequest := &proto.PlayCardsRequest{
 		CardIds: []string{
-			cardMap[cards.TacoCat].GetCardId(),
-			cardMap[cards.Catermelon].GetCardId(),
+			cardsMapByCode[cards.TacoCat].GetCardId(),
+			cardsMapByCode[cards.Catermelon].GetCardId(),
 		},
 	}
 
