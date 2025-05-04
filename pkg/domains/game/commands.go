@@ -17,6 +17,8 @@ func init() {
 const (
 	CreateGameCommand     = common.CommandType("game:create")
 	InitializeGameCommand = common.CommandType("game:init")
+	StartTurnCommand      = common.CommandType("game:turn:start")
+	FinishTurnCommand     = common.CommandType("game:turn:finish")
 
 	PlayCardCommand = common.CommandType("game:card:play")
 )
@@ -24,12 +26,16 @@ const (
 var AllCommands = []common.CommandType{
 	CreateGameCommand,
 	InitializeGameCommand,
+	StartTurnCommand,
+	FinishTurnCommand,
 
 	PlayCardCommand,
 }
 
 var _ = eventing.Command(&CreateGame{})
 var _ = eventing.Command(&InitializeGame{})
+var _ = eventing.Command(&StartTurn{})
+var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&PlayCard{})
 
 type CreateGame struct {
@@ -74,6 +80,46 @@ func (c *InitializeGame) Validate() error {
 
 	if c.Desk == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type StartTurn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *StartTurn) AggregateType() common.AggregateType { return AggregateType }
+func (c *StartTurn) AggregateID() string                 { return c.GameID.String() }
+func (c *StartTurn) CommandType() common.CommandType     { return StartTurnCommand }
+func (c *StartTurn) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type FinishTurn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *FinishTurn) AggregateType() common.AggregateType { return AggregateType }
+func (c *FinishTurn) AggregateID() string                 { return c.GameID.String() }
+func (c *FinishTurn) CommandType() common.CommandType     { return FinishTurnCommand }
+func (c *FinishTurn) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	return nil

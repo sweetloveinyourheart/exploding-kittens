@@ -52,13 +52,26 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error) {
 	entity.GamePhase = GAME_PHASE_INITIALIZING
 	entity.Desk = data.GetDesk()
-	entity.PlayerTurn = data.GetPlayerTurn()
 	entity.PlayerHands = data.GetPlayerHands()
 
 	return entity, nil
 }
 
+func (p *Projector) HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_TURN_START
+	entity.PlayerTurn = data.GetPlayerID()
+
+	return entity, nil
+}
+func (p *Projector) HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_TURN_FINISH
+	entity.PlayerTurn = uuid.Nil
+
+	return entity, nil
+}
+
 func (p *Projector) HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	entity.DiscardPile = append(entity.DiscardPile, data.GetCardIDs()...)
 
 	return entity, nil

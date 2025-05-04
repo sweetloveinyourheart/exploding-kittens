@@ -109,6 +109,24 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameAlreadyInitialized
 		}
 
+	case *StartTurn:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn == typed.PlayerID {
+			return ErrPlayerIsAlreadyInTheirTurn
+		}
+
+	case *FinishTurn:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
 	case *PlayCard:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
@@ -134,6 +152,18 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			GameID:      cmd.GameID,
 			Desk:        cmd.Desk,
 			PlayerHands: cmd.PlayerHands,
+		}, TimeNow())
+
+	case *StartTurn:
+		a.AppendEvent(EventTypeStartTurn, &TurnStarted{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *FinishTurn:
+		a.AppendEvent(EventTypeFinishTurn, &TurnFinished{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
 		}, TimeNow())
 
 	case *PlayCard:
@@ -177,13 +207,17 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.currentGameID = data.GetGameID()
 
 	case EventTypeGameInitialized:
-		data, ok := event.Data().(*GameInitialized)
+		a.actived = true
+
+	case EventTypeStartTurn:
+		data, ok := event.Data().(*TurnStarted)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
+		a.playerTurn = data.GetPlayerID()
 
-		a.actived = true
-		a.playerTurn = data.GetPlayerTurn()
+	case EventTypeFinishTurn:
+		a.playerTurn = uuid.Nil
 
 	case EventTypeCardPlayed:
 	}

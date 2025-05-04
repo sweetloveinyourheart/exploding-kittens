@@ -10,10 +10,10 @@ import (
 
 const (
 	GAME_PHASE_INITIALIZING = iota // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
-	GAME_PHASE_TURN_START   = 1    // Active player begins their turn
-	GAME_PHASE_ACTION_PHASE = 2    // Player can play as many action cards as they want
+	GAME_PHASE_TURN_START   = 1    // Active player begins their turn, player can play as many action cards as they want
+	GAME_PHASE_ACTION_PHASE = 2    // Execute the action of the played card
 	GAME_PHASE_CARD_DRAWING = 3    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
-	GAME_PHASE_TURN_END     = 4    // Finalize the turn, next player becomes active
+	GAME_PHASE_TURN_FINISH  = 4    // Finalize the turn, next player becomes active
 	GAME_PHASE_GAME_OVER    = 5    // When only one player remains
 )
 

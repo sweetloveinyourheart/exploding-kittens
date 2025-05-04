@@ -17,6 +17,8 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 
 	eventing.RegisterEventData[GameCreated](EventTypeGameCreated, args...)
 	eventing.RegisterEventData[GameInitialized](EventTypeGameInitialized, args...)
+	eventing.RegisterEventData[TurnStarted](EventTypeStartTurn, args...)
+	eventing.RegisterEventData[TurnFinished](EventTypeFinishTurn, args...)
 	eventing.RegisterEventData[CardPlayed](EventTypeCardPlayed, args...)
 }
 
@@ -29,9 +31,17 @@ var EventTypeGameInitialized = (&GameInitialized{}).EventType()
 // EventTypeCardPlayed is the event type for when a card is played
 var EventTypeCardPlayed = (&CardPlayed{}).EventType()
 
+// EventTypeStartTurn is the event type for when a turn starts
+var EventTypeStartTurn = (&TurnStarted{}).EventType()
+
+// EventTypeFinishTurn is the event type for when a turn finishes
+var EventTypeFinishTurn = (&TurnFinished{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
+	EventTypeStartTurn,
+	EventTypeFinishTurn,
 	EventTypeCardPlayed,
 }
 
@@ -50,10 +60,9 @@ type GameInitialized struct {
 	GameID      uuid.UUID               `json:"game_id"`
 	Desk        uuid.UUID               `json:"desk"`
 	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
-	PlayerTurn  uuid.UUID               `json:"player_turn"`
 }
 
-func (p *GameInitialized) EventType() common.EventType { return "GAME_ARGS_INITIALIZED" }
+func (p *GameInitialized) EventType() common.EventType { return "GAME_INITIALIZED" }
 
 func (p *GameInitialized) GetGameID() uuid.UUID { return p.GameID }
 
@@ -61,7 +70,27 @@ func (p *GameInitialized) GetDesk() uuid.UUID { return p.Desk }
 
 func (p *GameInitialized) GetPlayerHands() map[uuid.UUID]uuid.UUID { return p.PlayerHands }
 
-func (p *GameInitialized) GetPlayerTurn() uuid.UUID { return p.PlayerTurn }
+type TurnStarted struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *TurnStarted) EventType() common.EventType { return "TURN_STARTED" }
+
+func (p *TurnStarted) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *TurnStarted) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type TurnFinished struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *TurnFinished) EventType() common.EventType { return "TURN_FINISHED" }
+
+func (p *TurnFinished) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *TurnFinished) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 type CardPlayed struct {
 	GameID   uuid.UUID   `json:"game_id"`

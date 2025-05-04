@@ -57,6 +57,8 @@ type GameInteractionProcessor struct {
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus   *nats.Conn
+
+	gamePlayers map[string][]*game.Player
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
@@ -65,6 +67,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
 		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		gamePlayers:  make(map[string][]*game.Player),
 	}
 
 	gip.GameProjector = game.NewGameProjection(gip)
@@ -215,6 +218,15 @@ func (w *GameInteractionProcessor) HandleEvent(ctx context.Context, event common
 func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event common.Event, data *game.GameCreated) error {
 	playerCount := len(data.GetPlayerIDs())
 
+	// Setup game player IDs
+	w.gamePlayers[data.GetGameID().String()] = make([]*game.Player, 0, playerCount)
+	for _, playerID := range data.GetPlayerIDs() {
+		w.gamePlayers[data.GetGameID().String()] = append(w.gamePlayers[data.GetGameID().String()], &game.Player{
+			PlayerID: playerID,
+			Active:   true,
+		})
+	}
+
 	// Pre setup cards
 	cards, err := w.setupCards(ctx, playerCount)
 	if err != nil {
@@ -283,13 +295,45 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 }
 
 func (w *GameInteractionProcessor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
-	err := w.emitGameStateUpdateEvent(data.GetGameID())
-	if err != nil {
+	gamePlayers, ok := w.gamePlayers[data.GetGameID().String()]
+	if !ok || len(gamePlayers) == 0 {
+		return errors.Errorf("failed to get game player IDs")
+	}
+
+	// Get the first player
+	player := gamePlayers[0]
+
+	// Start the turn for the first player
+	if err := domains.CommandBus.HandleCommand(ctx, &game.StartTurn{
+		GameID:   data.GetGameID(),
+		PlayerID: player.GetPlayerID(),
+	}); err != nil {
 		return err
 	}
 
 	log.Global().InfoContext(ctx, "Game initialized", zap.String("gameID", data.GameID.String()))
 
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleTurnStarted(ctx context.Context, event common.Event, data *game.TurnStarted) error {
+	// Get the player ID from the event
+	playerID := data.GetPlayerID()
+
+	// Get the game ID from the event
+	gameID := data.GetGameID()
+
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(gameID); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Turn started", zap.String("gameID", gameID.String()), zap.String("playerID", playerID.String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event common.Event, data *game.TurnFinished) error {
 	return nil
 }
 

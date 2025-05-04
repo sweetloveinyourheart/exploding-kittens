@@ -15,12 +15,16 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 type AllEventsProjector interface {
 	HandleGameCreated(ctx context.Context, event common.Event, data *GameCreated, entity *Game) (*Game, error)
 	HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error)
+	HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error)
+	HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error)
 	HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
 	handleGameCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleTurnStarted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleTurnFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleCardPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
@@ -191,6 +195,50 @@ func (p *GameProjector) handleGameInitialized(ctx context.Context, event common.
 		HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized) error
 	}); ok {
 		return entity, handler.HandleGameInitialized(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleTurnStarted handles turn started events.
+func (p *GameProjector) handleTurnStarted(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*TurnStarted)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleTurnStarted"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleTurnStarted(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted) error
+	}); ok {
+		return entity, handler.HandleTurnStarted(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleTurnFinished handles turn finished events.
+func (p *GameProjector) handleTurnFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*TurnFinished)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleTurnFinished"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleTurnFinished(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished) error
+	}); ok {
+		return entity, handler.HandleTurnFinished(ctx, event, data)
 	}
 
 	return entity, nil
