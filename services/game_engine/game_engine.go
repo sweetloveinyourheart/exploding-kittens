@@ -17,6 +17,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
+	deskDomain "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains/desk"
 	gameDomain "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains/game"
 )
 
@@ -34,6 +35,11 @@ func InitializeRepos(ctx context.Context) error {
 	}
 
 	_, err = gameDomain.NewGamePlayExecutor(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = deskDomain.NewDeskStateProcessor(ctx)
 	if err != nil {
 		return err
 	}

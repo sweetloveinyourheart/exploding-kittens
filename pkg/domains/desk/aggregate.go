@@ -88,6 +88,13 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.currentDeskID == typed.DeskID {
 			return ErrDeskAlreadyCreated
 		}
+
+	case *ShuffleDesk:
+		// An aggregate can only be shuffled once.
+		if a.currentDeskID != typed.DeskID {
+			return ErrDeskNotAvailable
+		}
+
 	}
 
 	return nil
@@ -99,6 +106,11 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		a.AppendEvent(EventTypeDeskCreated, &DeskCreated{
 			DeskID: cmd.DeskID,
 			Cards:  cmd.Cards,
+		}, TimeNow())
+
+	case *ShuffleDesk:
+		a.AppendEvent(EventTypeDeskShuffled, &DeskShuffled{
+			DeskID: cmd.DeskID,
 		}, TimeNow())
 
 	default:
@@ -132,6 +144,8 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.currentDeskID = data.GetDeskID()
+
+	case EventTypeDeskShuffled:
 	}
 
 	return nil

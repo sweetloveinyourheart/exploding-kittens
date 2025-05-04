@@ -8,6 +8,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -21,6 +22,7 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
@@ -41,21 +43,25 @@ type GamePlayExecutor struct {
 	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	dataProvider dataProviderGrpc.DataProviderClient
 
+	gameDeskID      map[string]uuid.UUID
 	gameCardsToDraw map[string]int
 }
 
 func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 	gpe := &GamePlayExecutor{
-		ctx:             ctx,
-		dataProvider:    do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
-		queue:           make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		ctx:          ctx,
+		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+
 		gameCardsToDraw: make(map[string]int),
+		gameDeskID:      make(map[string]uuid.UUID),
 	}
 
 	gpe.GameProjector = game.NewGameProjection(gpe)
 
 	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
 		game.EventTypeGameCreated,
+		game.EventTypeGameInitialized,
 		game.EventTypeCardPlayed,
 		game.EventTypeActionCreated,
 		game.EventTypeActionExecuted,
@@ -189,6 +195,12 @@ func (w *GamePlayExecutor) HandleGameCreated(ctx context.Context, event common.E
 	return nil
 }
 
+func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
+	w.gameDeskID[data.GameID.String()] = data.Desk
+
+	return nil
+}
+
 func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Event, data *game.CardPlayed) error {
 	cards := data.GetCardIDs()
 	if len(cards) == 0 {
@@ -273,7 +285,15 @@ func (w *GamePlayExecutor) HandleActionCreated(ctx context.Context, event common
 func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event common.Event, data *game.ActionExecuted) error {
 	switch data.Effect {
 	case card_effects.ShuffleDesk:
-		// shuffle the desk
+		if err := domains.CommandBus.HandleCommand(ctx, &desk.ShuffleDesk{
+			DeskID:   w.gameDeskID[data.GameID.String()],
+			GameID:   data.GetGameID(),
+			PlayerID: data.GetTargetID(),
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to shuffle desk", zap.Error(err))
+			return err
+		}
+
 	case card_effects.SkipTurn:
 		if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
 			GameID:   data.GetGameID(),

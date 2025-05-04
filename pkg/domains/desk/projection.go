@@ -14,10 +14,12 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 
 type AllEventsProjector interface {
 	HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated, entity *Desk) (*Desk, error)
+	HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error)
 }
 
 type eventsProjector interface {
 	handleDeskCreated(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
+	handleDeskShuffled(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 }
 
 // DeskProjector is an event handler for Projections in the Desk domain.
@@ -131,6 +133,8 @@ func (p *DeskProjector) handleDeskEvent(ctx context.Context, event common.Event,
 	switch event.EventType() {
 	case EventTypeDeskCreated:
 		eventHandler = p.handleDeskCreated
+	case EventTypeDeskShuffled:
+		eventHandler = p.handleDeskShuffled
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -161,6 +165,28 @@ func (p *DeskProjector) handleDeskCreated(ctx context.Context, event common.Even
 		HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated) error
 	}); ok {
 		return entity, handler.HandleDeskCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleDeskShuffled handles game shuffled events.
+func (p *DeskProjector) handleDeskShuffled(ctx context.Context, event common.Event, entity *Desk) (*Desk, error) {
+	data, ok := event.Data().(*DeskShuffled)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleDeskShuffled"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error)
+	}); ok {
+		return handler.HandleDeskShuffled(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled) error
+	}); ok {
+		return entity, handler.HandleDeskShuffled(ctx, event, data)
 	}
 
 	return entity, nil

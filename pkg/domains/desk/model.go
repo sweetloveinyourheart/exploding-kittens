@@ -9,10 +9,11 @@ import (
 )
 
 type Desk struct {
-	DeskID    uuid.UUID   `json:"desk_id"`
-	Cards     []uuid.UUID `json:"cards"`
-	CreatedAt time.Time   `json:"created_at"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	DeskID     uuid.UUID   `json:"desk_id"`
+	Cards      []uuid.UUID `json:"cards"`
+	ShuffledAt time.Time   `json:"shuffled_at"`
+	CreatedAt  time.Time   `json:"created_at"`
+	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
 var _ = common.Entity(&Desk{})

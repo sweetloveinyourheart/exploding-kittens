@@ -3,6 +3,7 @@ package desk
 import (
 	"context"
 
+	"github.com/samber/lo/mutable"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
@@ -36,6 +37,17 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Des
 func (p *Projector) HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated, entity *Desk) (*Desk, error) {
 	entity.DeskID = data.GetDeskID()
 	entity.Cards = data.GetCards()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error) {
+	cards := entity.GetCards()
+	mutable.Shuffle(cards)
+
+	entity.DeskID = data.GetDeskID()
+	entity.Cards = cards
+	entity.ShuffledAt = timeutil.NowRoundedForGranularity()
 
 	return entity, nil
 }
