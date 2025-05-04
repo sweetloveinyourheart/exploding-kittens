@@ -76,6 +76,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		game.EventTypeGameCreated,
 		game.EventTypeGameInitialized,
 		game.EventTypeTurnStarted,
+		game.EventTypeActionCreated,
 		game.EventTypeTurnFinished,
 	)
 
@@ -331,6 +332,17 @@ func (w *GameInteractionProcessor) HandleTurnStarted(ctx context.Context, event 
 	}
 
 	log.Global().InfoContext(ctx, "Turn started", zap.String("gameID", gameID.String()), zap.String("playerID", playerID.String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleActionCreated(ctx context.Context, event common.Event, data *game.ActionCreated) error {
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Action created", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
 
 	return nil
 }

@@ -124,7 +124,7 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_ShuffleDesk() {
 		gameState, gameStateErr := gameRepo.Find(findCtx, gameID.String())
 		deskState, deskStateErr := deskRepo.Find(findCtx, gameState.Desk.String())
 		afterShuffleDeskState = deskState
-		return gameStateErr == nil && deskStateErr == nil && gameState.Desk != uuid.Nil
+		return gameStateErr == nil && deskStateErr == nil && gameState.Desk != uuid.Nil && gameState.GetPlayerTurn() == player01
 	}, 5*time.Second, 10*time.Millisecond)
 
 	gs.NotEqual(previousDeskState.Cards, afterShuffleDeskState.Cards)
