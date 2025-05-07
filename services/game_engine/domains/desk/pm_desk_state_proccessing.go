@@ -12,6 +12,8 @@ import (
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/samber/lo"
+	"go.uber.org/zap"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
@@ -20,7 +22,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
-	"go.uber.org/zap"
 )
 
 var (

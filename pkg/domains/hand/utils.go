@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 )
 
