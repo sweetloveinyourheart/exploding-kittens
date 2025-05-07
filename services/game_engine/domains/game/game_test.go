@@ -114,11 +114,11 @@ func (gs *GameSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*data
 		{CardId: "123e4567-e89b-12d3-a456-426655440006", Code: cards.Shuffle, Quantity: 4, Effects: []byte(`{"type": "shuffle_deck"}`)},
 		{CardId: "123e4567-e89b-12d3-a456-426655440007", Code: cards.Skip, Quantity: 4, Effects: []byte(`{"type": "skip_turn"}`)},
 		{CardId: "123e4567-e89b-12d3-a456-426655440008", Code: cards.Favor, Quantity: 4, Effects: []byte(`{"type": "steal_card"}`)},
-		{CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		{CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		{CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		{CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		{CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
+		{CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		{CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		{CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		{CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		{CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
 	}
 
 	cardsMap := map[string]*dataProviderProto.Card{
@@ -130,11 +130,11 @@ func (gs *GameSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*data
 		"123e4567-e89b-12d3-a456-426655440006": {CardId: "123e4567-e89b-12d3-a456-426655440006", Code: cards.Shuffle, Quantity: 4, Effects: []byte(`{"type": "shuffle_deck"}`)},
 		"123e4567-e89b-12d3-a456-426655440007": {CardId: "123e4567-e89b-12d3-a456-426655440007", Code: cards.Skip, Quantity: 4, Effects: []byte(`{"type": "skip_turn"}`)},
 		"123e4567-e89b-12d3-a456-426655440008": {CardId: "123e4567-e89b-12d3-a456-426655440008", Code: cards.Favor, Quantity: 4, Effects: []byte(`{"type": "steal_card"}`)},
-		"123e4567-e89b-12d3-a456-426655440009": {CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		"123e4567-e89b-12d3-a456-426655440010": {CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		"123e4567-e89b-12d3-a456-426655440011": {CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		"123e4567-e89b-12d3-a456-426655440012": {CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		"123e4567-e89b-12d3-a456-426655440013": {CardId: "123e4567-e89b-12d3-a456-426655440013", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
+		"123e4567-e89b-12d3-a456-426655440009": {CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		"123e4567-e89b-12d3-a456-426655440010": {CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		"123e4567-e89b-12d3-a456-426655440011": {CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		"123e4567-e89b-12d3-a456-426655440012": {CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		"123e4567-e89b-12d3-a456-426655440013": {CardId: "123e4567-e89b-12d3-a456-426655440013", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
 	}
 
 	cardsMapByCode := map[string]*dataProviderProto.Card{
@@ -146,11 +146,11 @@ func (gs *GameSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*data
 		cards.Shuffle:            {CardId: "123e4567-e89b-12d3-a456-426655440006", Code: cards.Shuffle, Quantity: 4, Effects: []byte(`{"type": "shuffle_deck"}`)},
 		cards.Skip:               {CardId: "123e4567-e89b-12d3-a456-426655440007", Code: cards.Skip, Quantity: 4, Effects: []byte(`{"type": "skip_turn"}`)},
 		cards.Favor:              {CardId: "123e4567-e89b-12d3-a456-426655440008", Code: cards.Favor, Quantity: 4, Effects: []byte(`{"type": "steal_card"}`)},
-		cards.BeardCat:           {CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		cards.Catermelon:         {CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		cards.HairyPotatoCat:     {CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		cards.TacoCat:            {CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
-		cards.RainbowRalphingCat: {CardId: "123e4567-e89b-12d3-a456-426655440013", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card"}, {"type": "steal_named_card"}, {"type": "trade_any_discard"}]`)},
+		cards.BeardCat:           {CardId: "123e4567-e89b-12d3-a456-426655440009", Code: cards.BeardCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		cards.Catermelon:         {CardId: "123e4567-e89b-12d3-a456-426655440010", Code: cards.Catermelon, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		cards.HairyPotatoCat:     {CardId: "123e4567-e89b-12d3-a456-426655440011", Code: cards.HairyPotatoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		cards.TacoCat:            {CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
+		cards.RainbowRalphingCat: {CardId: "123e4567-e89b-12d3-a456-426655440013", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
 	}
 
 	gs.mockDataProviderClient.On("GetCards", goMock.Anything, goMock.Anything).Return(connect.NewResponse(&dataProviderProto.GetCardsResponse{

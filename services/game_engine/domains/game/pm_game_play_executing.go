@@ -224,12 +224,19 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 		return errors.Errorf("cannot recognize card information")
 	}
 
-	var cardEffects []interfaces.CardEffect
+	var effects []string
 	if len(cards) > 1 {
 		// combo effects
-		err = json.Unmarshal(cardInformation.ComboEffects, &cardEffects)
+		var comboEffect []interfaces.CardComboEffect
+		err = json.Unmarshal(cardInformation.ComboEffects, &comboEffect)
 		if err != nil {
 			return errors.Errorf("failed to unmarshal card combo effects: %w", err)
+		}
+
+		for _, effect := range comboEffect {
+			if effect.RequiredCards == len(cards) {
+				effects = append(effects, effect.Type)
+			}
 		}
 	} else {
 		// single effect
@@ -239,10 +246,10 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 			return errors.Errorf("failed to unmarshal card effects: %w", err)
 		}
 
-		cardEffects = append(cardEffects, cardEffect)
+		effects = append(effects, cardEffect.Type)
 	}
 
-	if len(cardEffects) == 0 {
+	if len(effects) == 0 {
 		return errors.Errorf("no card effects found")
 	}
 
@@ -254,11 +261,11 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 		return err
 	}
 
-	for _, effect := range cardEffects {
+	for _, effect := range effects {
 		if err := domains.CommandBus.HandleCommand(ctx, &game.CreateAction{
 			GameID:   data.GetGameID(),
 			PlayerID: data.GetPlayerID(),
-			Effect:   effect.Type,
+			Effect:   effect,
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to execute action", zap.Error(err))
 			return err
@@ -270,10 +277,13 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 
 func (w *GamePlayExecutor) HandleActionCreated(ctx context.Context, event common.Event, data *game.ActionCreated) error {
 	switch data.Effect {
+	// Manual effects
 	case card_effects.PeekCards:
 	case card_effects.StealCard:
 	case card_effects.StealNamedCard:
 	case card_effects.StealRandomCard:
+
+	// Auto effects
 	default:
 		if err := domains.CommandBus.HandleCommand(ctx, &game.ExecuteAction{
 			GameID:   data.GetGameID(),
@@ -354,6 +364,8 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 		log.Global().ErrorContext(ctx, "unknown action effect", zap.String("effect", data.Effect))
 		return errors.Errorf("unknown action effect: %s", data.Effect)
 	}
+
+	log.Global().InfoContext(ctx, "Action executed", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
 
 	return nil
 }

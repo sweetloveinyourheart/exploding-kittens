@@ -68,7 +68,7 @@ INSERT INTO card_effects (effect_id, card_id, effect) VALUES
 
 INSERT INTO combo_effects (combo_id, required_cards, effect) VALUES
     (gen_random_uuid(), 2, '{"type": "steal_random_card"}'), -- Two of a Kind
-    (gen_random_uuid(), 3, '{"type": "steal_named_card"}'),  -- Three of a Kind
+    (gen_random_uuid(), 3, '{"type": "steal_named_card"}');  -- Three of a Kind
 
 -- Two of a Kind (All Cat Cards)
 INSERT INTO card_combo (card_id, combo_id)

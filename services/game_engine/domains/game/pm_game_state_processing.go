@@ -366,6 +366,8 @@ func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event
 		return err
 	}
 
+	log.Global().InfoContext(ctx, "Turn finished", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
 	return nil
 }
 

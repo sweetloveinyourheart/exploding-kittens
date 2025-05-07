@@ -56,19 +56,30 @@ func (r *CardRepository) GetCardsInformation(ctx context.Context) ([]models.Card
 func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 	var cards []CardDetail
 	query := `
-		SELECT 
+		SELECT
 			c.card_id,
 			c.name AS card_name,
-			c.code,
 			c.description AS card_description,
 			c.quantity,
-			COALESCE(ce.effect, '{}') AS card_effect,  -- Defaults to empty JSON if no effect
-			COALESCE(json_agg(DISTINCT ce2.effect) FILTER (WHERE ce2.effect IS NOT NULL), '[]') AS combo_effects
-		FROM cards c
-		LEFT JOIN card_effects ce ON c.card_id = ce.card_id
-		LEFT JOIN card_combo cc ON c.card_id = cc.card_id
-		LEFT JOIN combo_effects ce2 ON cc.combo_id = ce2.combo_id
-		GROUP BY c.card_id, c.name, c.description, c.quantity, ce.effect;
+			COALESCE(ce.effect, '{}') AS card_effect, -- Defaults to empty JSON if no effect
+			COALESCE(
+				jsonb_agg(DISTINCT jsonb_build_object('type', ce2.effect ->> 'type', 'required_cards', ce2.required_cards)) FILTER (
+					WHERE
+						ce2.effect IS NOT NULL
+				),
+				'[]'
+			) AS combo_effects
+		FROM
+			cards c
+			LEFT JOIN card_effects ce ON c.card_id = ce.card_id
+			LEFT JOIN card_combo cc ON c.card_id = cc.card_id
+			LEFT JOIN combo_effects ce2 ON cc.combo_id = ce2.combo_id
+		GROUP BY
+			c.card_id,
+			c.name,
+			c.description,
+			c.quantity,
+			ce.effect;
 	`
 	rows, err := r.Tx.Query(ctx, query)
 	if err != nil {
