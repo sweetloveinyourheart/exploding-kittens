@@ -9,10 +9,11 @@ import (
 )
 
 type Hand struct {
-	HandID    uuid.UUID   `json:"hand_id"`
-	Cards     []uuid.UUID `json:"cards"`
-	CreatedAt time.Time   `json:"created_at"`
-	UpdatedAt time.Time   `json:"updated_at"`
+	HandID     uuid.UUID   `json:"hand_id"`
+	Cards      []uuid.UUID `json:"cards"`
+	ShuffledAt time.Time   `json:"shuffled_at"`
+	CreatedAt  time.Time   `json:"created_at"`
+	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
 var _ = common.Entity(&Hand{})

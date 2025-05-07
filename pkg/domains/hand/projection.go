@@ -14,10 +14,18 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 
 type AllEventsProjector interface {
 	HandleHandCreated(ctx context.Context, event common.Event, data *HandCreated, entity *Hand) (*Hand, error)
+	HandleHandShuffled(ctx context.Context, event common.Event, data *HandShuffled, entity *Hand) (*Hand, error)
+	HandleCardsAdded(ctx context.Context, event common.Event, data *CardsAdded, entity *Hand) (*Hand, error)
+	HandleCardsRemoved(ctx context.Context, event common.Event, data *CardsRemoved, entity *Hand) (*Hand, error)
+	HandleCardStolen(ctx context.Context, event common.Event, data *CardStolen, entity *Hand) (*Hand, error)
 }
 
 type eventsProjector interface {
 	handleHandCreated(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
+	handleHandShuffled(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
+	handleCardsAdded(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
+	handleCardsRemoved(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
+	handleCardStolen(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
 }
 
 // HandProjector is an event handler for Projections in the Hand domain.
@@ -131,6 +139,14 @@ func (p *HandProjector) handleHandEvent(ctx context.Context, event common.Event,
 	switch event.EventType() {
 	case EventTypeHandCreated:
 		eventHandler = p.handleHandCreated
+	case EventTypeHandShuffled:
+		eventHandler = p.handleHandShuffled
+	case EventTypeCardsAdded:
+		eventHandler = p.handleCardsAdded
+	case EventTypeCardsRemoved:
+		eventHandler = p.handleCardsRemoved
+	case EventTypeCardStolen:
+		eventHandler = p.handleCardStolen
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -161,6 +177,94 @@ func (p *HandProjector) handleHandCreated(ctx context.Context, event common.Even
 		HandleHandCreated(ctx context.Context, event common.Event, data *HandCreated) error
 	}); ok {
 		return entity, handler.HandleHandCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleHandShuffled handles game shuffled events.
+func (p *HandProjector) handleHandShuffled(ctx context.Context, event common.Event, entity *Hand) (*Hand, error) {
+	data, ok := event.Data().(*HandShuffled)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleHandShuffled"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleHandShuffled(ctx context.Context, event common.Event, data *HandShuffled, entity *Hand) (*Hand, error)
+	}); ok {
+		return handler.HandleHandShuffled(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleHandShuffled(ctx context.Context, event common.Event, data *HandShuffled) error
+	}); ok {
+		return entity, handler.HandleHandShuffled(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardsAdded handles game cards added events.
+func (p *HandProjector) handleCardsAdded(ctx context.Context, event common.Event, entity *Hand) (*Hand, error) {
+	data, ok := event.Data().(*CardsAdded)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsAdded"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsAdded(ctx context.Context, event common.Event, data *CardsAdded, entity *Hand) (*Hand, error)
+	}); ok {
+		return handler.HandleCardsAdded(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsAdded(ctx context.Context, event common.Event, data *CardsAdded) error
+	}); ok {
+		return entity, handler.HandleCardsAdded(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardsRemoved handles game cards removed events.
+func (p *HandProjector) handleCardsRemoved(ctx context.Context, event common.Event, entity *Hand) (*Hand, error) {
+	data, ok := event.Data().(*CardsRemoved)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsRemoved"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsRemoved(ctx context.Context, event common.Event, data *CardsRemoved, entity *Hand) (*Hand, error)
+	}); ok {
+		return handler.HandleCardsRemoved(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsRemoved(ctx context.Context, event common.Event, data *CardsRemoved) error
+	}); ok {
+		return entity, handler.HandleCardsRemoved(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardStolen handles game card stolen events.
+func (p *HandProjector) handleCardStolen(ctx context.Context, event common.Event, entity *Hand) (*Hand, error) {
+	data, ok := event.Data().(*CardStolen)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardStolen"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardStolen(ctx context.Context, event common.Event, data *CardStolen, entity *Hand) (*Hand, error)
+	}); ok {
+		return handler.HandleCardStolen(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardStolen(ctx context.Context, event common.Event, data *CardStolen) error
+	}); ok {
+		return entity, handler.HandleCardStolen(ctx, event, data)
 	}
 
 	return entity, nil

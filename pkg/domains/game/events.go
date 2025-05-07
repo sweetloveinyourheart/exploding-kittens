@@ -131,15 +131,21 @@ func (p *ActionCreated) GetPlayerID() uuid.UUID { return p.PlayerID }
 func (p *ActionCreated) GetEffect() string { return p.Effect }
 
 type ActionExecuted struct {
-	GameID   uuid.UUID `json:"game_id"`
-	Effect   string    `json:"effect"`
-	TargetID uuid.UUID `json:"target_id"`
+	GameID         uuid.UUID `json:"game_id"`
+	PlayerID       uuid.UUID `json:"player_id"`
+	Effect         string    `json:"effect"`
+	TargetPlayerID uuid.UUID `json:"target_player_id"`
+	TargetCardID   uuid.UUID `json:"target_card_id"`
 }
 
 func (p *ActionExecuted) EventType() common.EventType { return "ACTION_EXECUTED" }
 
 func (p *ActionExecuted) GetGameID() uuid.UUID { return p.GameID }
 
-func (p *ActionExecuted) GetTargetID() uuid.UUID { return p.TargetID }
+func (p *ActionExecuted) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 func (p *ActionExecuted) GetEffect() string { return p.Effect }
+
+func (p *ActionExecuted) GetTargetPlayerID() uuid.UUID { return p.TargetPlayerID }
+
+func (p *ActionExecuted) GetTargetCardID() uuid.UUID { return p.TargetCardID }

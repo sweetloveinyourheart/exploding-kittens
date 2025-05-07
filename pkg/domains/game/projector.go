@@ -78,10 +78,14 @@ func (p *Projector) HandleCardPlayed(ctx context.Context, event common.Event, da
 
 func (p *Projector) HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error) {
 	entity.GamePhase = GAME_PHASE_ACTION_PHASE
+	entity.ExecutingAction = data.GetEffect()
 
 	return entity, nil
 }
 
 func (p *Projector) HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_TURN_START
+	entity.ExecutingAction = ""
+
 	return entity, nil
 }

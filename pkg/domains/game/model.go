@@ -18,15 +18,16 @@ const (
 )
 
 type Game struct {
-	GameID      uuid.UUID               `json:"game_id"`
-	GamePhase   int                     `json:"game_phase"`
-	Desk        uuid.UUID               `json:"desk"`
-	Players     []Player                `json:"players"`
-	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
-	PlayerTurn  uuid.UUID               `json:"player_turn"`
-	DiscardPile []uuid.UUID             `json:"discard_pile"`
-	CreatedAt   time.Time               `json:"created_at"`
-	UpdatedAt   time.Time               `json:"updated_at"`
+	GameID          uuid.UUID               `json:"game_id"`
+	GamePhase       int                     `json:"game_phase"`
+	Desk            uuid.UUID               `json:"desk"`
+	Players         []Player                `json:"players"`
+	PlayerHands     map[uuid.UUID]uuid.UUID `json:"player_hands"`
+	PlayerTurn      uuid.UUID               `json:"player_turn"`
+	ExecutingAction string                  `json:"executing_action"`
+	DiscardPile     []uuid.UUID             `json:"discard_pile"`
+	CreatedAt       time.Time               `json:"created_at"`
+	UpdatedAt       time.Time               `json:"updated_at"`
 }
 
 var _ = common.Entity(&Game{})
@@ -57,6 +58,10 @@ func (d *Game) GetGamePhase() int {
 
 func (d *Game) GetPlayerTurn() uuid.UUID {
 	return d.PlayerTurn
+}
+
+func (d *Game) GetExecutingAction() string {
+	return d.ExecutingAction
 }
 
 func (d *Game) GetDiscardPile() []uuid.UUID {

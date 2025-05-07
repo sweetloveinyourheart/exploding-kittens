@@ -14,7 +14,6 @@ const (
 	// Combo effects
 	StealRandomCard = "steal_random_card"
 	StealNamedCard  = "steal_named_card"
-	TradeAnyDiscard = "trade_any_discard"
 )
 
 const (
@@ -32,5 +31,4 @@ var AllCardEffects = []string{
 	PeekCards,
 	StealRandomCard,
 	StealNamedCard,
-	TradeAnyDiscard,
 }

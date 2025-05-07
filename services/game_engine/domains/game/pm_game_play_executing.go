@@ -24,6 +24,7 @@ import (
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
@@ -45,6 +46,7 @@ type GamePlayExecutor struct {
 
 	gameDeskID      map[string]uuid.UUID
 	gameCardsToDraw map[string]int
+	gamePlayerHands map[string]map[uuid.UUID]uuid.UUID
 }
 
 func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
@@ -55,6 +57,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 
 		gameCardsToDraw: make(map[string]int),
 		gameDeskID:      make(map[string]uuid.UUID),
+		gamePlayerHands: make(map[string]map[uuid.UUID]uuid.UUID),
 	}
 
 	gpe.GameProjector = game.NewGameProjection(gpe)
@@ -196,7 +199,8 @@ func (w *GamePlayExecutor) HandleGameCreated(ctx context.Context, event common.E
 }
 
 func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
-	w.gameDeskID[data.GameID.String()] = data.Desk
+	w.gameDeskID[data.GameID.String()] = data.GetDesk()
+	w.gamePlayerHands[data.GameID.String()] = data.GetPlayerHands()
 
 	return nil
 }
@@ -242,6 +246,14 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 		return errors.Errorf("no card effects found")
 	}
 
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.RemoveCards{
+		HandID: w.gamePlayerHands[data.GameID.String()][data.PlayerID],
+		Cards:  cards,
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to remove cards", zap.Error(err))
+		return err
+	}
+
 	for _, effect := range cardEffects {
 		if err := domains.CommandBus.HandleCommand(ctx, &game.CreateAction{
 			GameID:   data.GetGameID(),
@@ -259,19 +271,13 @@ func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Ev
 func (w *GamePlayExecutor) HandleActionCreated(ctx context.Context, event common.Event, data *game.ActionCreated) error {
 	switch data.Effect {
 	case card_effects.PeekCards:
-		// peek cards
 	case card_effects.StealCard:
-		// steal card
 	case card_effects.StealNamedCard:
-		// steal named card
 	case card_effects.StealRandomCard:
-		// steal random card
-	case card_effects.TradeAnyDiscard:
-		// trade any discard
 	default:
 		if err := domains.CommandBus.HandleCommand(ctx, &game.ExecuteAction{
 			GameID:   data.GetGameID(),
-			TargetID: data.GetPlayerID(),
+			PlayerID: data.GetPlayerID(),
 			Effect:   data.Effect,
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to execute action", zap.Error(err))
@@ -286,9 +292,7 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 	switch data.Effect {
 	case card_effects.ShuffleDesk:
 		if err := domains.CommandBus.HandleCommand(ctx, &desk.ShuffleDesk{
-			DeskID:   w.gameDeskID[data.GameID.String()],
-			GameID:   data.GetGameID(),
-			PlayerID: data.GetTargetID(),
+			DeskID: w.gameDeskID[data.GameID.String()],
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to shuffle desk", zap.Error(err))
 			return err
@@ -297,7 +301,7 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 	case card_effects.SkipTurn:
 		if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
 			GameID:   data.GetGameID(),
-			PlayerID: data.GetTargetID(),
+			PlayerID: data.GetPlayerID(),
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to finish current turn", zap.Error(err))
 			return err
@@ -308,24 +312,44 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 
 		if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
 			GameID:   data.GetGameID(),
-			PlayerID: data.GetTargetID(),
+			PlayerID: data.GetPlayerID(),
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to finish current turn", zap.Error(err))
 			return err
 		}
 
+	case card_effects.PeekCards:
+	case card_effects.StealCard:
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
+			CardID:   data.GetTargetCardID(),
+			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
+			return err
+		}
+	case card_effects.StealNamedCard:
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
+			CardID:   data.GetTargetCardID(),
+			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
+			return err
+		}
+
+	case card_effects.StealRandomCard:
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
+			CardID:   data.GetTargetCardID(),
+			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
+			return err
+		}
+
 	case card_effects.CancelAction:
 		// cancel action
-	case card_effects.PeekCards:
-		// peek cards
-	case card_effects.StealCard:
-		// steal card
-	case card_effects.StealNamedCard:
-		// steal named card
-	case card_effects.StealRandomCard:
-		// steal random card
-	case card_effects.TradeAnyDiscard:
-		// trade any discard
 	default:
 		log.Global().ErrorContext(ctx, "unknown action effect", zap.String("effect", data.Effect))
 		return errors.Errorf("unknown action effect: %s", data.Effect)

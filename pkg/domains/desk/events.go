@@ -42,15 +42,9 @@ func (p *DeskCreated) GetDeskID() uuid.UUID { return p.DeskID }
 func (p *DeskCreated) GetCards() []uuid.UUID { return p.Cards }
 
 type DeskShuffled struct {
-	DeskID   uuid.UUID `json:"desk_id"`
-	GameID   uuid.UUID `json:"game_id"`
-	PlayerID uuid.UUID `json:"player_id"`
+	DeskID uuid.UUID `json:"desk_id"`
 }
 
 func (p *DeskShuffled) EventType() common.EventType { return "DESK_SHUFFLED" }
 
 func (p *DeskShuffled) GetDeskID() uuid.UUID { return p.DeskID }
-
-func (p *DeskShuffled) GetGameID() uuid.UUID { return p.GameID }
-
-func (p *DeskShuffled) GetPlayerID() uuid.UUID { return p.PlayerID }

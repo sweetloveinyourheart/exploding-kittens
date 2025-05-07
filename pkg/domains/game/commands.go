@@ -200,9 +200,11 @@ func (c *CreateAction) Validate() error {
 }
 
 type ExecuteAction struct {
-	GameID   uuid.UUID `json:"game_id"`
-	TargetID uuid.UUID `json:"target_id"`
-	Effect   string    `json:"effect"`
+	GameID         uuid.UUID `json:"game_id"`
+	PlayerID       uuid.UUID `json:"player_id"`
+	Effect         string    `json:"effect"`
+	TargetPlayerID uuid.UUID `json:"target_player_id"`
+	TargetCardID   uuid.UUID `json:"target_card_id"`
 }
 
 func (c *ExecuteAction) AggregateType() common.AggregateType { return AggregateType }
@@ -216,8 +218,8 @@ func (c *ExecuteAction) Validate() error {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}
 
-	if c.TargetID == uuid.Nil {
-		return &common.CommandFieldError{Field: "target_id", Details: "empty field"}
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	if c.Effect == "" {

@@ -49,9 +49,7 @@ func (c *CreateDesk) Validate() error {
 }
 
 type ShuffleDesk struct {
-	DeskID   uuid.UUID `json:"desk_id"`
-	GameID   uuid.UUID `json:"game_id"`
-	PlayerID uuid.UUID `json:"player_id"`
+	DeskID uuid.UUID `json:"desk_id"`
 }
 
 func (c *ShuffleDesk) AggregateType() common.AggregateType { return AggregateType }
@@ -63,14 +61,6 @@ func (c *ShuffleDesk) CommandType() common.CommandType { return ShuffleDeskComma
 func (c *ShuffleDesk) Validate() error {
 	if c.DeskID == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
-	}
-
-	if c.GameID == uuid.Nil {
-		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
-	}
-
-	if c.PlayerID == uuid.Nil {
-		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	return nil

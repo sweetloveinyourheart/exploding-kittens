@@ -1,4 +1,4 @@
-package desk
+package hand
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
@@ -17,41 +18,42 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 	"go.uber.org/zap"
 )
 
 var (
 	ProcessingTimeout               = 10 * time.Second
 	BatchSize                       = 1024
-	DeskStateHandlerType            = "desk-state-processing"
-	DeskStateConsumerAndDurableName = "desk-state-processing-consumer-and-durable"
+	HandStateHandlerType            = "hand-state-processing"
+	HandStateConsumerAndDurableName = "hand-state-processing-consumer-and-durable"
 )
 
-type DeskStateProcessor struct {
+type HandStateProcessor struct {
 	ctx context.Context
-	*desk.DeskProjector
+	*hand.HandProjector
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus   *nats.Conn
 }
 
-func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
-	dsp := &DeskStateProcessor{
+func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
+	dsp := &HandStateProcessor{
 		ctx:   ctx,
 		queue: make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 		bus:   do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 	}
 
-	dsp.DeskProjector = desk.NewDeskProjection(dsp)
+	dsp.HandProjector = hand.NewHandProjection(dsp)
 
-	deskMatcher := eventing.NewMatchEventSubject(desk.SubjectFactory, desk.AggregateType,
-		desk.EventTypeDeskShuffled,
+	handMatcher := eventing.NewMatchEventSubject(hand.SubjectFactory, hand.AggregateType,
+		hand.EventTypeCardStolen,
 	)
 
-	deskSubject := nats2.CreateConsumerSubject(constants.DeskStream, deskMatcher)
+	handSubject := nats2.CreateConsumerSubject(constants.HandStream, handMatcher)
 
 	connPool, err := do.InvokeNamed[*pool.ConnPool](nil, string(constants.ConnectionPool))
 	if err != nil {
@@ -77,12 +79,12 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 		memory = true
 	}
 
-	deskConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.DeskStream, jetstream.ConsumerConfig{
-		Name:        DeskStateConsumerAndDurableName,
-		Durable:     DeskStateConsumerAndDurableName,
-		Description: "Responsible for reading desk events related to desk state",
+	handConsumer, err := js.CreateOrUpdateConsumer(ctx, constants.HandStream, jetstream.ConsumerConfig{
+		Name:        HandStateConsumerAndDurableName,
+		Durable:     HandStateConsumerAndDurableName,
+		Description: "Responsible for reading hand events related to hand state",
 		FilterSubjects: []string{
-			deskSubject,
+			handSubject,
 		},
 		DeliverPolicy:     jetstream.DeliverAllPolicy,
 		ReplayPolicy:      jetstream.ReplayInstantPolicy,
@@ -104,14 +106,14 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 			if ctx.Err() != nil {
 				return
 			}
-			messages, err := deskConsumer.Fetch(BatchSize, jetstream.FetchMaxWait(1*time.Second))
+			messages, err := handConsumer.Fetch(BatchSize, jetstream.FetchMaxWait(1*time.Second))
 			if err != nil {
 				if errors.Is(err, jetstream.ErrNoMessages) ||
 					errors.Is(err, context.Canceled) ||
 					errors.Is(err, context.DeadlineExceeded) {
 					continue
 				}
-				log.Global().FatalContext(ctx, "failed to fetch desk events", zap.Error(err))
+				log.Global().FatalContext(ctx, "failed to fetch hand events", zap.Error(err))
 			}
 
 			if messages.Error() != nil {
@@ -120,7 +122,7 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 					errors.Is(messages.Error(), context.DeadlineExceeded) {
 					continue
 				}
-				log.Global().FatalContext(ctx, "failed to fetch desk events, messages error", zap.Error(messages.Error()))
+				log.Global().FatalContext(ctx, "failed to fetch hand events, messages error", zap.Error(messages.Error()))
 			}
 
 			for msg := range messages.Messages() {
@@ -135,7 +137,7 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 					continue
 				}
 
-				if !deskMatcher.Match(event) {
+				if !handMatcher.Match(event) {
 					if err := msg.Ack(); err != nil {
 						log.Global().ErrorContext(ctx, "failed to ack message", zap.Error(err))
 					}
@@ -168,11 +170,19 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 		}
 	}()
 
-	log.Global().InfoContext(ctx, "initialized desk state processing")
+	log.Global().InfoContext(ctx, "initialized hand state processing")
 
 	return dsp, nil
 }
 
-func (w *DeskStateProcessor) HandleDeskShuffled(ctx context.Context, event common.Event, data *desk.DeskShuffled) error {
+func (w *HandStateProcessor) HandleCardStolen(ctx context.Context, event common.Event, data *hand.CardStolen) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.AddCards{
+		HandID: data.ToHandID,
+		Cards:  []uuid.UUID{data.CardID},
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to add cards", zap.Error(err))
+		return err
+	}
+
 	return nil
 }

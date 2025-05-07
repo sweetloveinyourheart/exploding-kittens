@@ -197,9 +197,11 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 
 	case *ExecuteAction:
 		a.AppendEvent(EventTypeActionExecuted, &ActionExecuted{
-			GameID:   cmd.GameID,
-			TargetID: cmd.TargetID,
-			Effect:   cmd.Effect,
+			GameID:         cmd.GameID,
+			PlayerID:       cmd.PlayerID,
+			Effect:         cmd.Effect,
+			TargetPlayerID: cmd.TargetPlayerID,
+			TargetCardID:   cmd.TargetCardID,
 		}, TimeNow())
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())

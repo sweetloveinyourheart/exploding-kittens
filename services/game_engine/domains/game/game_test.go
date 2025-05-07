@@ -66,6 +66,7 @@ func (gs *GameSuite) setupEnvironment() {
 
 	testing.NATSWaitConnected(gs.T(), busConnection) // wait connection if not connected yet
 
+	jetStream, err := busConnection.JetStream()
 	gs.NoError(err)
 
 	connPool := pool.New(100, busAddress,
@@ -88,6 +89,11 @@ func (gs *GameSuite) setupEnvironment() {
 	do.OverrideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
 		func(i *do.Injector) (*nats.Conn, error) {
 			return busConnection, nil
+		})
+
+	do.OverrideNamed[nats.JetStreamContext](nil, string(constants.Bus),
+		func(i *do.Injector) (nats.JetStreamContext, error) {
+			return jetStream, nil
 		})
 
 	config.Instance().Set("gameengineserver.id", uuid.Must(uuid.NewV7()).String())

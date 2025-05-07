@@ -1,13 +1,11 @@
 package hand
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 
 	"github.com/gofrs/uuid"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -66,19 +64,6 @@ func init() {
 	registerEvents(subjectFunc, subjectRootFunc, 2, subjectTokenFunc)
 }
 
-func NewPlayerHandID(gameID uuid.UUID, playerID uuid.UUID) uuid.UUID {
-	buf := bytesBufferPool.Get().(*bytes.Buffer)
-	defer func() {
-		buf.Reset()
-		bytesBufferPool.Put(buf)
-	}()
-
-	buf.Write(gameID.Bytes())
-	buf.Write(playerID.Bytes())
-
-	return uuid.NewV5(constants.NameSpaceGames, buf.String())
-}
-
 const AggregateType = common.AggregateType("hand")
 
 type Aggregate struct {
@@ -103,6 +88,25 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.currentHandID == typed.HandID {
 			return ErrHandAlreadyCreated
 		}
+
+	case *ShuffleHand:
+		if a.currentHandID != typed.HandID {
+			return ErrHandNotAvailable
+		}
+
+	case *AddCards:
+		if a.currentHandID != typed.HandID {
+			return ErrHandNotAvailable
+		}
+
+	case *RemoveCards:
+		if a.currentHandID != typed.HandID {
+			return ErrHandNotAvailable
+		}
+	case *StealCard:
+		if a.currentHandID != typed.HandID {
+			return ErrHandNotAvailable
+		}
 	}
 
 	return nil
@@ -116,6 +120,29 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			Cards:  cmd.Cards,
 		}, TimeNow())
 
+	case *ShuffleHand:
+		a.AppendEvent(EventTypeHandShuffled, &HandShuffled{
+			HandID: cmd.HandID,
+		}, TimeNow())
+
+	case *AddCards:
+		a.AppendEvent(EventTypeCardsAdded, &CardsAdded{
+			HandID: cmd.HandID,
+			Cards:  cmd.Cards,
+		}, TimeNow())
+
+	case *RemoveCards:
+		a.AppendEvent(EventTypeCardsRemoved, &CardsRemoved{
+			HandID: cmd.HandID,
+			Cards:  cmd.Cards,
+		}, TimeNow())
+
+	case *StealCard:
+		a.AppendEvent(EventTypeCardStolen, &CardStolen{
+			HandID:   cmd.HandID,
+			ToHandID: cmd.ToHandID,
+			CardID:   cmd.CardID,
+		}, TimeNow())
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -147,6 +174,11 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.currentHandID = data.GetHandID()
+
+	case EventTypeHandShuffled:
+	case EventTypeCardsAdded:
+	case EventTypeCardsRemoved:
+	case EventTypeCardStolen:
 	}
 
 	return nil

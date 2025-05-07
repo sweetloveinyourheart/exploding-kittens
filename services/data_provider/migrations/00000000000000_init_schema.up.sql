@@ -69,7 +69,6 @@ INSERT INTO card_effects (effect_id, card_id, effect) VALUES
 INSERT INTO combo_effects (combo_id, required_cards, effect) VALUES
     (gen_random_uuid(), 2, '{"type": "steal_random_card"}'), -- Two of a Kind
     (gen_random_uuid(), 3, '{"type": "steal_named_card"}'),  -- Three of a Kind
-    (gen_random_uuid(), 5, '{"type": "trade_any_discard"}'); -- Five Different Cards
 
 -- Two of a Kind (All Cat Cards)
 INSERT INTO card_combo (card_id, combo_id)
@@ -80,11 +79,5 @@ WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_c
 -- Three of a Kind (All Cat Cards)
 INSERT INTO card_combo (card_id, combo_id)
 SELECT card_id, (SELECT combo_id FROM combo_effects WHERE required_cards = 3)
-FROM cards
-WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_cat', 'beard_cat');
-
--- Five Different Cards (All Cat Cards)
-INSERT INTO card_combo (card_id, combo_id)
-SELECT card_id, (SELECT combo_id FROM combo_effects WHERE required_cards = 5)
 FROM cards
 WHERE code IN ('taco_cat', 'catermelon', 'hairy_potato_cat', 'rainbow_ralphing_cat', 'beard_cat');
