@@ -260,8 +260,8 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 
 		handID := hand.NewPlayerHandID(data.GetGameID(), playerID)
 		if err := domains.CommandBus.HandleCommand(ctx, &hand.CreateHand{
-			HandID: handID,
-			Cards:  handCards,
+			HandID:  handID,
+			CardIDs: handCards,
 		}); err != nil {
 			return errors.Errorf("failed to create hand for player %s: %w", playerID, err)
 		}
@@ -280,8 +280,8 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	mutable.Shuffle(deskCards)
 
 	if err := domains.CommandBus.HandleCommand(ctx, &desk.CreateDesk{
-		DeskID: deskID,
-		Cards:  deskCards,
+		DeskID:  deskID,
+		CardIDs: deskCards,
 	}); err != nil {
 		return err
 	}

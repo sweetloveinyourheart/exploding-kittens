@@ -2,11 +2,13 @@ package desk
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
@@ -175,5 +177,32 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 }
 
 func (w *DeskStateProcessor) HandleDeskShuffled(ctx context.Context, event common.Event, data *desk.DeskShuffled) error {
+	log.Global().DebugContext(ctx, "desk shuffled", zap.String("desk_id", data.GetDeskID().String()))
+
+	// Emit desk state update event
+	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *DeskStateProcessor) emitDeskStateUpdateEvent(deskID uuid.UUID) error {
+	msg := &desk.Desk{
+		DeskID: deskID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.DeskStream, msg.GetDeskID().String()), msgBytes)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

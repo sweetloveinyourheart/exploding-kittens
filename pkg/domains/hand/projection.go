@@ -18,6 +18,7 @@ type AllEventsProjector interface {
 	HandleCardsAdded(ctx context.Context, event common.Event, data *CardsAdded, entity *Hand) (*Hand, error)
 	HandleCardsRemoved(ctx context.Context, event common.Event, data *CardsRemoved, entity *Hand) (*Hand, error)
 	HandleCardStolen(ctx context.Context, event common.Event, data *CardStolen, entity *Hand) (*Hand, error)
+	HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Hand) (*Hand, error)
 }
 
 type eventsProjector interface {
@@ -26,6 +27,7 @@ type eventsProjector interface {
 	handleCardsAdded(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
 	handleCardsRemoved(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
 	handleCardStolen(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
+	handleCardsPlayed(ctx context.Context, event common.Event, entity *Hand) (*Hand, error)
 }
 
 // HandProjector is an event handler for Projections in the Hand domain.
@@ -139,6 +141,8 @@ func (p *HandProjector) handleHandEvent(ctx context.Context, event common.Event,
 	switch event.EventType() {
 	case EventTypeHandCreated:
 		eventHandler = p.handleHandCreated
+	case EventTypeCardsPlayed:
+		eventHandler = p.handleCardsPlayed
 	case EventTypeHandShuffled:
 		eventHandler = p.handleHandShuffled
 	case EventTypeCardsAdded:
@@ -177,6 +181,28 @@ func (p *HandProjector) handleHandCreated(ctx context.Context, event common.Even
 		HandleHandCreated(ctx context.Context, event common.Event, data *HandCreated) error
 	}); ok {
 		return entity, handler.HandleHandCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardsPlayed handles game cards played events.
+func (p *HandProjector) handleCardsPlayed(ctx context.Context, event common.Event, entity *Hand) (*Hand, error) {
+	data, ok := event.Data().(*CardsPlayed)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsPlayed"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Hand) (*Hand, error)
+	}); ok {
+		return handler.HandleCardsPlayed(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed) error
+	}); ok {
+		return entity, handler.HandleCardsPlayed(ctx, event, data)
 	}
 
 	return entity, nil

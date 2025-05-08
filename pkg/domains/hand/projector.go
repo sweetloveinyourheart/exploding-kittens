@@ -39,53 +39,73 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Han
 
 func (p *Projector) HandleHandCreated(ctx context.Context, event common.Event, data *HandCreated, entity *Hand) (*Hand, error) {
 	entity.HandID = data.GetHandID()
-	entity.Cards = data.GetCards()
+	entity.CardIDs = data.GetCardIDs()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Hand) (*Hand, error) {
+	cardIDs := entity.GetCardIDs()
+
+	for _, cardID := range data.GetCardIDs() {
+		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
+			return cID == cardID
+		})
+		if index != -1 {
+			cardIDs = slices.Delete(cardIDs, index, index+1)
+		}
+	}
+
+	entity.CardIDs = cardIDs
 
 	return entity, nil
 }
 
 func (p *Projector) HandleHandShuffled(ctx context.Context, event common.Event, data *HandShuffled, entity *Hand) (*Hand, error) {
-	cards := entity.GetCards()
-	mutable.Shuffle(cards)
+	cardIDs := entity.GetCardIDs()
+	mutable.Shuffle(cardIDs)
 
 	entity.HandID = data.GetHandID()
-	entity.Cards = cards
+	entity.CardIDs = cardIDs
 	entity.ShuffledAt = timeutil.NowRoundedForGranularity()
 
 	return entity, nil
 }
 
 func (p *Projector) HandleCardsAdded(ctx context.Context, event common.Event, data *CardsAdded, entity *Hand) (*Hand, error) {
-	cards := entity.GetCards()
-	cards = append(cards, data.GetCards()...)
+	cardIDs := entity.GetCardIDs()
+	cardIDs = append(cardIDs, data.GetCardIDs()...)
 
-	entity.Cards = cards
+	entity.CardIDs = cardIDs
 
 	return entity, nil
 }
 
 func (p *Projector) HandleCardsRemoved(ctx context.Context, event common.Event, data *CardsRemoved, entity *Hand) (*Hand, error) {
-	cards := entity.GetCards()
-	removedCards := data.GetCards()
+	cardIDs := entity.GetCardIDs()
+	removedCards := data.GetCardIDs()
 
 	for _, cardID := range removedCards {
-		cards = slices.DeleteFunc(cards, func(cID uuid.UUID) bool {
+		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
 			return cID == cardID
 		})
+		if index != -1 {
+			cardIDs = slices.Delete(cardIDs, index, index+1)
+		}
 	}
 
-	entity.Cards = cards
+	entity.CardIDs = cardIDs
 
 	return entity, nil
 }
 
 func (p *Projector) HandleCardStolen(ctx context.Context, event common.Event, data *CardStolen, entity *Hand) (*Hand, error) {
-	cards := entity.GetCards()
-	cards = slices.DeleteFunc(cards, func(cID uuid.UUID) bool {
+	cardIDs := entity.GetCardIDs()
+	cardIDs = slices.DeleteFunc(cardIDs, func(cID uuid.UUID) bool {
 		return cID == data.GetCardID()
 	})
 
-	entity.Cards = cards
+	entity.CardIDs = cardIDs
 
 	return entity, nil
 }

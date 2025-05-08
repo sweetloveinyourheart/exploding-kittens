@@ -20,6 +20,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[CardsAdded](EventTypeCardsAdded, args...)
 	eventing.RegisterEventData[CardsRemoved](EventTypeCardsRemoved, args...)
 	eventing.RegisterEventData[CardStolen](EventTypeCardStolen, args...)
+	eventing.RegisterEventData[CardsPlayed](EventTypeCardsPlayed, args...)
 }
 
 // EventTypeHandCreated is the event type for when a hand is created
@@ -37,24 +38,28 @@ var EventTypeCardsRemoved = (&CardsRemoved{}).EventType()
 // EventTypeCardStolen is the event type for when a card is stolen from a hand
 var EventTypeCardStolen = (&CardStolen{}).EventType()
 
+// EventTypeCardsPlayed is the event type for when cards are played from a hand
+var EventTypeCardsPlayed = (&CardsPlayed{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeHandCreated,
 	EventTypeHandShuffled,
 	EventTypeCardsAdded,
 	EventTypeCardsRemoved,
 	EventTypeCardStolen,
+	EventTypeCardsPlayed,
 }
 
 type HandCreated struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"cards"`
 }
 
 func (p *HandCreated) EventType() common.EventType { return "HAND_CREATED" }
 
 func (p *HandCreated) GetHandID() uuid.UUID { return p.HandID }
 
-func (p *HandCreated) GetCards() []uuid.UUID { return p.Cards }
+func (p *HandCreated) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type HandShuffled struct {
 	HandID uuid.UUID `json:"hand_id"`
@@ -65,26 +70,43 @@ func (p *HandShuffled) EventType() common.EventType { return "HAND_SHUFFLED" }
 func (p *HandShuffled) GetHandID() uuid.UUID { return p.HandID }
 
 type CardsAdded struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (p *CardsAdded) EventType() common.EventType { return "CARDS_ADDED" }
 
 func (p *CardsAdded) GetHandID() uuid.UUID { return p.HandID }
 
-func (p *CardsAdded) GetCards() []uuid.UUID { return p.Cards }
+func (p *CardsAdded) GetCardIDs() []uuid.UUID { return p.CardIDs }
+
+type CardsPlayed struct {
+	HandID   uuid.UUID   `json:"hand_id"`
+	GameID   uuid.UUID   `json:"game_id"`
+	PlayerID uuid.UUID   `json:"player_id"`
+	CardIDs  []uuid.UUID `json:"card_ids"`
+}
+
+func (p *CardsPlayed) EventType() common.EventType { return "CARDS_PLAYED" }
+
+func (p *CardsPlayed) GetHandID() uuid.UUID { return p.HandID }
+
+func (p *CardsPlayed) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *CardsPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *CardsPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type CardsRemoved struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (p *CardsRemoved) EventType() common.EventType { return "CARDS_REMOVED" }
 
 func (p *CardsRemoved) GetHandID() uuid.UUID { return p.HandID }
 
-func (p *CardsRemoved) GetCards() []uuid.UUID { return p.Cards }
+func (p *CardsRemoved) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type CardStolen struct {
 	HandID   uuid.UUID `json:"hand_id"`

@@ -2,6 +2,7 @@ package hand
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
@@ -176,12 +178,54 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 	return dsp, nil
 }
 
+func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &game.PlayCard{
+		GameID:   data.GetGameID(),
+		PlayerID: data.GetPlayerID(),
+		CardIDs:  data.GetCardIDs(),
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to play card", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *HandStateProcessor) HandleCardsAdded(ctx context.Context, event common.Event, data *hand.CardsAdded) error {
+	// Emit hand state update event
+	err := w.emitHandStateUpdateEvent(data.GetHandID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit hand state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
 func (w *HandStateProcessor) HandleCardStolen(ctx context.Context, event common.Event, data *hand.CardStolen) error {
 	if err := domains.CommandBus.HandleCommand(ctx, &hand.AddCards{
-		HandID: data.ToHandID,
-		Cards:  []uuid.UUID{data.CardID},
+		HandID:  data.ToHandID,
+		CardIDs: []uuid.UUID{data.CardID},
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to add cards", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *HandStateProcessor) emitHandStateUpdateEvent(handID uuid.UUID) error {
+	msg := &hand.Hand{
+		HandID: handID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.HandStream, msg.GetHandID().String()), msgBytes)
+	if err != nil {
 		return err
 	}
 

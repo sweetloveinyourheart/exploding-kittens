@@ -126,8 +126,8 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_ShuffleDesk() {
 		return gameStateErr == nil && deskStateErr == nil && gameState.Desk != uuid.Nil && gameState.GetPlayerTurn() == player01
 	}, 5*time.Second, 10*time.Millisecond)
 
-	gs.Equal(len(previousDeskState.Cards), len(afterShuffleDeskState.Cards))
-	gs.NotEqual(previousDeskState.Cards, afterShuffleDeskState.Cards)
+	gs.Equal(len(previousDeskState.CardIDs), len(afterShuffleDeskState.CardIDs))
+	gs.NotEqual(previousDeskState.CardIDs, afterShuffleDeskState.CardIDs)
 }
 
 func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Favor() {

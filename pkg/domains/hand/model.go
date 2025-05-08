@@ -10,7 +10,7 @@ import (
 
 type Hand struct {
 	HandID     uuid.UUID   `json:"hand_id"`
-	Cards      []uuid.UUID `json:"cards"`
+	CardIDs    []uuid.UUID `json:"card_ids"`
 	ShuffledAt time.Time   `json:"shuffled_at"`
 	CreatedAt  time.Time   `json:"created_at"`
 	UpdatedAt  time.Time   `json:"updated_at"`
@@ -26,8 +26,8 @@ func (d *Hand) GetHandID() uuid.UUID {
 	return d.HandID
 }
 
-func (d *Hand) GetCards() []uuid.UUID {
-	return d.Cards
+func (d *Hand) GetCardIDs() []uuid.UUID {
+	return d.CardIDs
 }
 
 func (t *Hand) GetCreatedAt() time.Time {

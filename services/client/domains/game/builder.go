@@ -39,12 +39,12 @@ func (a *GameResponseBuilder) Build(gameState *game.Game, deskState *desk.Desk, 
 
 		playerHand := handState[playerData.GetPlayerId()]
 		playerHandData := &proto.Game_PlayerHand{
-			RemainingCards: int32(len(playerHand.GetCards())),
+			RemainingCards: int32(len(playerHand.GetCardIDs())),
 		}
 
 		// Only the authorized player can view their own card
 		if playerID == a.UserID {
-			playerHandData.Hands = stringsutil.ConvertUUIDsToStrings(playerHand.GetCards())
+			playerHandData.Hands = stringsutil.ConvertUUIDsToStrings(playerHand.GetCardIDs())
 		}
 
 		playerHands[playerID.String()] = playerHandData
@@ -52,7 +52,7 @@ func (a *GameResponseBuilder) Build(gameState *game.Game, deskState *desk.Desk, 
 
 	desk := &proto.Game_Desk{
 		DeskId:         deskState.GetDeskID().String(),
-		RemainingCards: int32(len(deskState.GetCards())),
+		RemainingCards: int32(len(deskState.GetCardIDs())),
 	}
 
 	result := &proto.Game{

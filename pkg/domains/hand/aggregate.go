@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"slices"
+
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/aggregate"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -69,6 +71,7 @@ const AggregateType = common.AggregateType("hand")
 type Aggregate struct {
 	*aggregate.AggregateBase
 	currentHandID uuid.UUID
+	cardIDs       []uuid.UUID
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -89,6 +92,11 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrHandAlreadyCreated
 		}
 
+	case *PlayCards:
+		if a.currentHandID != typed.HandID {
+			return ErrHandNotAvailable
+		}
+
 	case *ShuffleHand:
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
@@ -103,6 +111,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
 		}
+
 	case *StealCard:
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
@@ -116,8 +125,16 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 	switch cmd := cmd.(type) {
 	case *CreateHand:
 		a.AppendEvent(EventTypeHandCreated, &HandCreated{
-			HandID: cmd.HandID,
-			Cards:  cmd.Cards,
+			HandID:  cmd.HandID,
+			CardIDs: cmd.CardIDs,
+		}, TimeNow())
+
+	case *PlayCards:
+		a.AppendEvent(EventTypeCardsPlayed, &CardsPlayed{
+			HandID:   cmd.HandID,
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+			CardIDs:  cmd.CardIDs,
 		}, TimeNow())
 
 	case *ShuffleHand:
@@ -127,14 +144,14 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 
 	case *AddCards:
 		a.AppendEvent(EventTypeCardsAdded, &CardsAdded{
-			HandID: cmd.HandID,
-			Cards:  cmd.Cards,
+			HandID:  cmd.HandID,
+			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
 	case *RemoveCards:
 		a.AppendEvent(EventTypeCardsRemoved, &CardsRemoved{
-			HandID: cmd.HandID,
-			Cards:  cmd.Cards,
+			HandID:  cmd.HandID,
+			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
 	case *StealCard:
@@ -143,6 +160,7 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			ToHandID: cmd.ToHandID,
 			CardID:   cmd.CardID,
 		}, TimeNow())
+
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -174,11 +192,67 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.currentHandID = data.GetHandID()
+		a.cardIDs = data.GetCardIDs()
 
 	case EventTypeHandShuffled:
 	case EventTypeCardsAdded:
+		data, ok := event.Data().(*CardsAdded)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+		a.cardIDs = append(a.cardIDs, data.GetCardIDs()...)
+
 	case EventTypeCardsRemoved:
+		data, ok := event.Data().(*CardsRemoved)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		cardIDs := a.cardIDs
+		for _, cardID := range data.GetCardIDs() {
+			index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
+				return cID == cardID
+			})
+			if index != -1 {
+				cardIDs = slices.Delete(cardIDs, index, index+1)
+			}
+		}
+
+		a.cardIDs = cardIDs
+
 	case EventTypeCardStolen:
+		data, ok := event.Data().(*CardStolen)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		cardIDs := a.cardIDs
+		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
+			return cID == data.GetCardID()
+		})
+		if index != -1 {
+			cardIDs = slices.Delete(cardIDs, index, index+1)
+		}
+
+		a.cardIDs = cardIDs
+
+	case EventTypeCardsPlayed:
+		data, ok := event.Data().(*CardsPlayed)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		cardIDs := a.cardIDs
+		for _, cardID := range data.GetCardIDs() {
+			index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
+				return cID == cardID
+			})
+			if index != -1 {
+				cardIDs = slices.Delete(cardIDs, index, index+1)
+			}
+		}
+
+		a.cardIDs = cardIDs
 	}
 
 	return nil

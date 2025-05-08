@@ -104,8 +104,8 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 	switch cmd := cmd.(type) {
 	case *CreateDesk:
 		a.AppendEvent(EventTypeDeskCreated, &DeskCreated{
-			DeskID: cmd.DeskID,
-			Cards:  cmd.Cards,
+			DeskID:  cmd.DeskID,
+			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
 	case *ShuffleDesk:

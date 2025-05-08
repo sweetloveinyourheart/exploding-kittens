@@ -37,17 +37,17 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Des
 
 func (p *Projector) HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated, entity *Desk) (*Desk, error) {
 	entity.DeskID = data.GetDeskID()
-	entity.Cards = data.GetCards()
+	entity.CardIDs = data.GetCardIDs()
 
 	return entity, nil
 }
 
 func (p *Projector) HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error) {
-	cards := entity.GetCards()
-	mutable.Shuffle(cards)
+	cardIDs := entity.GetCardIDs()
+	mutable.Shuffle(cardIDs)
 
 	entity.DeskID = data.GetDeskID()
-	entity.Cards = cards
+	entity.CardIDs = cardIDs
 	entity.ShuffledAt = timeutil.NowRoundedForGranularity()
 
 	return entity, nil

@@ -12,20 +12,24 @@ func init() {
 	eventing.RegisterCommand[ShuffleHand, *ShuffleHand]()
 	eventing.RegisterCommand[AddCards, *AddCards]()
 	eventing.RegisterCommand[RemoveCards, *RemoveCards]()
+	eventing.RegisterCommand[StealCard, *StealCard]()
+	eventing.RegisterCommand[PlayCards, *PlayCards]()
 }
 
 const (
 	CreateHandCommand  = common.CommandType("hand:create")
 	ShuffleHandCommand = common.CommandType("hand:shuffle")
 	AddCardsCommand    = common.CommandType("hand:cards:add")
+	PlayCardsCommand   = common.CommandType("hand:cards:play")
 	RemoveCardsCommand = common.CommandType("hand:cards:remove")
-	StealCardCommand   = common.CommandType("hand:cards:steal")
+	StealCardCommand   = common.CommandType("hand:card:steal")
 )
 
 var AllCommands = []common.CommandType{
 	CreateHandCommand,
 	ShuffleHandCommand,
 	AddCardsCommand,
+	PlayCardsCommand,
 	RemoveCardsCommand,
 	StealCardCommand,
 }
@@ -34,11 +38,12 @@ var _ = eventing.Command(&CreateHand{})
 var _ = eventing.Command(&ShuffleHand{})
 var _ = eventing.Command(&AddCards{})
 var _ = eventing.Command(&RemoveCards{})
+var _ = eventing.Command(&PlayCards{})
 var _ = eventing.Command(&StealCard{})
 
 type CreateHand struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"cards"`
 }
 
 func (c *CreateHand) AggregateType() common.AggregateType { return AggregateType }
@@ -52,8 +57,41 @@ func (c *CreateHand) Validate() error {
 		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
 	}
 
-	if len(c.Cards) == 0 {
+	if len(c.CardIDs) == 0 {
 		return &common.CommandFieldError{Field: "cards", Details: "empty list"}
+	}
+
+	return nil
+}
+
+type PlayCards struct {
+	HandID   uuid.UUID   `json:"hand_id"`
+	GameID   uuid.UUID   `json:"game_id"`
+	PlayerID uuid.UUID   `json:"player_id"`
+	CardIDs  []uuid.UUID `json:"card_ids"`
+}
+
+func (c *PlayCards) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *PlayCards) AggregateID() string { return c.HandID.String() }
+
+func (c *PlayCards) CommandType() common.CommandType { return PlayCardsCommand }
+
+func (c *PlayCards) Validate() error {
+	if c.HandID == uuid.Nil {
+		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
+	}
+
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	if len(c.CardIDs) == 0 {
+		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
 	}
 
 	return nil
@@ -78,8 +116,8 @@ func (c *ShuffleHand) Validate() error {
 }
 
 type AddCards struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"cards"`
 }
 
 func (c *AddCards) AggregateType() common.AggregateType { return AggregateType }
@@ -93,7 +131,7 @@ func (c *AddCards) Validate() error {
 		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
 	}
 
-	if len(c.Cards) == 0 {
+	if len(c.CardIDs) == 0 {
 		return &common.CommandFieldError{Field: "cards", Details: "empty list"}
 	}
 
@@ -101,8 +139,8 @@ func (c *AddCards) Validate() error {
 }
 
 type RemoveCards struct {
-	HandID uuid.UUID   `json:"hand_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (c *RemoveCards) AggregateType() common.AggregateType { return AggregateType }
@@ -116,8 +154,8 @@ func (c *RemoveCards) Validate() error {
 		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
 	}
 
-	if len(c.Cards) == 0 {
-		return &common.CommandFieldError{Field: "cards", Details: "empty list"}
+	if len(c.CardIDs) == 0 {
+		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
 	}
 
 	return nil

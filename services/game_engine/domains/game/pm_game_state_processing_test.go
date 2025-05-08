@@ -64,7 +64,7 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 		deskState, deskStateErr := deskRepo.Find(findCtx, gameState.Desk.String())
 		gs.NoError(deskStateErr)
 
-		validDesk := isValidDesk(cards, deskState.Cards, len(gameState.PlayerHands))
+		validDesk := isValidDesk(cards, deskState.GetCardIDs(), len(gameState.PlayerHands))
 
 		return gameStateErr == nil && deskStateErr == nil && validDesk && gameState.Desk != uuid.Nil
 	}, 5*time.Second, 10*time.Millisecond)
@@ -75,7 +75,7 @@ func (gs *GameSuite) TestGameStateProcessing_HandleGameCreated() {
 			handState, err := handRepo.Find(findCtx, playerHandID.String())
 			gs.NoError(err)
 
-			isValid := err == nil && len(handState.GetCards()) == 8
+			isValid := err == nil && len(handState.GetCardIDs()) == 8
 			if !isValid {
 				return false
 			}

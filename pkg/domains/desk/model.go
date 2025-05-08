@@ -10,7 +10,7 @@ import (
 
 type Desk struct {
 	DeskID     uuid.UUID   `json:"desk_id"`
-	Cards      []uuid.UUID `json:"cards"`
+	CardIDs    []uuid.UUID `json:"card_ids"`
 	ShuffledAt time.Time   `json:"shuffled_at"`
 	CreatedAt  time.Time   `json:"created_at"`
 	UpdatedAt  time.Time   `json:"updated_at"`
@@ -26,8 +26,8 @@ func (d *Desk) GetDeskID() uuid.UUID {
 	return d.DeskID
 }
 
-func (d *Desk) GetCards() []uuid.UUID {
-	return d.Cards
+func (d *Desk) GetCardIDs() []uuid.UUID {
+	return d.CardIDs
 }
 
 func (t *Desk) GetCreatedAt() time.Time {

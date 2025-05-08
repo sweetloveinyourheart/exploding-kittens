@@ -26,8 +26,8 @@ var _ = eventing.Command(&CreateDesk{})
 var _ = eventing.Command(&ShuffleDesk{})
 
 type CreateDesk struct {
-	DeskID uuid.UUID   `json:"desk_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	DeskID  uuid.UUID   `json:"desk_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (c *CreateDesk) AggregateType() common.AggregateType { return AggregateType }
@@ -41,8 +41,8 @@ func (c *CreateDesk) Validate() error {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
 	}
 
-	if len(c.Cards) == 0 {
-		return &common.CommandFieldError{Field: "cards", Details: "empty list"}
+	if len(c.CardIDs) == 0 {
+		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
 	}
 
 	return nil

@@ -31,15 +31,15 @@ var AllEventTypes = []common.EventType{
 }
 
 type DeskCreated struct {
-	DeskID uuid.UUID   `json:"desk_id"`
-	Cards  []uuid.UUID `json:"cards"`
+	DeskID  uuid.UUID   `json:"desk_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (p *DeskCreated) EventType() common.EventType { return "DESK_CREATED" }
 
 func (p *DeskCreated) GetDeskID() uuid.UUID { return p.DeskID }
 
-func (p *DeskCreated) GetCards() []uuid.UUID { return p.Cards }
+func (p *DeskCreated) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type DeskShuffled struct {
 	DeskID uuid.UUID `json:"desk_id"`

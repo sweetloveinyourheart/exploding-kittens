@@ -69,9 +69,10 @@ const AggregateType = common.AggregateType("game")
 type Aggregate struct {
 	*aggregate.AggregateBase
 
-	actived       bool
-	currentGameID uuid.UUID
-	playerTurn    uuid.UUID
+	actived          bool
+	currentGameID    uuid.UUID
+	currentGamePhase int
+	playerTurn       uuid.UUID
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -155,6 +156,10 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		}
 
 	case *ExecuteAction:
+		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
+			return ErrGameNotInActionPhase
+		}
+
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
@@ -260,15 +265,21 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.playerTurn = data.GetPlayerID()
+		a.currentGamePhase = GAME_PHASE_TURN_START
 
 	case EventTypeTurnFinished:
 		a.playerTurn = uuid.Nil
+		a.currentGamePhase = GAME_PHASE_TURN_FINISH
+
 	case EventTypeTurnReversed:
 		a.playerTurn = uuid.Nil
+		a.currentGamePhase = GAME_PHASE_TURN_FINISH
 
 	case EventTypeCardPlayed:
 	case EventTypeActionCreated:
+		a.currentGamePhase = GAME_PHASE_ACTION_PHASE // action phase starts after action is created
 	case EventTypeActionExecuted:
+		a.currentGamePhase = GAME_PHASE_TURN_START // player turn starts after action is executed
 	}
 
 	return nil

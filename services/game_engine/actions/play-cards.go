@@ -7,24 +7,35 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 
 	cardsConst "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 )
 
 func (a *actions) PlayCards(ctx context.Context, request *connect.Request[proto.PlayCardsRequest]) (response *connect.Response[emptypb.Empty], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
 	err = a.validatePlayable(ctx, request.Msg.GetCardIds())
 	if err != nil {
 		return nil, grpc.InvalidArgumentError(err)
 	}
 
-	if err := domains.CommandBus.HandleCommand(ctx, &game.PlayCard{
-		GameID:  stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
-		CardIDs: stringsutil.ConvertStringsToUUIDs(request.Msg.GetCardIds()),
+	gameID := stringsutil.ConvertStringToUUID(request.Msg.GetGameId())
+	handID := hand.NewPlayerHandID(gameID, userID)
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.PlayCards{
+		HandID:   handID,
+		PlayerID: userID,
+		GameID:   gameID,
+		CardIDs:  stringsutil.ConvertStringsToUUIDs(request.Msg.GetCardIds()),
 	}); err != nil {
 		return nil, grpc.InternalError(err)
 	}
