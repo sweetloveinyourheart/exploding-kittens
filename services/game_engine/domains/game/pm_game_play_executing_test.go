@@ -445,3 +445,75 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_SeeTheFuture() {
 		return isGameStateValid
 	}, 5*time.Second, 10*time.Millisecond)
 }
+
+func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Nope() {
+	gs.setupEnvironment()
+	_, _, cardsCodeMap := gs.prepareCards()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	mw := retrymw.NewCommandHandlerMiddleware(retry.Attempts(4), retry.MaxDelay(1*time.Second))
+	commandBus := bus.NewCommandHandler()
+
+	err := gameDomain.AddNATSGameCommandHandlers(ctx, "test", commandBus, mw)
+	gs.NoError(err)
+
+	gameRepo, err := gameDomain.CreateNATSRepoGames(ctx, "test")
+	gs.NoError(err)
+
+	gameID := uuid.Must(uuid.NewV7())
+	player01 := uuid.Must(uuid.NewV7())
+	player02 := uuid.Must(uuid.NewV7())
+	playerIDs := []uuid.UUID{
+		player01,
+		player02,
+	}
+
+	err = commandBus.HandleCommand(ctx, &gameDomain.CreateGame{
+		GameID:    gameID,
+		PlayerIDs: playerIDs,
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+		return gameStateErr == nil && gameState.GetPlayerTurn() == player01
+	}, 5*time.Second, 10*time.Millisecond)
+
+	err = commandBus.HandleCommand(ctx, &gameDomain.PlayCard{
+		GameID:   gameID,
+		PlayerID: player01,
+		CardIDs:  []uuid.UUID{uuid.Must(uuid.FromString(cardsCodeMap[cards.Attack].GetCardId()))},
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+
+		isGameStateValid := gameStateErr == nil &&
+			gameState.GetPlayerTurn() == player02 &&
+			gameState.GetExecutingAction() == "" &&
+			gameState.GetGamePhase() == gameDomain.GAME_PHASE_TURN_START
+
+		return isGameStateValid
+	}, 5*time.Second, 10*time.Millisecond)
+
+	err = commandBus.HandleCommand(ctx, &gameDomain.PlayCard{
+		GameID:   gameID,
+		PlayerID: player02,
+		CardIDs:  []uuid.UUID{uuid.Must(uuid.FromString(cardsCodeMap[cards.Nope].GetCardId()))},
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+
+		isGameStateValid := gameStateErr == nil &&
+			gameState.GetPlayerTurn() == player01 &&
+			gameState.GetExecutingAction() == "" &&
+			gameState.GetGamePhase() == gameDomain.GAME_PHASE_TURN_START
+
+		return isGameStateValid
+	}, 5*time.Second, 10*time.Millisecond)
+}

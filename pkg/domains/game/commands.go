@@ -15,6 +15,7 @@ func init() {
 	eventing.RegisterCommand[InitializeGame, *InitializeGame]()
 	eventing.RegisterCommand[StartTurn, *StartTurn]()
 	eventing.RegisterCommand[FinishTurn, *FinishTurn]()
+	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
 
 	eventing.RegisterCommand[PlayCard, *PlayCard]()
 	eventing.RegisterCommand[CreateAction, *CreateAction]()
@@ -26,6 +27,7 @@ const (
 	InitializeGameCommand = common.CommandType("game:init")
 	StartTurnCommand      = common.CommandType("game:turn:start")
 	FinishTurnCommand     = common.CommandType("game:turn:finish")
+	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
 
 	PlayCardCommand      = common.CommandType("game:card:play")
 	CreateActionCommand  = common.CommandType("game:action:create")
@@ -37,6 +39,7 @@ var AllCommands = []common.CommandType{
 	InitializeGameCommand,
 	StartTurnCommand,
 	FinishTurnCommand,
+	ReverseTurnCommand,
 
 	PlayCardCommand,
 	CreateActionCommand,
@@ -47,6 +50,7 @@ var _ = eventing.Command(&CreateGame{})
 var _ = eventing.Command(&InitializeGame{})
 var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
+var _ = eventing.Command(&ReverseTurn{})
 var _ = eventing.Command(&PlayCard{})
 var _ = eventing.Command(&CreateAction{})
 var _ = eventing.Command(&ExecuteAction{})
@@ -127,6 +131,29 @@ func (c *FinishTurn) AggregateType() common.AggregateType { return AggregateType
 func (c *FinishTurn) AggregateID() string                 { return c.GameID.String() }
 func (c *FinishTurn) CommandType() common.CommandType     { return FinishTurnCommand }
 func (c *FinishTurn) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type ReverseTurn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *ReverseTurn) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *ReverseTurn) AggregateID() string { return c.GameID.String() }
+
+func (c *ReverseTurn) CommandType() common.CommandType { return ReverseTurnCommand }
+
+func (c *ReverseTurn) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}

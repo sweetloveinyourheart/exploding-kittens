@@ -63,9 +63,17 @@ func (p *Projector) HandleTurnStarted(ctx context.Context, event common.Event, d
 
 	return entity, nil
 }
+
 func (p *Projector) HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error) {
 	entity.GamePhase = GAME_PHASE_TURN_FINISH
 	entity.PlayerTurn = uuid.Nil
+
+	return entity, nil
+}
+
+func (p *Projector) HandleTurnReversed(ctx context.Context, event common.Event, data *TurnReversed, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_TURN_FINISH
+	entity.PlayerTurn = data.GetPlayerID()
 
 	return entity, nil
 }

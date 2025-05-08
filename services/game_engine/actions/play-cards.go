@@ -9,14 +9,24 @@ import (
 	"github.com/cockroachdb/errors"
 
 	cardsConst "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 )
 
 func (a *actions) PlayCards(ctx context.Context, request *connect.Request[proto.PlayCardsRequest]) (response *connect.Response[emptypb.Empty], err error) {
 	err = a.validatePlayable(ctx, request.Msg.GetCardIds())
 	if err != nil {
 		return nil, grpc.InvalidArgumentError(err)
+	}
+
+	if err := domains.CommandBus.HandleCommand(ctx, &game.PlayCard{
+		GameID:  stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
+		CardIDs: stringsutil.ConvertStringsToUUIDs(request.Msg.GetCardIds()),
+	}); err != nil {
+		return nil, grpc.InternalError(err)
 	}
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
@@ -95,11 +105,6 @@ func (a *actions) validatePlayable(ctx context.Context, cardIds []string) error 
 			if count != 3 {
 				return errors.New("3-card combo must be three of the same combo card")
 			}
-		}
-	case 5:
-		// must be 5 different cards
-		if len(unique) != 5 {
-			return errors.New("5-card combo must be five different combo cards")
 		}
 	default:
 		return errors.New("invalid number of cards for a combo play")

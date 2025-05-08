@@ -127,6 +127,15 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrPlayerNotInTheirTurn
 		}
 
+	case *ReverseTurn:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
 	case *PlayCard:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
@@ -177,6 +186,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 
 	case *FinishTurn:
 		a.AppendEvent(EventTypeTurnFinished, &TurnFinished{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *ReverseTurn:
+		a.AppendEvent(EventTypeTurnReversed, &TurnReversed{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
 		}, TimeNow())
@@ -247,6 +262,8 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.playerTurn = data.GetPlayerID()
 
 	case EventTypeTurnFinished:
+		a.playerTurn = uuid.Nil
+	case EventTypeTurnReversed:
 		a.playerTurn = uuid.Nil
 
 	case EventTypeCardPlayed:

@@ -11,5 +11,6 @@ service GameServer {
 }
 
 message PlayCardsRequest {
-    repeated string card_ids = 1;
+    string game_id = 1;
+    repeated string card_ids = 2;
 }

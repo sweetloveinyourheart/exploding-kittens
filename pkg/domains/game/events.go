@@ -19,6 +19,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[GameInitialized](EventTypeGameInitialized, args...)
 	eventing.RegisterEventData[TurnStarted](EventTypeTurnStarted, args...)
 	eventing.RegisterEventData[TurnFinished](EventTypeTurnFinished, args...)
+	eventing.RegisterEventData[TurnReversed](EventTypeTurnReversed, args...)
 	eventing.RegisterEventData[CardPlayed](EventTypeCardPlayed, args...)
 	eventing.RegisterEventData[ActionCreated](EventTypeActionCreated, args...)
 	eventing.RegisterEventData[ActionExecuted](EventTypeActionExecuted, args...)
@@ -39,6 +40,9 @@ var EventTypeTurnStarted = (&TurnStarted{}).EventType()
 // EventTypeTurnFinished is the event type for when a turn finishes
 var EventTypeTurnFinished = (&TurnFinished{}).EventType()
 
+// EventTypeTurnReversed is the event type for when a turn is reversed
+var EventTypeTurnReversed = (&TurnReversed{}).EventType()
+
 // EventTypeActionCreated is the event type for when an action is created
 var EventTypeActionCreated = (&ActionCreated{}).EventType()
 
@@ -50,6 +54,7 @@ var AllEventTypes = []common.EventType{
 	EventTypeGameInitialized,
 	EventTypeTurnStarted,
 	EventTypeTurnFinished,
+	EventTypeTurnReversed,
 	EventTypeCardPlayed,
 	EventTypeActionCreated,
 	EventTypeActionExecuted,
@@ -101,6 +106,17 @@ func (p *TurnFinished) EventType() common.EventType { return "TURN_FINISHED" }
 func (p *TurnFinished) GetGameID() uuid.UUID { return p.GameID }
 
 func (p *TurnFinished) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type TurnReversed struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *TurnReversed) EventType() common.EventType { return "TURN_REVERSED" }
+
+func (p *TurnReversed) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *TurnReversed) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 type CardPlayed struct {
 	GameID   uuid.UUID   `json:"game_id"`

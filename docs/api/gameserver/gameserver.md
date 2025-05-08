@@ -27,6 +27,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
 | card_ids | [string](#string) | repeated |  |
 
 

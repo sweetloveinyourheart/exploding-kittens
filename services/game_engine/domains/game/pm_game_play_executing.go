@@ -359,7 +359,15 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 		}
 
 	case card_effects.CancelAction:
-		// cancel action
+		w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
+
+		if err := domains.CommandBus.HandleCommand(ctx, &game.ReverseTurn{
+			GameID:   data.GetGameID(),
+			PlayerID: data.GetPlayerID(),
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to reverse current turn", zap.Error(err))
+			return err
+		}
 	default:
 		log.Global().ErrorContext(ctx, "unknown action effect", zap.String("effect", data.Effect))
 		return errors.Errorf("unknown action effect: %s", data.Effect)

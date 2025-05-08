@@ -78,6 +78,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		game.EventTypeTurnStarted,
 		game.EventTypeActionCreated,
 		game.EventTypeTurnFinished,
+		game.EventTypeTurnReversed,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -367,6 +368,30 @@ func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event
 	}
 
 	log.Global().InfoContext(ctx, "Turn finished", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleTurnReversed(ctx context.Context, event common.Event, data *game.TurnReversed) error {
+	var previousTurn uuid.UUID
+	players := w.gamePlayers[data.GetGameID().String()]
+
+	for i, player := range players {
+		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
+			previousTurn = players[(i-1+len(players))%len(players)].GetPlayerID()
+			break
+		}
+	}
+
+	if err := domains.CommandBus.HandleCommand(ctx, &game.StartTurn{
+		GameID:   data.GetGameID(),
+		PlayerID: previousTurn,
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to reverse previous turn", zap.Error(err))
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Turn reversed", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
 
 	return nil
 }

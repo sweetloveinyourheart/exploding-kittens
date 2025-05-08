@@ -17,6 +17,7 @@ type AllEventsProjector interface {
 	HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error)
 	HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error)
 	HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error)
+	HandleTurnReversed(ctx context.Context, event common.Event, data *TurnReversed, entity *Game) (*Game, error)
 	HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error)
 	HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error)
 	HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error)
@@ -27,6 +28,7 @@ type eventsProjector interface {
 	handleGameInitialized(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleTurnStarted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleTurnFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleTurnReversed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleCardPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleActionCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleActionExecuted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
@@ -149,6 +151,8 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleTurnStarted
 	case EventTypeTurnFinished:
 		eventHandler = p.handleTurnFinished
+	case EventTypeTurnReversed:
+		eventHandler = p.handleTurnReversed
 	case EventTypeActionCreated:
 		eventHandler = p.handleActionCreated
 	case EventTypeActionExecuted:
@@ -251,6 +255,28 @@ func (p *GameProjector) handleTurnFinished(ctx context.Context, event common.Eve
 		HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished) error
 	}); ok {
 		return entity, handler.HandleTurnFinished(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleTurnReversed handles turn reversed events.
+func (p *GameProjector) handleTurnReversed(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*TurnReversed)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleTurnReversed"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnReversed(ctx context.Context, event common.Event, data *TurnReversed, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleTurnReversed(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleTurnReversed(ctx context.Context, event common.Event, data *TurnReversed) error
+	}); ok {
+		return entity, handler.HandleTurnReversed(ctx, event, data)
 	}
 
 	return entity, nil
