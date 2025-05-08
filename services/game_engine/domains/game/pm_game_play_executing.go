@@ -322,18 +322,18 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 
 	case card_effects.PeekCards:
 	case card_effects.StealCard:
-		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
 			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
-			CardID:   data.GetTargetCardID(),
+			CardIDs:  []uuid.UUID{data.GetTargetCardID()},
 			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
 			return err
 		}
 	case card_effects.StealNamedCard:
-		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
 			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
-			CardID:   data.GetTargetCardID(),
+			CardIDs:  []uuid.UUID{data.GetTargetCardID()},
 			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
@@ -341,9 +341,9 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 		}
 
 	case card_effects.StealRandomCard:
-		if err := domains.CommandBus.HandleCommand(ctx, &hand.StealCard{
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
 			HandID:   w.gamePlayerHands[data.GameID.String()][data.GetTargetPlayerID()],
-			CardID:   data.GetTargetCardID(),
+			CardIDs:  []uuid.UUID{data.GetTargetCardID()},
 			ToHandID: w.gamePlayerHands[data.GameID.String()][data.GetPlayerID()],
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))

@@ -102,17 +102,12 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrHandNotAvailable
 		}
 
-	case *AddCards:
+	case *ReceiveCards:
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
 		}
 
-	case *RemoveCards:
-		if a.currentHandID != typed.HandID {
-			return ErrHandNotAvailable
-		}
-
-	case *StealCard:
+	case *GiveCards:
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
 		}
@@ -142,23 +137,17 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			HandID: cmd.HandID,
 		}, TimeNow())
 
-	case *AddCards:
-		a.AppendEvent(EventTypeCardsAdded, &CardsAdded{
+	case *ReceiveCards:
+		a.AppendEvent(EventTypeCardsReceived, &CardsReceived{
 			HandID:  cmd.HandID,
 			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
-	case *RemoveCards:
-		a.AppendEvent(EventTypeCardsRemoved, &CardsRemoved{
-			HandID:  cmd.HandID,
-			CardIDs: cmd.CardIDs,
-		}, TimeNow())
-
-	case *StealCard:
-		a.AppendEvent(EventTypeCardStolen, &CardStolen{
+	case *GiveCards:
+		a.AppendEvent(EventTypeCardsGiven, &CardsGiven{
 			HandID:   cmd.HandID,
 			ToHandID: cmd.ToHandID,
-			CardID:   cmd.CardID,
+			CardIDs:  cmd.CardIDs,
 		}, TimeNow())
 
 	default:
@@ -195,15 +184,15 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.cardIDs = data.GetCardIDs()
 
 	case EventTypeHandShuffled:
-	case EventTypeCardsAdded:
-		data, ok := event.Data().(*CardsAdded)
+	case EventTypeCardsReceived:
+		data, ok := event.Data().(*CardsReceived)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.cardIDs = append(a.cardIDs, data.GetCardIDs()...)
 
-	case EventTypeCardsRemoved:
-		data, ok := event.Data().(*CardsRemoved)
+	case EventTypeCardsGiven:
+		data, ok := event.Data().(*CardsGiven)
 		if !ok {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
@@ -216,22 +205,6 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			if index != -1 {
 				cardIDs = slices.Delete(cardIDs, index, index+1)
 			}
-		}
-
-		a.cardIDs = cardIDs
-
-	case EventTypeCardStolen:
-		data, ok := event.Data().(*CardStolen)
-		if !ok {
-			return fmt.Errorf("could not apply event: %s", event.EventType())
-		}
-
-		cardIDs := a.cardIDs
-		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
-			return cID == data.GetCardID()
-		})
-		if index != -1 {
-			cardIDs = slices.Delete(cardIDs, index, index+1)
 		}
 
 		a.cardIDs = cardIDs

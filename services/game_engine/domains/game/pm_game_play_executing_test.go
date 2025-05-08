@@ -206,7 +206,7 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Favor() {
 		}
 
 		for _, event := range events {
-			if event.EventType() == handDomain.EventTypeCardStolen {
+			if event.EventType() == handDomain.EventTypeCardsGiven {
 				return true
 			}
 		}
@@ -294,7 +294,7 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo2_HairyPotatoCat()
 		}
 
 		for _, event := range events {
-			if event.EventType() == handDomain.EventTypeCardStolen {
+			if event.EventType() == handDomain.EventTypeCardsGiven {
 				return true
 			}
 		}
@@ -383,7 +383,7 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo3_BreadCat() {
 		}
 
 		for _, event := range events {
-			if event.EventType() == handDomain.EventTypeCardStolen {
+			if event.EventType() == handDomain.EventTypeCardsGiven {
 				return true
 			}
 		}

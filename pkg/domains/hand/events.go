@@ -17,9 +17,8 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 
 	eventing.RegisterEventData[HandCreated](EventTypeHandCreated, args...)
 	eventing.RegisterEventData[HandShuffled](EventTypeHandShuffled, args...)
-	eventing.RegisterEventData[CardsAdded](EventTypeCardsAdded, args...)
-	eventing.RegisterEventData[CardsRemoved](EventTypeCardsRemoved, args...)
-	eventing.RegisterEventData[CardStolen](EventTypeCardStolen, args...)
+	eventing.RegisterEventData[CardsReceived](EventTypeCardsReceived, args...)
+	eventing.RegisterEventData[CardsGiven](EventTypeCardsGiven, args...)
 	eventing.RegisterEventData[CardsPlayed](EventTypeCardsPlayed, args...)
 }
 
@@ -29,14 +28,11 @@ var EventTypeHandCreated = (&HandCreated{}).EventType()
 // EventTypeHandShuffled is the event type for when a hand is shuffled
 var EventTypeHandShuffled = (&HandShuffled{}).EventType()
 
-// EventTypeCardsAdded is the event type for when cards are added to a hand
-var EventTypeCardsAdded = (&CardsAdded{}).EventType()
+// EventTypeCardsReceived is the event type for when cards are received by a hand
+var EventTypeCardsReceived = (&CardsReceived{}).EventType()
 
-// EventTypeCardsRemoved is the event type for when cards are removed from a hand
-var EventTypeCardsRemoved = (&CardsRemoved{}).EventType()
-
-// EventTypeCardStolen is the event type for when a card is stolen from a hand
-var EventTypeCardStolen = (&CardStolen{}).EventType()
+// EventTypeCardsGiven is the event type for when cards are given from a hand
+var EventTypeCardsGiven = (&CardsGiven{}).EventType()
 
 // EventTypeCardsPlayed is the event type for when cards are played from a hand
 var EventTypeCardsPlayed = (&CardsPlayed{}).EventType()
@@ -44,9 +40,8 @@ var EventTypeCardsPlayed = (&CardsPlayed{}).EventType()
 var AllEventTypes = []common.EventType{
 	EventTypeHandCreated,
 	EventTypeHandShuffled,
-	EventTypeCardsAdded,
-	EventTypeCardsRemoved,
-	EventTypeCardStolen,
+	EventTypeCardsReceived,
+	EventTypeCardsGiven,
 	EventTypeCardsPlayed,
 }
 
@@ -69,16 +64,16 @@ func (p *HandShuffled) EventType() common.EventType { return "HAND_SHUFFLED" }
 
 func (p *HandShuffled) GetHandID() uuid.UUID { return p.HandID }
 
-type CardsAdded struct {
+type CardsReceived struct {
 	HandID  uuid.UUID   `json:"hand_id"`
 	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
-func (p *CardsAdded) EventType() common.EventType { return "CARDS_ADDED" }
+func (p *CardsReceived) EventType() common.EventType { return "CARDS_RECEIVED" }
 
-func (p *CardsAdded) GetHandID() uuid.UUID { return p.HandID }
+func (p *CardsReceived) GetHandID() uuid.UUID { return p.HandID }
 
-func (p *CardsAdded) GetCardIDs() []uuid.UUID { return p.CardIDs }
+func (p *CardsReceived) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type CardsPlayed struct {
 	HandID   uuid.UUID   `json:"hand_id"`
@@ -97,27 +92,16 @@ func (p *CardsPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 func (p *CardsPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
-type CardsRemoved struct {
-	HandID  uuid.UUID   `json:"hand_id"`
-	CardIDs []uuid.UUID `json:"card_ids"`
+type CardsGiven struct {
+	HandID   uuid.UUID   `json:"hand_id"`
+	CardIDs  []uuid.UUID `json:"card_ids"`
+	ToHandID uuid.UUID   `json:"to_hand_id"`
 }
 
-func (p *CardsRemoved) EventType() common.EventType { return "CARDS_REMOVED" }
+func (p *CardsGiven) EventType() common.EventType { return "CARDS_GIVEN" }
 
-func (p *CardsRemoved) GetHandID() uuid.UUID { return p.HandID }
+func (p *CardsGiven) GetHandID() uuid.UUID { return p.HandID }
 
-func (p *CardsRemoved) GetCardIDs() []uuid.UUID { return p.CardIDs }
+func (p *CardsGiven) GetToHandID() uuid.UUID { return p.ToHandID }
 
-type CardStolen struct {
-	HandID   uuid.UUID `json:"hand_id"`
-	ToHandID uuid.UUID `json:"to_hand_id"`
-	CardID   uuid.UUID `json:"card_id"`
-}
-
-func (p *CardStolen) EventType() common.EventType { return "CARD_STOLEN" }
-
-func (p *CardStolen) GetHandID() uuid.UUID { return p.HandID }
-
-func (p *CardStolen) GetToHandID() uuid.UUID { return p.ToHandID }
-
-func (p *CardStolen) GetCardID() uuid.UUID { return p.CardID }
+func (p *CardsGiven) GetCardIDs() []uuid.UUID { return p.CardIDs }

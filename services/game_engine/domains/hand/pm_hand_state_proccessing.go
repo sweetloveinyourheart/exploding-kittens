@@ -53,7 +53,7 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 	dsp.HandProjector = hand.NewHandProjection(dsp)
 
 	handMatcher := eventing.NewMatchEventSubject(hand.SubjectFactory, hand.AggregateType,
-		hand.EventTypeCardStolen,
+		hand.EventTypeCardsGiven,
 	)
 
 	handSubject := nats2.CreateConsumerSubject(constants.HandStream, handMatcher)
@@ -191,7 +191,7 @@ func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.
 	return nil
 }
 
-func (w *HandStateProcessor) HandleCardsAdded(ctx context.Context, event common.Event, data *hand.CardsAdded) error {
+func (w *HandStateProcessor) HandleCardsReceived(ctx context.Context, event common.Event, data *hand.CardsReceived) error {
 	// Emit hand state update event
 	err := w.emitHandStateUpdateEvent(data.GetHandID())
 	if err != nil {
@@ -202,12 +202,12 @@ func (w *HandStateProcessor) HandleCardsAdded(ctx context.Context, event common.
 	return nil
 }
 
-func (w *HandStateProcessor) HandleCardStolen(ctx context.Context, event common.Event, data *hand.CardStolen) error {
-	if err := domains.CommandBus.HandleCommand(ctx, &hand.AddCards{
+func (w *HandStateProcessor) HandleCardsGiven(ctx context.Context, event common.Event, data *hand.CardsGiven) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
 		HandID:  data.ToHandID,
-		CardIDs: []uuid.UUID{data.CardID},
+		CardIDs: data.GetCardIDs(),
 	}); err != nil {
-		log.Global().ErrorContext(ctx, "failed to add cards", zap.Error(err))
+		log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
 		return err
 	}
 
