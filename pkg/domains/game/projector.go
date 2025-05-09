@@ -43,7 +43,6 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 
 	entity.GameID = data.GetGameID()
 	entity.Players = players
-	entity.DiscardPile = make([]uuid.UUID, 0)
 	entity.CreatedAt = timeutil.NowRoundedForGranularity()
 
 	return entity, nil
@@ -78,9 +77,7 @@ func (p *Projector) HandleTurnReversed(ctx context.Context, event common.Event, 
 	return entity, nil
 }
 
-func (p *Projector) HandleCardPlayed(ctx context.Context, event common.Event, data *CardPlayed, entity *Game) (*Game, error) {
-	entity.DiscardPile = append(entity.DiscardPile, data.GetCardIDs()...)
-
+func (p *Projector) HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Game) (*Game, error) {
 	return entity, nil
 }
 

@@ -137,13 +137,17 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrPlayerNotInTheirTurn
 		}
 
-	case *PlayCard:
+	case *PlayCards:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
 
 		if a.playerTurn != typed.PlayerID {
 			return ErrPlayerNotInTheirTurn
+		}
+
+		if a.currentGamePhase != GAME_PHASE_TURN_START {
+			return ErrGameNotInPlayPhase
 		}
 
 	case *CreateAction:
@@ -155,13 +159,17 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrPlayerNotInTheirTurn
 		}
 
-	case *ExecuteAction:
-		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
-			return ErrGameNotInActionPhase
+		if a.currentGamePhase != GAME_PHASE_TURN_START {
+			return ErrGameNotInPlayPhase
 		}
 
+	case *ExecuteAction:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
+		}
+
+		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
+			return ErrGameNotInActionPhase
 		}
 
 	}
@@ -201,8 +209,8 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			PlayerID: cmd.PlayerID,
 		}, TimeNow())
 
-	case *PlayCard:
-		a.AppendEvent(EventTypeCardPlayed, &CardPlayed{
+	case *PlayCards:
+		a.AppendEvent(EventTypeCardsPlayed, &CardsPlayed{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
 			CardIDs:  cmd.CardIDs,
@@ -275,7 +283,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.playerTurn = uuid.Nil
 		a.currentGamePhase = GAME_PHASE_TURN_FINISH
 
-	case EventTypeCardPlayed:
+	case EventTypeCardsPlayed:
 	case EventTypeActionCreated:
 		a.currentGamePhase = GAME_PHASE_ACTION_PHASE // action phase starts after action is created
 	case EventTypeActionExecuted:

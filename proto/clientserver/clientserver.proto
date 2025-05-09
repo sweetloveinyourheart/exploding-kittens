@@ -157,6 +157,7 @@ message Game {
     message Desk {
         string desk_id = 1;
         int32 remaining_cards = 2;
+        repeated string discard_pile = 3;
     }
     
     string game_id = 1;
@@ -165,7 +166,6 @@ message Game {
     repeated Player players = 4;
     map<string, PlayerHand> player_hands = 5;
     Desk desk = 6;
-    repeated string discard_pile = 7;
 }
 
 message GameMetaData {

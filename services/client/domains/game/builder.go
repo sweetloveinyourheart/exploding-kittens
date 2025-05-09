@@ -53,13 +53,13 @@ func (a *GameResponseBuilder) Build(gameState *game.Game, deskState *desk.Desk, 
 	desk := &proto.Game_Desk{
 		DeskId:         deskState.GetDeskID().String(),
 		RemainingCards: int32(len(deskState.GetCardIDs())),
+		DiscardPile:    stringsutil.ConvertUUIDsToStrings(deskState.GetDiscardPile()),
 	}
 
 	result := &proto.Game{
 		GameId:      gameState.GetGameID().String(),
 		GamePhase:   proto.Game_Phase(gameState.GamePhase),
 		PlayerTurn:  gameState.PlayerTurn.String(),
-		DiscardPile: stringsutil.ConvertUUIDsToStrings(gameState.DiscardPile),
 		Players:     players,
 		PlayerHands: playerHands,
 		Desk:        desk,

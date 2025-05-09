@@ -17,7 +17,7 @@ func init() {
 	eventing.RegisterCommand[FinishTurn, *FinishTurn]()
 	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
 
-	eventing.RegisterCommand[PlayCard, *PlayCard]()
+	eventing.RegisterCommand[PlayCards, *PlayCards]()
 	eventing.RegisterCommand[CreateAction, *CreateAction]()
 	eventing.RegisterCommand[ExecuteAction, *ExecuteAction]()
 }
@@ -29,7 +29,7 @@ const (
 	FinishTurnCommand     = common.CommandType("game:turn:finish")
 	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
 
-	PlayCardCommand      = common.CommandType("game:card:play")
+	PlayCardsCommand     = common.CommandType("game:cards:play")
 	CreateActionCommand  = common.CommandType("game:action:create")
 	ExecuteActionCommand = common.CommandType("game:action:execute")
 )
@@ -41,7 +41,7 @@ var AllCommands = []common.CommandType{
 	FinishTurnCommand,
 	ReverseTurnCommand,
 
-	PlayCardCommand,
+	PlayCardsCommand,
 	CreateActionCommand,
 	ExecuteActionCommand,
 }
@@ -51,7 +51,7 @@ var _ = eventing.Command(&InitializeGame{})
 var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&ReverseTurn{})
-var _ = eventing.Command(&PlayCard{})
+var _ = eventing.Command(&PlayCards{})
 var _ = eventing.Command(&CreateAction{})
 var _ = eventing.Command(&ExecuteAction{})
 
@@ -165,19 +165,19 @@ func (c *ReverseTurn) Validate() error {
 	return nil
 }
 
-type PlayCard struct {
+type PlayCards struct {
 	GameID   uuid.UUID   `json:"game_id"`
 	PlayerID uuid.UUID   `json:"player_id"`
 	CardIDs  []uuid.UUID `json:"card_ids"`
 }
 
-func (c *PlayCard) AggregateType() common.AggregateType { return AggregateType }
+func (c *PlayCards) AggregateType() common.AggregateType { return AggregateType }
 
-func (c *PlayCard) AggregateID() string { return c.GameID.String() }
+func (c *PlayCards) AggregateID() string { return c.GameID.String() }
 
-func (c *PlayCard) CommandType() common.CommandType { return PlayCardCommand }
+func (c *PlayCards) CommandType() common.CommandType { return PlayCardsCommand }
 
-func (c *PlayCard) Validate() error {
+func (c *PlayCards) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}

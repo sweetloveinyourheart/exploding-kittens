@@ -15,11 +15,13 @@ var ErrEventDataTypeMismatch = errors.New("event data type mismatch")
 type AllEventsProjector interface {
 	HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated, entity *Desk) (*Desk, error)
 	HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error)
+	HandleCardsDiscarded(ctx context.Context, event common.Event, data *CardsDiscarded, entity *Desk) (*Desk, error)
 }
 
 type eventsProjector interface {
 	handleDeskCreated(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 	handleDeskShuffled(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
+	handleCardsDiscarded(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 }
 
 // DeskProjector is an event handler for Projections in the Desk domain.
@@ -135,6 +137,8 @@ func (p *DeskProjector) handleDeskEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleDeskCreated
 	case EventTypeDeskShuffled:
 		eventHandler = p.handleDeskShuffled
+	case EventTypeCardsDiscarded:
+		eventHandler = p.handleCardsDiscarded
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -187,6 +191,28 @@ func (p *DeskProjector) handleDeskShuffled(ctx context.Context, event common.Eve
 		HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled) error
 	}); ok {
 		return entity, handler.HandleDeskShuffled(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardsDiscarded handles cards discarded events.
+func (p *DeskProjector) handleCardsDiscarded(ctx context.Context, event common.Event, entity *Desk) (*Desk, error) {
+	data, ok := event.Data().(*CardsDiscarded)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsDiscarded"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsDiscarded(ctx context.Context, event common.Event, data *CardsDiscarded, entity *Desk) (*Desk, error)
+	}); ok {
+		return handler.HandleCardsDiscarded(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardsDiscarded(ctx context.Context, event common.Event, data *CardsDiscarded) error
+	}); ok {
+		return entity, handler.HandleCardsDiscarded(ctx, event, data)
 	}
 
 	return entity, nil

@@ -13,4 +13,5 @@ var (
 	ErrPlayerIsAlreadyInTheirTurn = errors.New("player is already in their turn")
 	ErrActionEffectNotProvided    = errors.New("action effect is not provided")
 	ErrGameNotInActionPhase       = errors.New("game is not in action phase")
+	ErrGameNotInPlayPhase         = errors.New("game is not in play phase")
 )

@@ -97,6 +97,14 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrHandNotAvailable
 		}
 
+		if len(a.cardIDs) == 0 {
+			return ErrNoCardsAvailable
+		}
+
+		if !slices.Contains(a.cardIDs, typed.CardIDs[0]) {
+			return ErrCardsNotFound
+		}
+
 	case *ShuffleHand:
 		if a.currentHandID != typed.HandID {
 			return ErrHandNotAvailable
@@ -126,10 +134,8 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 
 	case *PlayCards:
 		a.AppendEvent(EventTypeCardsPlayed, &CardsPlayed{
-			HandID:   cmd.HandID,
-			GameID:   cmd.GameID,
-			PlayerID: cmd.PlayerID,
-			CardIDs:  cmd.CardIDs,
+			HandID:  cmd.HandID,
+			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
 	case *ShuffleHand:

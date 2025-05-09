@@ -61,10 +61,8 @@ func (c *CreateHand) Validate() error {
 }
 
 type PlayCards struct {
-	HandID   uuid.UUID   `json:"hand_id"`
-	GameID   uuid.UUID   `json:"game_id"`
-	PlayerID uuid.UUID   `json:"player_id"`
-	CardIDs  []uuid.UUID `json:"card_ids"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
 func (c *PlayCards) AggregateType() common.AggregateType { return AggregateType }
@@ -76,14 +74,6 @@ func (c *PlayCards) CommandType() common.CommandType { return PlayCardsCommand }
 func (c *PlayCards) Validate() error {
 	if c.HandID == uuid.Nil {
 		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
-	}
-
-	if c.GameID == uuid.Nil {
-		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
-	}
-
-	if c.PlayerID == uuid.Nil {
-		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	if len(c.CardIDs) == 0 {

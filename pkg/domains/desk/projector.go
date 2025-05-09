@@ -3,6 +3,8 @@ package desk
 import (
 	"context"
 
+	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
 	"github.com/samber/lo/mutable"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
@@ -38,6 +40,7 @@ func (p *Projector) Project(ctx context.Context, event common.Event, entity *Des
 func (p *Projector) HandleDeskCreated(ctx context.Context, event common.Event, data *DeskCreated, entity *Desk) (*Desk, error) {
 	entity.DeskID = data.GetDeskID()
 	entity.CardIDs = data.GetCardIDs()
+	entity.DiscardPile = make([]uuid.UUID, 0)
 
 	return entity, nil
 }
@@ -49,6 +52,32 @@ func (p *Projector) HandleDeskShuffled(ctx context.Context, event common.Event, 
 	entity.DeskID = data.GetDeskID()
 	entity.CardIDs = cardIDs
 	entity.ShuffledAt = timeutil.NowRoundedForGranularity()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleCardsDiscarded(ctx context.Context, event common.Event, data *CardsDiscarded, entity *Desk) (*Desk, error) {
+	if entity == nil {
+		return nil, errors.New("entity is nil")
+	}
+
+	if data == nil {
+		return nil, errors.New("data is nil")
+	}
+
+	if entity.DeskID != data.GetDeskID() {
+		return nil, errors.New("desk id mismatch")
+	}
+
+	if entity.CardIDs == nil {
+		return nil, errors.New("card ids are nil")
+	}
+
+	if entity.DiscardPile == nil {
+		return nil, errors.New("discard pile is nil")
+	}
+
+	entity.DiscardPile = append(entity.DiscardPile, data.GetCardIDs()...)
 
 	return entity, nil
 }

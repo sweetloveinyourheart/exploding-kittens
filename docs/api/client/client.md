@@ -143,7 +143,6 @@ Message for creating a new guest user
 | players | [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player) | repeated |  |
 | player_hands | [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry) | repeated |  |
 | desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
-| discard_pile | [string](#string) | repeated |  |
 
 
 
@@ -160,6 +159,7 @@ Message for creating a new guest user
 | ----- | ---- | ----- | ----------- |
 | desk_id | [string](#string) |  |  |
 | remaining_cards | [int32](#int32) |  |  |
+| discard_pile | [string](#string) | repeated |  |
 
 
 

@@ -21,7 +21,6 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
@@ -179,15 +178,6 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 }
 
 func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
-	if err := domains.CommandBus.HandleCommand(ctx, &game.PlayCard{
-		GameID:   data.GetGameID(),
-		PlayerID: data.GetPlayerID(),
-		CardIDs:  data.GetCardIDs(),
-	}); err != nil {
-		log.Global().ErrorContext(ctx, "failed to play card", zap.Error(err))
-		return err
-	}
-
 	return nil
 }
 

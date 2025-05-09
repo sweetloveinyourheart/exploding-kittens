@@ -95,6 +95,16 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrDeskNotAvailable
 		}
 
+	case *DiscardCards:
+		// An aggregate can only be discarded once.
+		if a.currentDeskID != typed.DeskID {
+			return ErrDeskNotAvailable
+		}
+
+		if len(typed.CardIDs) == 0 {
+			return ErrNoCardsToDiscard
+		}
+
 	}
 
 	return nil
@@ -111,6 +121,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 	case *ShuffleDesk:
 		a.AppendEvent(EventTypeDeskShuffled, &DeskShuffled{
 			DeskID: cmd.DeskID,
+		}, TimeNow())
+
+	case *DiscardCards:
+		a.AppendEvent(EventTypeCardsDiscarded, &CardsDiscarded{
+			DeskID:  cmd.DeskID,
+			CardIDs: cmd.CardIDs,
 		}, TimeNow())
 
 	default:

@@ -65,7 +65,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
 		game.EventTypeGameCreated,
 		game.EventTypeGameInitialized,
-		game.EventTypeCardPlayed,
+		game.EventTypeCardsPlayed,
 		game.EventTypeActionCreated,
 		game.EventTypeActionExecuted,
 	)
@@ -205,7 +205,23 @@ func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event comm
 	return nil
 }
 
-func (w *GamePlayExecutor) HandleCardPlayed(ctx context.Context, event common.Event, data *game.CardPlayed) error {
+func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.Event, data *game.CardsPlayed) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &hand.PlayCards{
+		HandID:  w.gamePlayerHands[data.GameID.String()][data.PlayerID],
+		CardIDs: data.GetCardIDs(),
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to play: play hand cards error", zap.Error(err))
+		return err
+	}
+
+	if err := domains.CommandBus.HandleCommand(ctx, &desk.DiscardCards{
+		DeskID:  w.gameDeskID[data.GameID.String()],
+		CardIDs: data.GetCardIDs(),
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to discard cards", zap.Error(err))
+		return err
+	}
+
 	cards := data.GetCardIDs()
 	if len(cards) == 0 {
 		return errors.Errorf("failed to play: no card to play")

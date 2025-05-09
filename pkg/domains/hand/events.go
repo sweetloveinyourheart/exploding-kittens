@@ -69,26 +69,20 @@ type CardsReceived struct {
 	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
-func (p *CardsReceived) EventType() common.EventType { return "CARDS_RECEIVED" }
+func (p *CardsReceived) EventType() common.EventType { return "HAND_CARDS_RECEIVED" }
 
 func (p *CardsReceived) GetHandID() uuid.UUID { return p.HandID }
 
 func (p *CardsReceived) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type CardsPlayed struct {
-	HandID   uuid.UUID   `json:"hand_id"`
-	GameID   uuid.UUID   `json:"game_id"`
-	PlayerID uuid.UUID   `json:"player_id"`
-	CardIDs  []uuid.UUID `json:"card_ids"`
+	HandID  uuid.UUID   `json:"hand_id"`
+	CardIDs []uuid.UUID `json:"card_ids"`
 }
 
-func (p *CardsPlayed) EventType() common.EventType { return "CARDS_PLAYED" }
+func (p *CardsPlayed) EventType() common.EventType { return "HAND_CARDS_PLAYED" }
 
 func (p *CardsPlayed) GetHandID() uuid.UUID { return p.HandID }
-
-func (p *CardsPlayed) GetGameID() uuid.UUID { return p.GameID }
-
-func (p *CardsPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 func (p *CardsPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
@@ -98,7 +92,7 @@ type CardsGiven struct {
 	ToHandID uuid.UUID   `json:"to_hand_id"`
 }
 
-func (p *CardsGiven) EventType() common.EventType { return "CARDS_GIVEN" }
+func (p *CardsGiven) EventType() common.EventType { return "HAND_CARDS_GIVEN" }
 
 func (p *CardsGiven) GetHandID() uuid.UUID { return p.HandID }
 

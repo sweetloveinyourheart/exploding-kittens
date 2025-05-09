@@ -9,11 +9,12 @@ import (
 )
 
 type Desk struct {
-	DeskID     uuid.UUID   `json:"desk_id"`
-	CardIDs    []uuid.UUID `json:"card_ids"`
-	ShuffledAt time.Time   `json:"shuffled_at"`
-	CreatedAt  time.Time   `json:"created_at"`
-	UpdatedAt  time.Time   `json:"updated_at"`
+	DeskID      uuid.UUID   `json:"desk_id"`
+	CardIDs     []uuid.UUID `json:"card_ids"`
+	DiscardPile []uuid.UUID `json:"discard_pile"`
+	ShuffledAt  time.Time   `json:"shuffled_at"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 var _ = common.Entity(&Desk{})
@@ -30,10 +31,18 @@ func (d *Desk) GetCardIDs() []uuid.UUID {
 	return d.CardIDs
 }
 
-func (t *Desk) GetCreatedAt() time.Time {
-	return t.CreatedAt
+func (d *Desk) GetDiscardPile() []uuid.UUID {
+	return d.DiscardPile
 }
 
-func (t *Desk) GetUpdatedAt() time.Time {
-	return t.UpdatedAt
+func (d *Desk) GetShuffledAt() time.Time {
+	return d.ShuffledAt
+}
+
+func (d *Desk) GetCreatedAt() time.Time {
+	return d.CreatedAt
+}
+
+func (d *Desk) GetUpdatedAt() time.Time {
+	return d.UpdatedAt
 }

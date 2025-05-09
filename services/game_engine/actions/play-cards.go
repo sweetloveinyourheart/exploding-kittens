@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	cardsConst "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
@@ -30,11 +30,9 @@ func (a *actions) PlayCards(ctx context.Context, request *connect.Request[proto.
 	}
 
 	gameID := stringsutil.ConvertStringToUUID(request.Msg.GetGameId())
-	handID := hand.NewPlayerHandID(gameID, userID)
-	if err := domains.CommandBus.HandleCommand(ctx, &hand.PlayCards{
-		HandID:   handID,
-		PlayerID: userID,
+	if err := domains.CommandBus.HandleCommand(ctx, &game.PlayCards{
 		GameID:   gameID,
+		PlayerID: userID,
 		CardIDs:  stringsutil.ConvertStringsToUUIDs(request.Msg.GetCardIds()),
 	}); err != nil {
 		return nil, grpc.InternalError(err)

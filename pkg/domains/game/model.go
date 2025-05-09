@@ -25,7 +25,6 @@ type Game struct {
 	PlayerHands     map[uuid.UUID]uuid.UUID `json:"player_hands"`
 	PlayerTurn      uuid.UUID               `json:"player_turn"`
 	ExecutingAction string                  `json:"executing_action"`
-	DiscardPile     []uuid.UUID             `json:"discard_pile"`
 	CreatedAt       time.Time               `json:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at"`
 }
@@ -62,10 +61,6 @@ func (d *Game) GetPlayerTurn() uuid.UUID {
 
 func (d *Game) GetExecutingAction() string {
 	return d.ExecutingAction
-}
-
-func (d *Game) GetDiscardPile() []uuid.UUID {
-	return d.DiscardPile
 }
 
 func (d *Game) GetCreatedAt() time.Time {
