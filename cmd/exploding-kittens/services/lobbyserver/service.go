@@ -81,11 +81,11 @@ func setupDependencies() error {
 			log.Global().Error("nats error", zap.String("type", "nats"), zap.Error(err))
 		}))
 	if err != nil {
-		return errors.WithStack(errors.Wrap(err, "failed to connect to  nats"))
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
 	}
 
 	if err := cmdutil.WaitForNatsConnection(timeout, busConnection); err != nil {
-		return errors.WithStack(errors.Wrap(err, "failed to connect to  nats"))
+		return errors.WithStack(errors.Wrap(err, "failed to connect to nats"))
 	}
 
 	connPool := pool.New(100, config.Instance().GetString("lobbyserver.nats.url"),
@@ -101,6 +101,11 @@ func setupDependencies() error {
 	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
 		func(i *do.Injector) (*pool.ConnPool, error) {
 			return connPool, nil
+		})
+
+	do.ProvideNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", string(constants.Bus)),
+		func(i *do.Injector) (*nats.Conn, error) {
+			return busConnection, nil
 		})
 
 	return nil

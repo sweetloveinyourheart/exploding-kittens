@@ -12,6 +12,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains"
@@ -44,6 +45,11 @@ func InitializeCoreRepos(appID string, ctx context.Context) error {
 
 	domains.CommandBus = bus.NewCommandHandler()
 	err = lobby.AddNATSLobbyCommandHandlers(ctx, appID, domains.CommandBus)
+	if err != nil {
+		return err
+	}
+
+	err = game.AddNATSGameCommandHandlers(ctx, appID, domains.CommandBus)
 	if err != nil {
 		return err
 	}

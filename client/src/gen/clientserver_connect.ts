@@ -3,8 +3,8 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayerProfileRequest, PlayerProfileResponse } from "./clientserver_pb.js";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -12,6 +12,15 @@ import { Empty, MethodKind } from "@bufbuild/protobuf";
 export const ClientServer = {
   typeName: "com.sweetloveinyourheart.kittens.clients.ClientServer",
   methods: {
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData
+     */
+    retrieveCardsData: {
+      name: "RetrieveCardsData",
+      I: Empty,
+      O: RetrieveCardsDataResponse,
+      kind: MethodKind.Unary,
+    },
     /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.CreateNewGuestUser
      */
@@ -36,16 +45,16 @@ export const ClientServer = {
     getUserProfile: {
       name: "GetUserProfile",
       I: Empty,
-      O: PlayerProfileResponse,
+      O: UserProfileResponse,
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile
      */
-    getPlayerProfile: {
-      name: "GetPlayerProfile",
-      I: PlayerProfileRequest,
-      O: PlayerProfileResponse,
+    getPlayersProfile: {
+      name: "GetPlayersProfile",
+      I: PlayersProfileRequest,
+      O: PlayersProfileResponse,
       kind: MethodKind.Unary,
     },
     /**
@@ -55,6 +64,15 @@ export const ClientServer = {
       name: "CreateLobby",
       I: CreateLobbyRequest,
       O: CreateLobbyResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby
+     */
+    getLobby: {
+      name: "GetLobby",
+      I: GetLobbyRequest,
+      O: GetLobbyReply,
       kind: MethodKind.Unary,
     },
     /**
@@ -83,6 +101,33 @@ export const ClientServer = {
       I: LeaveLobbyRequest,
       O: LeaveLobbyResponse,
       kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch
+     */
+    startMatch: {
+      name: "StartMatch",
+      I: StartMatchRequest,
+      O: Empty,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GetGameMetaData
+     */
+    getGameMetaData: {
+      name: "GetGameMetaData",
+      I: GetGameMetaDataRequest,
+      O: GetGameMetaDataResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame
+     */
+    streamGame: {
+      name: "StreamGame",
+      I: StreamGameRequest,
+      O: StreamGameReply,
+      kind: MethodKind.ServerStreaming,
     },
   }
 } as const;

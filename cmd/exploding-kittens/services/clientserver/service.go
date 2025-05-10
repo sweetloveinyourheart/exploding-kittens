@@ -21,6 +21,7 @@ import (
 
 	auth_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/auth"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	userServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client"
@@ -96,6 +97,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	// config options
 	config.Int64Default(clientServerCommand, "clientserver.grpc.port", "grpc-port", DEFAULT_CLIENTSERVER_GRPC_PORT, "GRPC Port to listen on", "CLIENTSERVER_GRPC_PORT")
 	config.StringDefault(clientServerCommand, "clientserver.userserver.url", "userserver-url", "http://userserver:50052", "Userserver connection URL", "CLIENTSERVER_USERSERVER_URL")
+	config.StringDefault(clientServerCommand, "clientserver.dataprovider.url", "dataprovider-url", "http://dataprovider:50055", "Dataprovider connection URL", "CLIENTSERVER_DATAPROVIDER_URL")
 
 	cmdutil.BoilerplateFlagsCore(clientServerCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateFlagsNats(clientServerCommand, serviceType, envPrefix)
@@ -137,8 +139,21 @@ func setupDependencies() error {
 		)...),
 	)
 
+	dataProviderClient := dataProviderConnect.NewDataProviderClient(
+		http.DefaultClient,
+		config.Instance().GetString("clientserver.dataprovider.url"),
+		connect.WithInterceptors(interceptors.CommonConnectClientInterceptors(
+			serviceType,
+			signingKey,
+		)...),
+	)
+
 	do.Provide[userServerConnect.UserServerClient](nil, func(i *do.Injector) (userServerConnect.UserServerClient, error) {
 		return userServerClient, nil
+	})
+
+	do.Provide[dataProviderConnect.DataProviderClient](nil, func(i *do.Injector) (dataProviderConnect.DataProviderClient, error) {
+		return dataProviderClient, nil
 	})
 
 	do.ProvideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),

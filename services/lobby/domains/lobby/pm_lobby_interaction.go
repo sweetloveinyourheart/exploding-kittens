@@ -2,11 +2,15 @@ package lobby
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/gofrs/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -17,10 +21,12 @@ import (
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/lobby/domains"
 
 	"go.uber.org/zap"
 
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 )
@@ -36,19 +42,27 @@ type LobbyInteractionProcessor struct {
 	ctx context.Context
 	*lobby.LobbyProjector
 
-	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
+	playerIDs []uuid.UUID
+	queue     chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
+	bus       *nats.Conn
 }
 
 func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcessor, error) {
 	lip := &LobbyInteractionProcessor{
-		ctx:   ctx,
-		queue: make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		ctx: ctx,
+		bus: do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+
+		playerIDs: make([]uuid.UUID, 0),
+		queue:     make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 	}
 
 	lip.LobbyProjector = lobby.NewLobbyProjection(lip)
 
 	lobbyMatcher := eventing.NewMatchEventSubject(lobby.SubjectFactory, lobby.AggregateType,
+		lobby.EventTypeLobbyCreated,
+		lobby.EventTypeLobbyJoined,
 		lobby.EventTypeLobbyLeft,
+		lobby.EventTypeLobbyMatchCreated,
 	)
 
 	lobbySubject := nats2.CreateConsumerSubject(constants.LobbyStream, lobbyMatcher)
@@ -190,22 +204,76 @@ func (w *LobbyInteractionProcessor) HandleEvent(ctx context.Context, event commo
 	return errors.WithStack(fmt.Errorf("unknown aggregate type %s", event.AggregateType()))
 }
 
-func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event common.Event, data *lobby.LobbyLeft) error {
-	lobby, err := lobby.GetLobbyByID(ctx, data.GetLobbyID())
+func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *lobby.LobbyCreated) error {
+	w.playerIDs = append(w.playerIDs, data.HostUserID)
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
 	if err != nil {
-		log.Global().Error("error getting lobby with aggregate", zap.Error(err))
 		return err
 	}
 
-	log.Global().InfoContext(ctx, "lobby details",
-		zap.String("id", lobby.GetLobbyID().String()),
-		zap.String("code", lobby.GetLobbyCode()),
-		zap.String("name", lobby.GetLobbyName()),
-		zap.String("owner", lobby.GetHostUserID().String()),
-		zap.Int("player_count", len(lobby.GetParticipants())),
-		zap.Time("created_at", lobby.CreatedAt),
-		zap.Time("updated_at", lobby.UpdatedAt),
-	)
+	return nil
+}
+
+func (w *LobbyInteractionProcessor) HandleLobbyJoined(ctx context.Context, event common.Event, data *lobby.LobbyJoined) error {
+	w.playerIDs = append(w.playerIDs, data.GetUserID())
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event common.Event, data *lobby.LobbyLeft) error {
+	for i, id := range w.playerIDs {
+		if id == data.GetUserID() {
+			w.playerIDs = slices.Delete(w.playerIDs, i, i+1)
+			break
+		}
+	}
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *LobbyInteractionProcessor) HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *lobby.LobbyMatchCreated) error {
+	log.Global().Info("Create new game", zap.String("game_id", data.GetMatchID().String()), zap.String("lobby_id", data.GetLobbyID().String()))
+
+	if err := domains.CommandBus.HandleCommand(ctx, &game.CreateGame{
+		GameID:    data.MatchID,
+		PlayerIDs: w.playerIDs,
+	}); err != nil {
+		return err
+	}
+
+	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *LobbyInteractionProcessor) emitLobbyUpdateEvent(lobbyID uuid.UUID) error {
+	msg := &lobby.Lobby{
+		LobbyID: lobbyID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.LobbyStream, msg.GetLobbyID().String()), msgBytes)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

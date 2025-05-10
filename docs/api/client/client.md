@@ -4,10 +4,19 @@
 ## Table of Contents
 
 - [clientserver.proto](#clientserver-proto)
+    - [Card](#com-sweetloveinyourheart-kittens-clients-Card)
     - [CreateLobbyRequest](#com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest)
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
+    - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
+    - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
+    - [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player)
+    - [Game.PlayerHand](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHand)
+    - [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry)
+    - [GameMetaData](#com-sweetloveinyourheart-kittens-clients-GameMetaData)
+    - [GetGameMetaDataRequest](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest)
+    - [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse)
     - [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply)
     - [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest)
     - [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest)
@@ -17,9 +26,16 @@
     - [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest)
     - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
-    - [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest)
-    - [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse)
+    - [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest)
+    - [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse)
+    - [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse)
+    - [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest)
+    - [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply)
+    - [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
+    - [UserProfileResponse](#com-sweetloveinyourheart-kittens-clients-UserProfileResponse)
+  
+    - [Game.Phase](#com-sweetloveinyourheart-kittens-clients-Game-Phase)
   
     - [ClientServer](#com-sweetloveinyourheart-kittens-clients-ClientServer)
   
@@ -31,6 +47,24 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## clientserver.proto
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Card"></a>
+
+### Card
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| card_id | [string](#string) |  |  |
+| name | [string](#string) |  |  |
+| code | [string](#string) |  |  |
+| description | [string](#string) |  |  |
+
+
+
 
 
 
@@ -95,6 +129,137 @@ Message for creating a new guest user
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-Game"></a>
+
+### Game
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| game_phase | [Game.Phase](#com-sweetloveinyourheart-kittens-clients-Game-Phase) |  |  |
+| player_turn | [string](#string) |  |  |
+| players | [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player) | repeated |  |
+| player_hands | [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry) | repeated |  |
+| desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
+| discard_pile | [string](#string) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Desk"></a>
+
+### Game.Desk
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| desk_id | [string](#string) |  |  |
+| remaining_cards | [int32](#int32) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Player"></a>
+
+### Game.Player
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| player_id | [string](#string) |  |  |
+| active | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-PlayerHand"></a>
+
+### Game.PlayerHand
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| remaining_cards | [int32](#int32) |  |  |
+| hands | [string](#string) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry"></a>
+
+### Game.PlayerHandsEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [Game.PlayerHand](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHand) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-GameMetaData"></a>
+
+### GameMetaData
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| players | [string](#string) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest"></a>
+
+### GetGameMetaDataRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse"></a>
+
+### GetGameMetaDataResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| meta | [GameMetaData](#com-sweetloveinyourheart-kittens-clients-GameMetaData) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-GetLobbyReply"></a>
 
 ### GetLobbyReply
@@ -148,7 +313,7 @@ Message for guest login
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| user_id | [string](#string) |  | The database id for this user (UUID). |
+| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  | The user basic info |
 | token | [string](#string) |  | The session token for this user. |
 
 
@@ -229,36 +394,97 @@ Message for leave a lobby
 | lobby_name | [string](#string) |  |  |
 | host_user_id | [string](#string) |  |  |
 | participants | [string](#string) | repeated |  |
+| match_id | [string](#string) | optional |  |
 
 
 
 
 
 
-<a name="com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest"></a>
+<a name="com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest"></a>
 
-### PlayerProfileRequest
-Message for player profile
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| user_id | [string](#string) |  | Required: UUID of the guest user |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse"></a>
-
-### PlayerProfileResponse
-
+### PlayersProfileRequest
+Message for players profile
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  |  |
+| user_ids | [string](#string) | repeated | Required: UUID of the guest user |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse"></a>
+
+### PlayersProfileResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| users | [User](#com-sweetloveinyourheart-kittens-clients-User) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse"></a>
+
+### RetrieveCardsDataResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| cards | [Card](#com-sweetloveinyourheart-kittens-clients-Card) | repeated |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-StartMatchRequest"></a>
+
+### StartMatchRequest
+Message for start a match
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-StreamGameReply"></a>
+
+### StreamGameReply
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_state | [Game](#com-sweetloveinyourheart-kittens-clients-Game) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-StreamGameRequest"></a>
+
+### StreamGameRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
 
 
 
@@ -282,7 +508,38 @@ Message for player profile
 
 
 
+
+<a name="com-sweetloveinyourheart-kittens-clients-UserProfileResponse"></a>
+
+### UserProfileResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  |  |
+
+
+
+
+
  
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-Game-Phase"></a>
+
+### Game.Phase
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| INITIALIZING | 0 | Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck |
+| TURN_START | 1 | Active player begins their turn |
+| ACTION_PHASE | 2 | Player can play as many action cards as they want |
+| CARD_DRAWING | 3 | Player draws one card from the deck (mandatory if they didn&#39;t Skip/Attack) |
+| TURN_END | 4 | Finalize the turn, next player becomes active |
+| GAME_OVER | 5 | When only one player remains |
+
 
  
 
@@ -296,14 +553,19 @@ Message for player profile
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
+| RetrieveCardsData | [.google.protobuf.Empty](#google-protobuf-Empty) | [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse) |  |
 | CreateNewGuestUser | [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest) | [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse) |  |
 | GuestLogin | [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest) | [GuestLoginResponse](#com-sweetloveinyourheart-kittens-clients-GuestLoginResponse) |  |
-| GetUserProfile | [.google.protobuf.Empty](#google-protobuf-Empty) | [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse) |  |
-| GetPlayerProfile | [PlayerProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayerProfileRequest) | [PlayerProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayerProfileResponse) |  |
+| GetUserProfile | [.google.protobuf.Empty](#google-protobuf-Empty) | [UserProfileResponse](#com-sweetloveinyourheart-kittens-clients-UserProfileResponse) |  |
+| GetPlayersProfile | [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest) | [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse) |  |
 | CreateLobby | [CreateLobbyRequest](#com-sweetloveinyourheart-kittens-clients-CreateLobbyRequest) | [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse) |  |
+| GetLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) |  |
 | StreamLobby | [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest) | [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply) stream |  |
 | JoinLobby | [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest) | [JoinLobbyResponse](#com-sweetloveinyourheart-kittens-clients-JoinLobbyResponse) |  |
 | LeaveLobby | [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest) | [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse) |  |
+| StartMatch | [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| GetGameMetaData | [GetGameMetaDataRequest](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest) | [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse) |  |
+| StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 
  
 

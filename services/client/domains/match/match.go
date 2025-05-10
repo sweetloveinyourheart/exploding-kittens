@@ -15,3 +15,13 @@ func MatchLobbyID(lobbyID uuid.UUID) Matcher {
 type LobbyIDer interface {
 	GetLobbyId() uuid.UUID
 }
+
+func MatchGameID(gameID uuid.UUID) Matcher {
+	return func(subject string) bool {
+		return gameID.String() == subject
+	}
+}
+
+type GameIDer interface {
+	GetGameId() uuid.UUID
+}

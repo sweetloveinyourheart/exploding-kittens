@@ -73,7 +73,9 @@ type Aggregate struct {
 	*aggregate.AggregateBase
 
 	currentLobbyID uuid.UUID
+	currentMatchID uuid.UUID
 	actived        bool
+	hostID         uuid.UUID
 	playerIDs      []uuid.UUID
 }
 
@@ -116,6 +118,24 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if err != nil {
 			return err
 		}
+
+	case *CreateLobbyMatch:
+		if !a.actived {
+			return ErrLobbyNotAvailable
+		}
+
+		if a.hostID != typed.HostUserID {
+			return ErrHostUserNotRecognized
+		}
+
+		if a.currentMatchID != uuid.Nil {
+			return ErrGameIsAlreadyStarted
+		}
+
+		if len(a.playerIDs) < 2 {
+			return ErrGameIsNotEnoughPlayer
+		}
+
 	default:
 		// All other events require the aggregate to be created.
 	}
@@ -142,6 +162,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		a.AppendEvent(EventTypeLobbyLeft, &LobbyLeft{
 			LobbyID: cmd.LobbyID,
 			UserID:  cmd.UserID,
+		}, TimeNow())
+	case *CreateLobbyMatch:
+		a.AppendEvent(EventTypeLobbyMatchCreated, &LobbyMatchCreated{
+			LobbyID:    cmd.LobbyID,
+			HostUserID: cmd.HostUserID,
+			MatchID:    cmd.MatchID,
 		}, TimeNow())
 
 	default:
@@ -178,6 +204,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.currentLobbyID = data.LobbyID
 		a.actived = true
 		a.playerIDs = append(a.playerIDs, data.GetHostUserID())
+		a.hostID = data.GetHostUserID()
 
 	case EventTypeLobbyJoined:
 		data, ok := event.Data().(*LobbyJoined)
@@ -201,6 +228,14 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		if len(a.playerIDs) == 0 {
 			a.actived = false
 		}
+
+	case EventTypeLobbyMatchCreated:
+		data, ok := event.Data().(*LobbyMatchCreated)
+		if !ok {
+			return fmt.Errorf("could not apply event: %s", event.EventType())
+		}
+
+		a.currentMatchID = data.GetMatchID()
 
 	default:
 		return errors.WithStack(fmt.Errorf("could not apply event: %s", event.EventType()))

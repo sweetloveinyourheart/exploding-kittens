@@ -18,6 +18,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[LobbyCreated](EventTypeLobbyCreated, args...)
 	eventing.RegisterEventData[LobbyJoined](EventTypeLobbyJoined, args...)
 	eventing.RegisterEventData[LobbyLeft](EventTypeLobbyLeft, args...)
+	eventing.RegisterEventData[LobbyMatchCreated](EventTypeLobbyMatchCreated, args...)
 }
 
 // EventTypeLobbyCreated is the event type for when a lobby is created
@@ -29,10 +30,14 @@ var EventTypeLobbyJoined = (&LobbyJoined{}).EventType()
 // EventTypeLobbyLeft is the event type for when a user leaves a lobby
 var EventTypeLobbyLeft = (&LobbyLeft{}).EventType()
 
+// EventTypeLobbyMatchCreated is the event type for when a game started from a lobby
+var EventTypeLobbyMatchCreated = (&LobbyMatchCreated{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeLobbyCreated,
 	EventTypeLobbyJoined,
 	EventTypeLobbyLeft,
+	EventTypeLobbyMatchCreated,
 }
 
 type LobbyCreated struct {
@@ -76,3 +81,17 @@ func (p *LobbyLeft) EventType() common.EventType { return "LOBBY_LEAVED" }
 func (p *LobbyLeft) GetLobbyID() uuid.UUID { return p.LobbyID }
 
 func (p *LobbyLeft) GetUserID() uuid.UUID { return p.UserID }
+
+type LobbyMatchCreated struct {
+	LobbyID    uuid.UUID `json:"lobby_id"`
+	HostUserID uuid.UUID `json:"host_user_id"`
+	MatchID    uuid.UUID `json:"match_id"`
+}
+
+func (p *LobbyMatchCreated) EventType() common.EventType { return "LOBBY_MATCH_STARTED" }
+
+func (p *LobbyMatchCreated) GetLobbyID() uuid.UUID { return p.LobbyID }
+
+func (p *LobbyMatchCreated) GetHostUserID() uuid.UUID { return p.HostUserID }
+
+func (p *LobbyMatchCreated) GetMatchID() uuid.UUID { return p.MatchID }

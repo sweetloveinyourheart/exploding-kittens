@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go;grpc";
+
+package com.sweetloveinyourheart.kittens.dataproviders;
+
+import "google/protobuf/empty.proto";
+
+service DataProvider {
+    // Get cards
+    rpc GetCards (google.protobuf.Empty) returns (GetCardsResponse);
+    // Get cards as map
+    rpc GetMapCards (google.protobuf.Empty) returns (GetMapCardsResponse);
+}
+
+// The Card message definition
+message Card {
+    string card_id = 1;
+    string code = 2;
+    string name = 3;
+    string description = 4;
+    int32 quantity = 5;
+    bytes effects = 6;
+    bytes combo_effects = 7;
+  }
+
+message GetCardsResponse {
+    repeated Card cards = 1;
+}
+
+message GetMapCardsResponse {
+    map<string, Card> cards = 1;
+}
