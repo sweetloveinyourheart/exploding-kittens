@@ -76,6 +76,38 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 		}
 	}()
 
+	deskChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
+	if gameState.GetDesk() != uuid.Nil {
+		// Subscribe to desk updates if the game has a desk
+		deskUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.DeskStream, gameState.GetDesk()), deskChan)
+		if err != nil {
+			log.Global().ErrorContext(ctx, "Error subscribing to desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDesk().String()))
+			return grpc.InternalError(err)
+		}
+		defer func() {
+			err := deskUpdateStream.Unsubscribe()
+			if err != nil {
+				log.Global().ErrorContext(ctx, "Error unsubscribing from desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDesk().String()))
+			}
+		}()
+	}
+
+	handChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
+	if _, ok := gameState.GetPlayerHands()[userID]; ok {
+		// Subscribe to hand updates if the user has a hand
+		handUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.HandStream, gameState.GetPlayerHands()[userID]), handChan)
+		if err != nil {
+			log.Global().ErrorContext(ctx, "Error subscribing to hand update stream", zap.Error(err), zap.String("hand_id", gameState.GetPlayerHands()[userID].String()))
+			return grpc.InternalError(err)
+		}
+		defer func() {
+			err := handUpdateStream.Unsubscribe()
+			if err != nil {
+				log.Global().ErrorContext(ctx, "Error unsubscribing from hand update stream", zap.Error(err), zap.String("hand_id", gameState.GetPlayerHands()[userID].String()))
+			}
+		}()
+	}
+
 	builder := gameClientDomain.NewGameResponseBuilder(userID)
 
 	mux := &sync.Mutex{}
@@ -162,6 +194,18 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 	})
 	defer unsubscribeGame()
 
+	unsubscribeDesk := domains.DeskSubscriber.SubscribeMatch(match.MatchDeskID(gameState.GetDesk()), func(_ string, _ any) {
+		debounced()
+		keepAlive.Reset(KeepAliveTimeout)
+	})
+	defer unsubscribeDesk()
+
+	unsubscribeHand := domains.HandSubscriber.SubscribeMatch(match.MatchHandID(gameState.GetPlayerHands()[userID]), func(_ string, _ any) {
+		debounced()
+		keepAlive.Reset(KeepAliveTimeout)
+	})
+	defer unsubscribeHand()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -174,6 +218,12 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 			debounced()
 			keepAlive.Reset(KeepAliveTimeout)
 		case <-gameChan:
+			debounced()
+			keepAlive.Reset(KeepAliveTimeout)
+		case <-deskChan:
+			debounced()
+			keepAlive.Reset(KeepAliveTimeout)
+		case <-handChan:
 			debounced()
 			keepAlive.Reset(KeepAliveTimeout)
 		}

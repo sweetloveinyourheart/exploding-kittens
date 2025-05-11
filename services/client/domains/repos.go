@@ -27,4 +27,8 @@ var LobbySubscriber = pubsub.NewSimpleHub(&pubsub.SimpleHubConfig{})
 
 var GameSubscriber = pubsub.NewSimpleHub(&pubsub.SimpleHubConfig{})
 
+var DeskSubscriber = pubsub.NewSimpleHub(&pubsub.SimpleHubConfig{})
+
+var HandSubscriber = pubsub.NewSimpleHub(&pubsub.SimpleHubConfig{})
+
 var CommandBus *bus.CommandHandler

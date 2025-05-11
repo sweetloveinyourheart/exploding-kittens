@@ -17,10 +17,13 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go/grpcconnect"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/actions"
 )
 
 const DEFAULT_GAMEENGINESERVER_GRPC_PORT = 50054
@@ -45,6 +48,22 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 			if err := gameengine.InitializeRepos(app.Ctx()); err != nil {
 				log.GlobalSugared().Fatal(err)
 			}
+
+			signingKey := config.Instance().GetString("gameengineserver.secrets.token_signing_key")
+			actions := actions.NewActions(app.Ctx(), signingKey)
+
+			opt := connect.WithInterceptors(
+				interceptors.CommonConnectInterceptors(
+					serviceType,
+					signingKey,
+					interceptors.ConnectServerAuthHandler(signingKey),
+				)...,
+			)
+			path, handler := grpcconnect.NewGameServerHandler(
+				actions,
+				opt,
+			)
+			go grpc.ServeBuf(app.Ctx(), path, handler, config.Instance().GetUint64("gameengineserver.grpc.port"), serviceType)
 
 			app.Run()
 		},

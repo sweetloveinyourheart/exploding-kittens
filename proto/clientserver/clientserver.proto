@@ -23,6 +23,9 @@ service ClientServer {
 
     rpc GetGameMetaData(GetGameMetaDataRequest) returns (GetGameMetaDataResponse);
     rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
+
+    rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
+    rpc ExecuteAction(ExecuteActionRequest) returns (google.protobuf.Empty);
 }
 
 // ========= Data Provider =============
@@ -166,6 +169,7 @@ message Game {
     repeated Player players = 4;
     map<string, PlayerHand> player_hands = 5;
     Desk desk = 6;
+    string executing_action = 7;
 }
 
 message GameMetaData {
@@ -188,3 +192,17 @@ message GetGameMetaDataRequest {
 message GetGameMetaDataResponse {
     GameMetaData meta = 1;
 }
+
+// ========== Game Play ===========
+message PlayCardsRequest {
+    string game_id = 1;
+    repeated string card_ids = 2;
+}
+
+message ExecuteActionRequest {
+    string game_id = 1;
+    string effect = 2;
+    optional string target_user = 3;
+    optional string target_card = 4;
+}
+

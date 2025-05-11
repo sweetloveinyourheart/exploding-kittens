@@ -9,6 +9,7 @@
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
+    - [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest)
     - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
     - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
     - [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player)
@@ -26,6 +27,7 @@
     - [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest)
     - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
+    - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest)
     - [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest)
     - [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse)
     - [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse)
@@ -129,6 +131,24 @@ Message for creating a new guest user
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest"></a>
+
+### ExecuteActionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| effect | [string](#string) |  |  |
+| target_user | [string](#string) | optional |  |
+| target_card | [string](#string) | optional |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-Game"></a>
 
 ### Game
@@ -143,6 +163,7 @@ Message for creating a new guest user
 | players | [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player) | repeated |  |
 | player_hands | [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry) | repeated |  |
 | desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
+| executing_action | [string](#string) |  |  |
 
 
 
@@ -401,6 +422,22 @@ Message for leave a lobby
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-PlayCardsRequest"></a>
+
+### PlayCardsRequest
+========== Game Play ===========
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| card_ids | [string](#string) | repeated |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest"></a>
 
 ### PlayersProfileRequest
@@ -566,6 +603,8 @@ Message for start a match
 | StartMatch | [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | GetGameMetaData | [GetGameMetaDataRequest](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest) | [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse) |  |
 | StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
+| PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| ExecuteAction | [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

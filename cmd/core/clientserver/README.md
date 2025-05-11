@@ -77,6 +77,7 @@ app clientserver [flags]
 
 ```
       --dataprovider-url string        Dataprovider connection URL (default "http://dataprovider:50055")
+      --gameengineserver-url string    Game Engine Server connection URL (default "http://gameengineserver:50054")
       --grpc-port int                  GRPC Port to listen on (default 50051)
   -h, --help                           help for clientserver
       --id string                      Unique identifier for this services
@@ -92,6 +93,7 @@ app clientserver [flags]
 ### Environment Variables
 
 - CLIENTSERVER_DATAPROVIDER_URL :: `clientserver.dataprovider.url` Dataprovider connection URL
+- CLIENTSERVER_GAMEENGINESERVER_URL :: `clientserver.gameengineserver.url` Game Engine Server connection URL
 - CLIENTSERVER_GRPC_PORT :: `clientserver.grpc.port` GRPC Port to listen on
 - CLIENTSERVER_ID :: `clientserver.id` Unique identifier for this services
 - CLIENTSERVER_NATS_CONSUMER_REPLICAS :: `clientserver.nats.consumer.replicas` Number of times to replicate consumers

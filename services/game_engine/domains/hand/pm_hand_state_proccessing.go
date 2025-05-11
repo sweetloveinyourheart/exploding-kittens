@@ -178,6 +178,13 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 }
 
 func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
+	// Emit hand state update event
+	err := w.emitHandStateUpdateEvent(data.GetHandID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit hand state update event", zap.Error(err))
+		return err
+	}
+
 	return nil
 }
 

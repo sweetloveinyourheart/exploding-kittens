@@ -7,10 +7,20 @@ option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/cod
 package com.sweetloveinyourheart.kittens.games;
 
 service GameServer {
-    rpc PlayCards(PlayCardsRequest) returns(google.protobuf.Empty);
+    rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
+    rpc ExecuteAction(ExecuteActionRequest) returns (google.protobuf.Empty);
 }
 
 message PlayCardsRequest {
     string game_id = 1;
-    repeated string card_ids = 2;
+    string user_id = 2;
+    repeated string card_ids = 3;
+}
+
+message ExecuteActionRequest {
+    string game_id = 1;
+    string user_id = 2;
+    string effect = 3;
+    optional string target_user = 4;
+    optional string target_card = 5;
 }

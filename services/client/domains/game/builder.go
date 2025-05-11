@@ -57,12 +57,13 @@ func (a *GameResponseBuilder) Build(gameState *game.Game, deskState *desk.Desk, 
 	}
 
 	result := &proto.Game{
-		GameId:      gameState.GetGameID().String(),
-		GamePhase:   proto.Game_Phase(gameState.GamePhase),
-		PlayerTurn:  gameState.PlayerTurn.String(),
-		Players:     players,
-		PlayerHands: playerHands,
-		Desk:        desk,
+		GameId:          gameState.GetGameID().String(),
+		GamePhase:       proto.Game_Phase(gameState.GamePhase),
+		PlayerTurn:      gameState.PlayerTurn.String(),
+		Players:         players,
+		PlayerHands:     playerHands,
+		Desk:            desk,
+		ExecutingAction: gameState.GetExecutingAction(),
 	}
 
 	return result, nil

@@ -33,6 +33,8 @@ const (
 	ClientServer_StartMatch_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
 	ClientServer_GetGameMetaData_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
 	ClientServer_StreamGame_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	ClientServer_PlayCards_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	ClientServer_ExecuteAction_FullMethodName      = "/com.sweetloveinyourheart.kittens.clients.ClientServer/ExecuteAction"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -52,6 +54,8 @@ type ClientServerClient interface {
 	StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetGameMetaData(ctx context.Context, in *GetGameMetaDataRequest, opts ...grpc.CallOption) (*GetGameMetaDataResponse, error)
 	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
+	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ExecuteAction(ctx context.Context, in *ExecuteActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type clientServerClient struct {
@@ -210,6 +214,26 @@ func (c *clientServerClient) StreamGame(ctx context.Context, in *StreamGameReque
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ClientServer_StreamGameClient = grpc.ServerStreamingClient[StreamGameReply]
 
+func (c *clientServerClient) PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_PlayCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) ExecuteAction(ctx context.Context, in *ExecuteActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_ExecuteAction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -227,6 +251,8 @@ type ClientServerServer interface {
 	StartMatch(context.Context, *StartMatchRequest) (*emptypb.Empty, error)
 	GetGameMetaData(context.Context, *GetGameMetaDataRequest) (*GetGameMetaDataResponse, error)
 	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
+	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
+	ExecuteAction(context.Context, *ExecuteActionRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -274,6 +300,12 @@ func (UnimplementedClientServerServer) GetGameMetaData(context.Context, *GetGame
 }
 func (UnimplementedClientServerServer) StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamGame not implemented")
+}
+func (UnimplementedClientServerServer) PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlayCards not implemented")
+}
+func (UnimplementedClientServerServer) ExecuteAction(context.Context, *ExecuteActionRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExecuteAction not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -515,6 +547,42 @@ func _ClientServer_StreamGame_Handler(srv interface{}, stream grpc.ServerStream)
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ClientServer_StreamGameServer = grpc.ServerStreamingServer[StreamGameReply]
 
+func _ClientServer_PlayCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PlayCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PlayCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PlayCards(ctx, req.(*PlayCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_ExecuteAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).ExecuteAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_ExecuteAction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).ExecuteAction(ctx, req.(*ExecuteActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -565,6 +633,14 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGameMetaData",
 			Handler:    _ClientServer_GetGameMetaData_Handler,
+		},
+		{
+			MethodName: "PlayCards",
+			Handler:    _ClientServer_PlayCards_Handler,
+		},
+		{
+			MethodName: "ExecuteAction",
+			Handler:    _ClientServer_ExecuteAction_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

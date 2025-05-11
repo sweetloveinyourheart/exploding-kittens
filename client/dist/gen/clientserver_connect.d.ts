@@ -1,5 +1,5 @@
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, ExecuteActionRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
  */
@@ -122,6 +122,24 @@ export declare const ClientServer: {
             readonly I: typeof StreamGameRequest;
             readonly O: typeof StreamGameReply;
             readonly kind: MethodKind.ServerStreaming;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards
+         */
+        readonly playCards: {
+            readonly name: "PlayCards";
+            readonly I: typeof PlayCardsRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction
+         */
+        readonly executeAction: {
+            readonly name: "ExecuteAction";
+            readonly I: typeof ExecuteActionRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
         };
     };
 };

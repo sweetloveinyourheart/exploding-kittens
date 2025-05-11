@@ -11,6 +11,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go/grpcconnect"
 	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
+	gameEngineServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go/grpcconnect"
 	userServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 )
 
@@ -19,8 +20,9 @@ type actions struct {
 	defaultAuth func(context.Context, string) (context.Context, error)
 	bus         *nats.Conn
 
-	userServerClient   userServerConnect.UserServerClient
-	dataProviderClient dataProviderConnect.DataProviderClient
+	userServerClient       userServerConnect.UserServerClient
+	gameEngineServerClient gameEngineServerConnect.GameServerClient
+	dataProviderClient     dataProviderConnect.DataProviderClient
 }
 
 // AuthFuncOverride is a callback function that overrides the default authorization middleware in the GRPC layer. This is
@@ -39,10 +41,11 @@ func (a *actions) AuthFuncOverride(ctx context.Context, token string, fullMethod
 
 func NewActions(ctx context.Context, signingToken string) *actions {
 	return &actions{
-		context:            ctx,
-		defaultAuth:        interceptors.ConnectAuthHandler(signingToken),
-		bus:                do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
-		userServerClient:   do.MustInvoke[userServerConnect.UserServerClient](nil),
-		dataProviderClient: do.MustInvoke[dataProviderConnect.DataProviderClient](nil),
+		context:                ctx,
+		defaultAuth:            interceptors.ConnectAuthHandler(signingToken),
+		bus:                    do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		userServerClient:       do.MustInvoke[userServerConnect.UserServerClient](nil),
+		gameEngineServerClient: do.MustInvoke[gameEngineServerConnect.GameServerClient](nil),
+		dataProviderClient:     do.MustInvoke[dataProviderConnect.DataProviderClient](nil),
 	}
 }

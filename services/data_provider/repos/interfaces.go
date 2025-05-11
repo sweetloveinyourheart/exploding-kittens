@@ -8,8 +8,8 @@ import (
 
 type CardDetail struct {
 	models.Card
-	Effects      []byte
-	ComboEffects []byte
+	Effects      []byte `json:"effects"`
+	ComboEffects []byte `json:"combo_effects"`
 }
 
 type ICardRepository interface {

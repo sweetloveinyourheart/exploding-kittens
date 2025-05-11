@@ -25,3 +25,23 @@ func MatchGameID(gameID uuid.UUID) Matcher {
 type GameIDer interface {
 	GetGameId() uuid.UUID
 }
+
+func MatchDeskID(deskID uuid.UUID) Matcher {
+	return func(subject string) bool {
+		return deskID.String() == subject
+	}
+}
+
+type DeskIDer interface {
+	GetDeskId() uuid.UUID
+}
+
+func MatchHandID(handID uuid.UUID) Matcher {
+	return func(subject string) bool {
+		return handID.String() == subject
+	}
+}
+
+type HandIDer interface {
+	GetHandId() uuid.UUID
+}

@@ -887,9 +887,9 @@ export class Game extends Message<Game> {
   desk?: Game_Desk;
 
   /**
-   * @generated from field: repeated string discard_pile = 7;
+   * @generated from field: string executing_action = 7;
    */
-  discardPile: string[] = [];
+  executingAction = "";
 
   constructor(data?: PartialMessage<Game>) {
     super();
@@ -905,7 +905,7 @@ export class Game extends Message<Game> {
     { no: 4, name: "players", kind: "message", T: Game_Player, repeated: true },
     { no: 5, name: "player_hands", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: Game_PlayerHand} },
     { no: 6, name: "desk", kind: "message", T: Game_Desk },
-    { no: 7, name: "discard_pile", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 7, name: "executing_action", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Game {
@@ -1081,6 +1081,11 @@ export class Game_Desk extends Message<Game_Desk> {
    */
   remainingCards = 0;
 
+  /**
+   * @generated from field: repeated string discard_pile = 3;
+   */
+  discardPile: string[] = [];
+
   constructor(data?: PartialMessage<Game_Desk>) {
     super();
     proto3.util.initPartial(data, this);
@@ -1091,6 +1096,7 @@ export class Game_Desk extends Message<Game_Desk> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "desk_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "remaining_cards", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "discard_pile", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Game_Desk {
@@ -1298,6 +1304,106 @@ export class GetGameMetaDataResponse extends Message<GetGameMetaDataResponse> {
 
   static equals(a: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined, b: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined): boolean {
     return proto3.util.equals(GetGameMetaDataResponse, a, b);
+  }
+}
+
+/**
+ * ========== Game Play ===========
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlayCardsRequest
+ */
+export class PlayCardsRequest extends Message<PlayCardsRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  /**
+   * @generated from field: repeated string card_ids = 2;
+   */
+  cardIds: string[] = [];
+
+  constructor(data?: PartialMessage<PlayCardsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlayCardsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "card_ids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlayCardsRequest {
+    return new PlayCardsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlayCardsRequest {
+    return new PlayCardsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlayCardsRequest {
+    return new PlayCardsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PlayCardsRequest | PlainMessage<PlayCardsRequest> | undefined, b: PlayCardsRequest | PlainMessage<PlayCardsRequest> | undefined): boolean {
+    return proto3.util.equals(PlayCardsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest
+ */
+export class ExecuteActionRequest extends Message<ExecuteActionRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  /**
+   * @generated from field: string effect = 2;
+   */
+  effect = "";
+
+  /**
+   * @generated from field: optional string target_user = 3;
+   */
+  targetUser?: string;
+
+  /**
+   * @generated from field: optional string target_card = 4;
+   */
+  targetCard?: string;
+
+  constructor(data?: PartialMessage<ExecuteActionRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "effect", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "target_user", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "target_card", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecuteActionRequest {
+    return new ExecuteActionRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExecuteActionRequest {
+    return new ExecuteActionRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExecuteActionRequest {
+    return new ExecuteActionRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ExecuteActionRequest | PlainMessage<ExecuteActionRequest> | undefined, b: ExecuteActionRequest | PlainMessage<ExecuteActionRequest> | undefined): boolean {
+    return proto3.util.equals(ExecuteActionRequest, a, b);
   }
 }
 

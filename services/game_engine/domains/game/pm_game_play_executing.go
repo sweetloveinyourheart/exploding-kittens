@@ -210,7 +210,7 @@ func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.E
 		HandID:  w.gamePlayerHands[data.GameID.String()][data.PlayerID],
 		CardIDs: data.GetCardIDs(),
 	}); err != nil {
-		log.Global().ErrorContext(ctx, "failed to play: play hand cards error", zap.Error(err))
+		log.Global().ErrorContext(ctx, "play hand cards error", zap.Error(err))
 		return err
 	}
 

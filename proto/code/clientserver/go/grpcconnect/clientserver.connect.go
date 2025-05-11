@@ -67,6 +67,11 @@ const (
 	ClientServerGetGameMetaDataProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
 	// ClientServerStreamGameProcedure is the fully-qualified name of the ClientServer's StreamGame RPC.
 	ClientServerStreamGameProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	// ClientServerPlayCardsProcedure is the fully-qualified name of the ClientServer's PlayCards RPC.
+	ClientServerPlayCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	// ClientServerExecuteActionProcedure is the fully-qualified name of the ClientServer's
+	// ExecuteAction RPC.
+	ClientServerExecuteActionProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/ExecuteAction"
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -85,6 +90,8 @@ type ClientServerClient interface {
 	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
 	GetGameMetaData(context.Context, *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error)
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest]) (*connect.ServerStreamForClient[_go.StreamGameReply], error)
+	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -177,6 +184,18 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("StreamGame")),
 			connect.WithClientOptions(opts...),
 		),
+		playCards: connect.NewClient[_go.PlayCardsRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerPlayCardsProcedure,
+			connect.WithSchema(clientServerMethods.ByName("PlayCards")),
+			connect.WithClientOptions(opts...),
+		),
+		executeAction: connect.NewClient[_go.ExecuteActionRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerExecuteActionProcedure,
+			connect.WithSchema(clientServerMethods.ByName("ExecuteAction")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -195,6 +214,8 @@ type clientServerClient struct {
 	startMatch         *connect.Client[_go.StartMatchRequest, emptypb.Empty]
 	getGameMetaData    *connect.Client[_go.GetGameMetaDataRequest, _go.GetGameMetaDataResponse]
 	streamGame         *connect.Client[_go.StreamGameRequest, _go.StreamGameReply]
+	playCards          *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	executeAction      *connect.Client[_go.ExecuteActionRequest, emptypb.Empty]
 }
 
 // RetrieveCardsData calls com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData.
@@ -263,6 +284,16 @@ func (c *clientServerClient) StreamGame(ctx context.Context, req *connect.Reques
 	return c.streamGame.CallServerStream(ctx, req)
 }
 
+// PlayCards calls com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards.
+func (c *clientServerClient) PlayCards(ctx context.Context, req *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.playCards.CallUnary(ctx, req)
+}
+
+// ExecuteAction calls com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction.
+func (c *clientServerClient) ExecuteAction(ctx context.Context, req *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.executeAction.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
@@ -279,6 +310,8 @@ type ClientServerHandler interface {
 	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
 	GetGameMetaData(context.Context, *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error)
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error
+	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -366,6 +399,18 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("StreamGame")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerPlayCardsHandler := connect.NewUnaryHandler(
+		ClientServerPlayCardsProcedure,
+		svc.PlayCards,
+		connect.WithSchema(clientServerMethods.ByName("PlayCards")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerExecuteActionHandler := connect.NewUnaryHandler(
+		ClientServerExecuteActionProcedure,
+		svc.ExecuteAction,
+		connect.WithSchema(clientServerMethods.ByName("ExecuteAction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClientServerRetrieveCardsDataProcedure:
@@ -394,6 +439,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerGetGameMetaDataHandler.ServeHTTP(w, r)
 		case ClientServerStreamGameProcedure:
 			clientServerStreamGameHandler.ServeHTTP(w, r)
+		case ClientServerPlayCardsProcedure:
+			clientServerPlayCardsHandler.ServeHTTP(w, r)
+		case ClientServerExecuteActionProcedure:
+			clientServerExecuteActionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -453,4 +502,12 @@ func (UnimplementedClientServerHandler) GetGameMetaData(context.Context, *connec
 
 func (UnimplementedClientServerHandler) StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction is not implemented"))
 }

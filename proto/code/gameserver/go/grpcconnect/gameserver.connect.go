@@ -36,11 +36,15 @@ const (
 const (
 	// GameServerPlayCardsProcedure is the fully-qualified name of the GameServer's PlayCards RPC.
 	GameServerPlayCardsProcedure = "/com.sweetloveinyourheart.kittens.games.GameServer/PlayCards"
+	// GameServerExecuteActionProcedure is the fully-qualified name of the GameServer's ExecuteAction
+	// RPC.
+	GameServerExecuteActionProcedure = "/com.sweetloveinyourheart.kittens.games.GameServer/ExecuteAction"
 )
 
 // GameServerClient is a client for the com.sweetloveinyourheart.kittens.games.GameServer service.
 type GameServerClient interface {
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewGameServerClient constructs a client for the com.sweetloveinyourheart.kittens.games.GameServer
@@ -60,12 +64,19 @@ func NewGameServerClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(gameServerMethods.ByName("PlayCards")),
 			connect.WithClientOptions(opts...),
 		),
+		executeAction: connect.NewClient[_go.ExecuteActionRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GameServerExecuteActionProcedure,
+			connect.WithSchema(gameServerMethods.ByName("ExecuteAction")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // gameServerClient implements GameServerClient.
 type gameServerClient struct {
-	playCards *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	playCards     *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	executeAction *connect.Client[_go.ExecuteActionRequest, emptypb.Empty]
 }
 
 // PlayCards calls com.sweetloveinyourheart.kittens.games.GameServer.PlayCards.
@@ -73,10 +84,16 @@ func (c *gameServerClient) PlayCards(ctx context.Context, req *connect.Request[_
 	return c.playCards.CallUnary(ctx, req)
 }
 
+// ExecuteAction calls com.sweetloveinyourheart.kittens.games.GameServer.ExecuteAction.
+func (c *gameServerClient) ExecuteAction(ctx context.Context, req *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.executeAction.CallUnary(ctx, req)
+}
+
 // GameServerHandler is an implementation of the com.sweetloveinyourheart.kittens.games.GameServer
 // service.
 type GameServerHandler interface {
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewGameServerHandler builds an HTTP handler from the service implementation. It returns the path
@@ -92,10 +109,18 @@ func NewGameServerHandler(svc GameServerHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(gameServerMethods.ByName("PlayCards")),
 		connect.WithHandlerOptions(opts...),
 	)
+	gameServerExecuteActionHandler := connect.NewUnaryHandler(
+		GameServerExecuteActionProcedure,
+		svc.ExecuteAction,
+		connect.WithSchema(gameServerMethods.ByName("ExecuteAction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.games.GameServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GameServerPlayCardsProcedure:
 			gameServerPlayCardsHandler.ServeHTTP(w, r)
+		case GameServerExecuteActionProcedure:
+			gameServerExecuteActionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -107,4 +132,8 @@ type UnimplementedGameServerHandler struct{}
 
 func (UnimplementedGameServerHandler) PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.games.GameServer.PlayCards is not implemented"))
+}
+
+func (UnimplementedGameServerHandler) ExecuteAction(context.Context, *connect.Request[_go.ExecuteActionRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.games.GameServer.ExecuteAction is not implemented"))
 }

@@ -4,6 +4,7 @@
 ## Table of Contents
 
 - [gameserver.proto](#gameserver-proto)
+    - [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-games-ExecuteActionRequest)
     - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest)
   
     - [GameServer](#com-sweetloveinyourheart-kittens-games-GameServer)
@@ -19,6 +20,25 @@
 
 
 
+<a name="com-sweetloveinyourheart-kittens-games-ExecuteActionRequest"></a>
+
+### ExecuteActionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| user_id | [string](#string) |  |  |
+| effect | [string](#string) |  |  |
+| target_user | [string](#string) | optional |  |
+| target_card | [string](#string) | optional |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-games-PlayCardsRequest"></a>
 
 ### PlayCardsRequest
@@ -28,6 +48,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | game_id | [string](#string) |  |  |
+| user_id | [string](#string) |  |  |
 | card_ids | [string](#string) | repeated |  |
 
 
@@ -49,6 +70,7 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| ExecuteAction | [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-games-ExecuteActionRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

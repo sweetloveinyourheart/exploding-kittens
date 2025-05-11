@@ -58,6 +58,7 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 	query := `
 		SELECT
 			c.card_id,
+			c.code AS card_code,
 			c.name AS card_name,
 			c.description AS card_description,
 			c.quantity,
@@ -91,8 +92,8 @@ func (r *CardRepository) GetCards(ctx context.Context) ([]CardDetail, error) {
 		var card CardDetail
 		if err := rows.Scan(
 			&card.CardID,
-			&card.Name,
 			&card.Code,
+			&card.Name,
 			&card.Description,
 			&card.Quantity,
 			&card.Effects,

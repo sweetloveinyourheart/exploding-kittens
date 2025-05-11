@@ -3419,9 +3419,9 @@ var Game = class _Game extends Message {
    */
   desk;
   /**
-   * @generated from field: repeated string discard_pile = 7;
+   * @generated from field: string executing_action = 7;
    */
-  discardPile = [];
+  executingAction = "";
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -3447,7 +3447,13 @@ var Game = class _Game extends Message {
     { no: 4, name: "players", kind: "message", T: Game_Player, repeated: true },
     { no: 5, name: "player_hands", kind: "map", K: 9, V: { kind: "message", T: Game_PlayerHand } },
     { no: 6, name: "desk", kind: "message", T: Game_Desk },
-    { no: 7, name: "discard_pile", kind: "scalar", T: 9, repeated: true }
+    {
+      no: 7,
+      name: "executing_action",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
   ]);
   static fromBinary(bytes, options) {
     return new _Game().fromBinary(bytes, options);
@@ -3570,6 +3576,10 @@ var Game_Desk = class _Game_Desk extends Message {
    * @generated from field: int32 remaining_cards = 2;
    */
   remainingCards = 0;
+  /**
+   * @generated from field: repeated string discard_pile = 3;
+   */
+  discardPile = [];
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -3590,7 +3600,8 @@ var Game_Desk = class _Game_Desk extends Message {
       kind: "scalar",
       T: 5
       /* ScalarType.INT32 */
-    }
+    },
+    { no: 3, name: "discard_pile", kind: "scalar", T: 9, repeated: true }
   ]);
   static fromBinary(bytes, options) {
     return new _Game_Desk().fromBinary(bytes, options);
@@ -3763,6 +3774,98 @@ var GetGameMetaDataResponse = class _GetGameMetaDataResponse extends Message {
     return proto3.util.equals(_GetGameMetaDataResponse, a, b);
   }
 };
+var PlayCardsRequest = class _PlayCardsRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: repeated string card_ids = 2;
+   */
+  cardIds = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PlayCardsRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "card_ids", kind: "scalar", T: 9, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PlayCardsRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PlayCardsRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PlayCardsRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PlayCardsRequest, a, b);
+  }
+};
+var ExecuteActionRequest = class _ExecuteActionRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: string effect = 2;
+   */
+  effect = "";
+  /**
+   * @generated from field: optional string target_user = 3;
+   */
+  targetUser;
+  /**
+   * @generated from field: optional string target_card = 4;
+   */
+  targetCard;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "effect",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "target_user", kind: "scalar", T: 9, opt: true },
+    { no: 4, name: "target_card", kind: "scalar", T: 9, opt: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _ExecuteActionRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _ExecuteActionRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _ExecuteActionRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_ExecuteActionRequest, a, b);
+  }
+};
 
 // src/gen/clientserver_connect.ts
 var ClientServer = {
@@ -3884,6 +3987,24 @@ var ClientServer = {
       I: StreamGameRequest,
       O: StreamGameReply,
       kind: MethodKind.ServerStreaming
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards
+     */
+    playCards: {
+      name: "PlayCards",
+      I: PlayCardsRequest,
+      O: Empty,
+      kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction
+     */
+    executeAction: {
+      name: "ExecuteAction",
+      I: ExecuteActionRequest,
+      O: Empty,
+      kind: MethodKind.Unary
     }
   }
 };
@@ -3894,6 +4015,7 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
+  ExecuteActionRequest,
   Game,
   GameMetaData,
   Game_Desk,
@@ -3911,6 +4033,7 @@ export {
   LeaveLobbyRequest,
   LeaveLobbyResponse,
   Lobby,
+  PlayCardsRequest,
   PlayersProfileRequest,
   PlayersProfileResponse,
   RetrieveCardsDataResponse,
