@@ -20,8 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GameServer_PlayCards_FullMethodName     = "/com.sweetloveinyourheart.kittens.games.GameServer/PlayCards"
-	GameServer_ExecuteAction_FullMethodName = "/com.sweetloveinyourheart.kittens.games.GameServer/ExecuteAction"
+	GameServer_PlayCards_FullMethodName = "/com.sweetloveinyourheart.kittens.games.GameServer/PlayCards"
 )
 
 // GameServerClient is the client API for GameServer service.
@@ -29,7 +28,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GameServerClient interface {
 	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	ExecuteAction(ctx context.Context, in *ExecuteActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type gameServerClient struct {
@@ -50,22 +48,11 @@ func (c *gameServerClient) PlayCards(ctx context.Context, in *PlayCardsRequest, 
 	return out, nil
 }
 
-func (c *gameServerClient) ExecuteAction(ctx context.Context, in *ExecuteActionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, GameServer_ExecuteAction_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // GameServerServer is the server API for GameServer service.
 // All implementations should embed UnimplementedGameServerServer
 // for forward compatibility.
 type GameServerServer interface {
 	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
-	ExecuteAction(context.Context, *ExecuteActionRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedGameServerServer should be embedded to have
@@ -77,9 +64,6 @@ type UnimplementedGameServerServer struct{}
 
 func (UnimplementedGameServerServer) PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PlayCards not implemented")
-}
-func (UnimplementedGameServerServer) ExecuteAction(context.Context, *ExecuteActionRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExecuteAction not implemented")
 }
 func (UnimplementedGameServerServer) testEmbeddedByValue() {}
 
@@ -119,24 +103,6 @@ func _GameServer_PlayCards_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GameServer_ExecuteAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExecuteActionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GameServerServer).ExecuteAction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GameServer_ExecuteAction_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GameServerServer).ExecuteAction(ctx, req.(*ExecuteActionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // GameServer_ServiceDesc is the grpc.ServiceDesc for GameServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -147,10 +113,6 @@ var GameServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PlayCards",
 			Handler:    _GameServer_PlayCards_Handler,
-		},
-		{
-			MethodName: "ExecuteAction",
-			Handler:    _GameServer_ExecuteAction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -9,7 +9,6 @@
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
-    - [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest)
     - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
     - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
     - [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player)
@@ -125,24 +124,6 @@ Message for creating a new guest user
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  | The user basic info |
-
-
-
-
-
-
-<a name="com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest"></a>
-
-### ExecuteActionRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| game_id | [string](#string) |  |  |
-| effect | [string](#string) |  |  |
-| target_user | [string](#string) | optional |  |
-| target_card | [string](#string) | optional |  |
 
 
 
@@ -604,7 +585,6 @@ Message for start a match
 | GetGameMetaData | [GetGameMetaDataRequest](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest) | [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse) |  |
 | StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 | PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| ExecuteAction | [ExecuteActionRequest](#com-sweetloveinyourheart-kittens-clients-ExecuteActionRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 
