@@ -6,12 +6,10 @@ import (
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go"
-	gameProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
@@ -52,24 +50,4 @@ func (a *actions) GetGameMetaData(ctx context.Context, request *connect.Request[
 			Players: players,
 		},
 	}), nil
-}
-
-func (a *actions) PlayCards(ctx context.Context, request *connect.Request[proto.PlayCardsRequest]) (response *connect.Response[emptypb.Empty], err error) {
-	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
-	if !ok {
-		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
-	}
-
-	getUserRequest := gameProto.PlayCardsRequest{
-		GameId:  request.Msg.GetGameId(),
-		UserId:  userID.String(),
-		CardIds: request.Msg.GetCardIds(),
-	}
-
-	_, err = a.gameEngineServerClient.PlayCards(ctx, connect.NewRequest(&getUserRequest))
-	if err != nil {
-		return nil, grpc.InvalidArgumentError(errors.Wrap(err, "failed to play cards"))
-	}
-
-	return connect.NewResponse(&emptypb.Empty{}), nil
 }

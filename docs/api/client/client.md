@@ -19,6 +19,7 @@
     - [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse)
     - [GetLobbyReply](#com-sweetloveinyourheart-kittens-clients-GetLobbyReply)
     - [GetLobbyRequest](#com-sweetloveinyourheart-kittens-clients-GetLobbyRequest)
+    - [GiveCardRequest](#com-sweetloveinyourheart-kittens-clients-GiveCardRequest)
     - [GuestLoginRequest](#com-sweetloveinyourheart-kittens-clients-GuestLoginRequest)
     - [GuestLoginResponse](#com-sweetloveinyourheart-kittens-clients-GuestLoginResponse)
     - [JoinLobbyRequest](#com-sweetloveinyourheart-kittens-clients-JoinLobbyRequest)
@@ -26,11 +27,15 @@
     - [LeaveLobbyRequest](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyRequest)
     - [LeaveLobbyResponse](#com-sweetloveinyourheart-kittens-clients-LeaveLobbyResponse)
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
+    - [PeekCardsRequest](#com-sweetloveinyourheart-kittens-clients-PeekCardsRequest)
+    - [PeekCardsResponse](#com-sweetloveinyourheart-kittens-clients-PeekCardsResponse)
     - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest)
     - [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest)
     - [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse)
     - [RetrieveCardsDataResponse](#com-sweetloveinyourheart-kittens-clients-RetrieveCardsDataResponse)
+    - [SelectAffectedPlayerRequest](#com-sweetloveinyourheart-kittens-clients-SelectAffectedPlayerRequest)
     - [StartMatchRequest](#com-sweetloveinyourheart-kittens-clients-StartMatchRequest)
+    - [StealCardRequest](#com-sweetloveinyourheart-kittens-clients-StealCardRequest)
     - [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply)
     - [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest)
     - [User](#com-sweetloveinyourheart-kittens-clients-User)
@@ -292,6 +297,23 @@ Message for creating a new guest user
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-GiveCardRequest"></a>
+
+### GiveCardRequest
+Message for giving a card
+This message is used to give a card to another player
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| card_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-GuestLoginRequest"></a>
 
 ### GuestLoginRequest
@@ -403,10 +425,43 @@ Message for leave a lobby
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-PeekCardsRequest"></a>
+
+### PeekCardsRequest
+Message for peeking cards
+This message is used to peek at the top card of the deck
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| desk_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-PeekCardsResponse"></a>
+
+### PeekCardsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| card_ids | [string](#string) | repeated |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-PlayCardsRequest"></a>
 
 ### PlayCardsRequest
-========== Game Play ===========
+Message for playing cards
+This message is used to play cards in the game
 
 
 | Field | Type | Label | Description |
@@ -464,6 +519,23 @@ Message for players profile
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-SelectAffectedPlayerRequest"></a>
+
+### SelectAffectedPlayerRequest
+Message for selecting affected players
+This message is used to select affected players in the game
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| player_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-StartMatchRequest"></a>
 
 ### StartMatchRequest
@@ -473,6 +545,23 @@ Message for start a match
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | lobby_id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-StealCardRequest"></a>
+
+### StealCardRequest
+Message for stealing a card
+This message is used to steal a card from another player
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| card_id | [string](#string) | optional |  |
 
 
 
@@ -585,6 +674,10 @@ Message for start a match
 | GetGameMetaData | [GetGameMetaDataRequest](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataRequest) | [GetGameMetaDataResponse](#com-sweetloveinyourheart-kittens-clients-GetGameMetaDataResponse) |  |
 | StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 | PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| PeekCards | [PeekCardsRequest](#com-sweetloveinyourheart-kittens-clients-PeekCardsRequest) | [PeekCardsResponse](#com-sweetloveinyourheart-kittens-clients-PeekCardsResponse) |  |
+| SelectAffectedPlayer | [SelectAffectedPlayerRequest](#com-sweetloveinyourheart-kittens-clients-SelectAffectedPlayerRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| StealCard | [StealCardRequest](#com-sweetloveinyourheart-kittens-clients-StealCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| GiveCard | [GiveCardRequest](#com-sweetloveinyourheart-kittens-clients-GiveCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

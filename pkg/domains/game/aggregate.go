@@ -155,15 +155,20 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameNotFound
 		}
 
-		if a.playerTurn != typed.PlayerID {
-			return ErrPlayerNotInTheirTurn
-		}
-
 		if a.currentGamePhase != GAME_PHASE_TURN_START {
 			return ErrGameNotInPlayPhase
 		}
 
 	case *ExecuteAction:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
+			return ErrGameNotInActionPhase
+		}
+
+	case *SelectAffectedPlayer:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
@@ -218,19 +223,23 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 
 	case *CreateAction:
 		a.AppendEvent(EventTypeActionCreated, &ActionCreated{
+			GameID: cmd.GameID,
+			Effect: cmd.Effect,
+		}, TimeNow())
+
+	case *SelectAffectedPlayer:
+		a.AppendEvent(EventTypeAffectedPlayerSelected, &AffectedPlayerSelected{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
-			Effect:   cmd.Effect,
 		}, TimeNow())
 
 	case *ExecuteAction:
 		a.AppendEvent(EventTypeActionExecuted, &ActionExecuted{
-			GameID:         cmd.GameID,
-			PlayerID:       cmd.PlayerID,
-			Effect:         cmd.Effect,
-			TargetPlayerID: cmd.TargetPlayerID,
-			TargetCardID:   cmd.TargetCardID,
+			GameID: cmd.GameID,
+			Effect: cmd.Effect,
+			CardID: cmd.CardID,
 		}, TimeNow())
+
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -286,6 +295,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 	case EventTypeCardsPlayed:
 	case EventTypeActionCreated:
 		a.currentGamePhase = GAME_PHASE_ACTION_PHASE // action phase starts after action is created
+	case EventTypeAffectedPlayerSelected:
 	case EventTypeActionExecuted:
 		a.currentGamePhase = GAME_PHASE_TURN_START // player turn starts after action is executed
 	}

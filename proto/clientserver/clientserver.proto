@@ -25,6 +25,10 @@ service ClientServer {
     rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
 
     rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
+    rpc PeekCards(PeekCardsRequest) returns (PeekCardsResponse);
+    rpc SelectAffectedPlayer(SelectAffectedPlayerRequest) returns (google.protobuf.Empty);
+    rpc StealCard(StealCardRequest) returns (google.protobuf.Empty);
+    rpc GiveCard(GiveCardRequest) returns (google.protobuf.Empty);
 }
 
 // ========= Data Provider =============
@@ -193,7 +197,42 @@ message GetGameMetaDataResponse {
 }
 
 // ========== Game Play ===========
+
+// Message for playing cards
+// This message is used to play cards in the game
 message PlayCardsRequest {
     string game_id = 1;
     repeated string card_ids = 2;
+}
+
+// Message for peeking cards
+// This message is used to peek at the top card of the deck
+message PeekCardsRequest {
+    string game_id = 1;
+    string desk_id = 2;
+}
+
+message PeekCardsResponse {
+    repeated string card_ids = 1;
+}
+
+// Message for selecting affected players
+// This message is used to select affected players in the game
+message SelectAffectedPlayerRequest {
+    string game_id = 1;
+    string player_id = 2;
+}
+
+// Message for stealing a card
+// This message is used to steal a card from another player
+message StealCardRequest {
+    string game_id = 1;
+    optional string card_id = 2;
+}
+
+// Message for giving a card
+// This message is used to give a card to another player
+message GiveCardRequest {
+    string game_id = 1;
+    string card_id = 2;
 }

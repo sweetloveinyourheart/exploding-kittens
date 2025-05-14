@@ -23,8 +23,9 @@ type Game struct {
 	Desk            uuid.UUID               `json:"desk"`
 	Players         []Player                `json:"players"`
 	PlayerHands     map[uuid.UUID]uuid.UUID `json:"player_hands"`
-	PlayerTurn      uuid.UUID               `json:"player_turn"`
-	ExecutingAction string                  `json:"executing_action"`
+	PlayerTurn      uuid.UUID               `json:"player_turn"`      // The player whose turn it is
+	ExecutingAction string                  `json:"executing_action"` // The action that is currently being executed
+	AffectedPlayer  uuid.UUID               `json:"affected_player"`  // The player who is affected by the action
 	CreatedAt       time.Time               `json:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at"`
 }
@@ -61,6 +62,10 @@ func (d *Game) GetPlayerTurn() uuid.UUID {
 
 func (d *Game) GetExecutingAction() string {
 	return d.ExecutingAction
+}
+
+func (d *Game) GetAffectedPlayer() uuid.UUID {
+	return d.AffectedPlayer
 }
 
 func (d *Game) GetCreatedAt() time.Time {

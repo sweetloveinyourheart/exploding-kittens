@@ -21,6 +21,7 @@ type AllEventsProjector interface {
 	HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Game) (*Game, error)
 	HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error)
 	HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error)
+	HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
@@ -32,6 +33,7 @@ type eventsProjector interface {
 	handleCardsPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleActionCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleActionExecuted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleAffectedPlayerSelected(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -155,6 +157,8 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleTurnReversed
 	case EventTypeActionCreated:
 		eventHandler = p.handleActionCreated
+	case EventTypeAffectedPlayerSelected:
+		eventHandler = p.handleAffectedPlayerSelected
 	case EventTypeActionExecuted:
 		eventHandler = p.handleActionExecuted
 	case EventTypeCardsPlayed:
@@ -321,6 +325,28 @@ func (p *GameProjector) handleActionCreated(ctx context.Context, event common.Ev
 		HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated) error
 	}); ok {
 		return entity, handler.HandleActionCreated(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleAffectedPlayerSelected handles affected player selected events.
+func (p *GameProjector) handleAffectedPlayerSelected(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*AffectedPlayerSelected)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleAffectedPlayerSelected"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleAffectedPlayerSelected(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected) error
+	}); ok {
+		return entity, handler.HandleAffectedPlayerSelected(ctx, event, data)
 	}
 
 	return entity, nil

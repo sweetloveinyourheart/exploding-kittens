@@ -20,6 +20,7 @@ func init() {
 	eventing.RegisterCommand[PlayCards, *PlayCards]()
 	eventing.RegisterCommand[CreateAction, *CreateAction]()
 	eventing.RegisterCommand[ExecuteAction, *ExecuteAction]()
+	eventing.RegisterCommand[SelectAffectedPlayer, *SelectAffectedPlayer]()
 }
 
 const (
@@ -29,9 +30,10 @@ const (
 	FinishTurnCommand     = common.CommandType("game:turn:finish")
 	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
 
-	PlayCardsCommand     = common.CommandType("game:cards:play")
-	CreateActionCommand  = common.CommandType("game:action:create")
-	ExecuteActionCommand = common.CommandType("game:action:execute")
+	PlayCardsCommand            = common.CommandType("game:cards:play")
+	CreateActionCommand         = common.CommandType("game:action:create")
+	SelectAffectedPlayerCommand = common.CommandType("game:action:select-affected-player")
+	ExecuteActionCommand        = common.CommandType("game:action:execute")
 )
 
 var AllCommands = []common.CommandType{
@@ -43,6 +45,7 @@ var AllCommands = []common.CommandType{
 
 	PlayCardsCommand,
 	CreateActionCommand,
+	SelectAffectedPlayerCommand,
 	ExecuteActionCommand,
 }
 
@@ -53,6 +56,7 @@ var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&ReverseTurn{})
 var _ = eventing.Command(&PlayCards{})
 var _ = eventing.Command(&CreateAction{})
+var _ = eventing.Command(&SelectAffectedPlayer{})
 var _ = eventing.Command(&ExecuteAction{})
 
 type CreateGame struct {
@@ -194,9 +198,8 @@ func (c *PlayCards) Validate() error {
 }
 
 type CreateAction struct {
-	GameID   uuid.UUID `json:"game_id"`
-	PlayerID uuid.UUID `json:"player_id"`
-	Effect   string    `json:"effect"`
+	GameID uuid.UUID `json:"game_id"`
+	Effect string    `json:"effect"`
 }
 
 func (c *CreateAction) AggregateType() common.AggregateType { return AggregateType }
@@ -208,10 +211,6 @@ func (c *CreateAction) CommandType() common.CommandType { return CreateActionCom
 func (c *CreateAction) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
-	}
-
-	if c.PlayerID == uuid.Nil {
-		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	if c.Effect == "" {
@@ -226,12 +225,33 @@ func (c *CreateAction) Validate() error {
 	return nil
 }
 
+type SelectAffectedPlayer struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *SelectAffectedPlayer) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *SelectAffectedPlayer) AggregateID() string { return c.GameID.String() }
+
+func (c *SelectAffectedPlayer) CommandType() common.CommandType { return SelectAffectedPlayerCommand }
+
+func (c *SelectAffectedPlayer) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
 type ExecuteAction struct {
-	GameID         uuid.UUID `json:"game_id"`
-	PlayerID       uuid.UUID `json:"player_id"`
-	Effect         string    `json:"effect"`
-	TargetPlayerID uuid.UUID `json:"target_player_id"`
-	TargetCardID   uuid.UUID `json:"target_card_id"`
+	GameID uuid.UUID `json:"game_id"`
+	Effect string    `json:"effect"`
+	CardID uuid.UUID `json:"card_id"`
 }
 
 func (c *ExecuteAction) AggregateType() common.AggregateType { return AggregateType }
@@ -243,10 +263,6 @@ func (c *ExecuteAction) CommandType() common.CommandType { return ExecuteActionC
 func (c *ExecuteAction) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
-	}
-
-	if c.PlayerID == uuid.Nil {
-		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	if c.Effect == "" {

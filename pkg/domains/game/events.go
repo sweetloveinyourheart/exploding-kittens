@@ -23,6 +23,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[CardsPlayed](EventTypeCardsPlayed, args...)
 	eventing.RegisterEventData[ActionCreated](EventTypeActionCreated, args...)
 	eventing.RegisterEventData[ActionExecuted](EventTypeActionExecuted, args...)
+	eventing.RegisterEventData[AffectedPlayerSelected](EventTypeAffectedPlayerSelected, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -49,6 +50,9 @@ var EventTypeActionCreated = (&ActionCreated{}).EventType()
 // EventTypeActionExecuted is the event type for when an action is executed
 var EventTypeActionExecuted = (&ActionExecuted{}).EventType()
 
+// EventTypeAffectedPlayerSelected is the event type for when an affected player is selected
+var EventTypeAffectedPlayerSelected = (&AffectedPlayerSelected{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
@@ -58,6 +62,7 @@ var AllEventTypes = []common.EventType{
 	EventTypeCardsPlayed,
 	EventTypeActionCreated,
 	EventTypeActionExecuted,
+	EventTypeAffectedPlayerSelected,
 }
 
 type GameCreated struct {
@@ -133,35 +138,37 @@ func (p *CardsPlayed) GetPlayerID() uuid.UUID { return p.PlayerID }
 func (p *CardsPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type ActionCreated struct {
-	GameID   uuid.UUID `json:"game_id"`
-	PlayerID uuid.UUID `json:"player_id"`
-	Effect   string    `json:"effect"`
+	GameID uuid.UUID `json:"game_id"`
+	Effect string    `json:"effect"`
 }
 
 func (p *ActionCreated) EventType() common.EventType { return "GAME_ACTION_CREATED" }
 
 func (p *ActionCreated) GetGameID() uuid.UUID { return p.GameID }
 
-func (p *ActionCreated) GetPlayerID() uuid.UUID { return p.PlayerID }
-
 func (p *ActionCreated) GetEffect() string { return p.Effect }
 
 type ActionExecuted struct {
-	GameID         uuid.UUID `json:"game_id"`
-	PlayerID       uuid.UUID `json:"player_id"`
-	Effect         string    `json:"effect"`
-	TargetPlayerID uuid.UUID `json:"target_player_id"`
-	TargetCardID   uuid.UUID `json:"target_card_id"`
+	GameID uuid.UUID `json:"game_id"`
+	Effect string    `json:"effect"`
+	CardID uuid.UUID `json:"card_id"`
 }
 
 func (p *ActionExecuted) EventType() common.EventType { return "GAME_ACTION_EXECUTED" }
 
 func (p *ActionExecuted) GetGameID() uuid.UUID { return p.GameID }
 
-func (p *ActionExecuted) GetPlayerID() uuid.UUID { return p.PlayerID }
-
 func (p *ActionExecuted) GetEffect() string { return p.Effect }
 
-func (p *ActionExecuted) GetTargetPlayerID() uuid.UUID { return p.TargetPlayerID }
+func (p *ActionExecuted) GetCardID() uuid.UUID { return p.CardID }
 
-func (p *ActionExecuted) GetTargetCardID() uuid.UUID { return p.TargetCardID }
+type AffectedPlayerSelected struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *AffectedPlayerSelected) EventType() common.EventType { return "GAME_AFFECTED_PLAYER_SELECTED" }
+
+func (p *AffectedPlayerSelected) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *AffectedPlayerSelected) GetPlayerID() uuid.UUID { return p.PlayerID }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"slices"
 	"strings"
 	"time"
 
@@ -40,18 +42,24 @@ type HandStateProcessor struct {
 
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus   *nats.Conn
+
+	handCardIDs map[uuid.UUID][]uuid.UUID
 }
 
 func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 	dsp := &HandStateProcessor{
-		ctx:   ctx,
-		queue: make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
-		bus:   do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		ctx:         ctx,
+		queue:       make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		bus:         do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		handCardIDs: make(map[uuid.UUID][]uuid.UUID),
 	}
 
 	dsp.HandProjector = hand.NewHandProjection(dsp)
 
 	handMatcher := eventing.NewMatchEventSubject(hand.SubjectFactory, hand.AggregateType,
+		hand.EventTypeHandCreated,
+		hand.EventTypeCardsPlayed,
+		hand.EventTypeCardsReceived,
 		hand.EventTypeCardsGiven,
 	)
 
@@ -177,7 +185,21 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 	return dsp, nil
 }
 
+func (w *HandStateProcessor) HandleHandCreated(ctx context.Context, event common.Event, data *hand.HandCreated) error {
+	w.handCardIDs[data.GetHandID()] = data.GetCardIDs()
+
+	return nil
+}
+
 func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
+	handCardIDs := w.handCardIDs[data.GetHandID()]
+
+	for _, cardID := range data.GetCardIDs() {
+		if slices.Contains(handCardIDs, cardID) {
+			w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, slices.Index(handCardIDs, cardID), 1)
+		}
+	}
+
 	// Emit hand state update event
 	err := w.emitHandStateUpdateEvent(data.GetHandID())
 	if err != nil {
@@ -189,6 +211,8 @@ func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.
 }
 
 func (w *HandStateProcessor) HandleCardsReceived(ctx context.Context, event common.Event, data *hand.CardsReceived) error {
+	w.handCardIDs[data.GetHandID()] = append(w.handCardIDs[data.GetHandID()], data.GetCardIDs()...)
+
 	// Emit hand state update event
 	err := w.emitHandStateUpdateEvent(data.GetHandID())
 	if err != nil {
@@ -200,11 +224,32 @@ func (w *HandStateProcessor) HandleCardsReceived(ctx context.Context, event comm
 }
 
 func (w *HandStateProcessor) HandleCardsGiven(ctx context.Context, event common.Event, data *hand.CardsGiven) error {
+	cardIDs := data.GetCardIDs()
+	handCardIDs := w.handCardIDs[data.GetHandID()]
+
+	if len(cardIDs) == 0 {
+		randomIndex := rand.Intn(len(handCardIDs))
+		randomCardID := handCardIDs[randomIndex]
+
+		w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, randomIndex, randomIndex+1)
+		cardIDs = append(cardIDs, randomCardID)
+
+		log.Global().InfoContext(ctx, "random card selected", zap.String("cardID", randomCardID.String()))
+	} else {
+		for _, cardID := range cardIDs {
+			if slices.Contains(handCardIDs, cardID) {
+				index := slices.Index(handCardIDs, cardID)
+				w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, index, index+1)
+			}
+		}
+	}
+
 	if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
 		HandID:  data.ToHandID,
-		CardIDs: data.GetCardIDs(),
+		CardIDs: cardIDs,
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
+
 		return err
 	}
 

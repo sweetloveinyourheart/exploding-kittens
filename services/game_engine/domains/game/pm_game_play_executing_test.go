@@ -101,12 +101,30 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Favor() {
 		return isGameStateValid
 	}, 5*time.Second, 10*time.Millisecond)
 
+	err = commandBus.HandleCommand(ctx, &gameDomain.SelectAffectedPlayer{
+		GameID:   gameID,
+		PlayerID: player02,
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		runtime.Gosched()
+
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+
+		isGameStateValid := gameStateErr == nil &&
+			gameState.GetPlayerTurn() == player01 &&
+			gameState.GetGamePhase() == gameDomain.GAME_PHASE_ACTION_PHASE &&
+			gameState.GetExecutingAction() == card_effects.StealCard &&
+			gameState.GetAffectedPlayer() == player02
+
+		return isGameStateValid
+	}, 5*time.Second, 10*time.Millisecond)
+
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
-		GameID:         gameID,
-		PlayerID:       player01,
-		Effect:         card_effects.StealCard,
-		TargetPlayerID: player02,
-		TargetCardID:   uuid.Must(uuid.FromString(cardsCodeMap[cards.Favor].GetCardId())),
+		GameID: gameID,
+		Effect: card_effects.StealCard,
+		CardID: uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
 	})
 	gs.NoError(err)
 
@@ -215,12 +233,29 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo2_HairyPotatoCat()
 		return isGameStateValid
 	}, 5*time.Second, 10*time.Millisecond)
 
+	err = commandBus.HandleCommand(ctx, &gameDomain.SelectAffectedPlayer{
+		GameID:   gameID,
+		PlayerID: player02,
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		runtime.Gosched()
+
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+
+		isGameStateValid := gameStateErr == nil &&
+			gameState.GetPlayerTurn() == player01 &&
+			gameState.GetGamePhase() == gameDomain.GAME_PHASE_ACTION_PHASE &&
+			gameState.GetExecutingAction() == card_effects.StealRandomCard &&
+			gameState.GetAffectedPlayer() == player02
+
+		return isGameStateValid
+	}, 5*time.Second, 10*time.Millisecond)
+
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
-		GameID:         gameID,
-		PlayerID:       player01,
-		Effect:         card_effects.StealRandomCard,
-		TargetPlayerID: player02,
-		TargetCardID:   uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
+		GameID: gameID,
+		Effect: card_effects.StealRandomCard,
 	})
 	gs.NoError(err)
 
@@ -331,12 +366,30 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo3_BreadCat() {
 		return isGameStateValid
 	}, 5*time.Second, 10*time.Millisecond)
 
+	err = commandBus.HandleCommand(ctx, &gameDomain.SelectAffectedPlayer{
+		GameID:   gameID,
+		PlayerID: player02,
+	})
+	gs.NoError(err)
+
+	gs.Eventually(func() bool {
+		runtime.Gosched()
+
+		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
+
+		isGameStateValid := gameStateErr == nil &&
+			gameState.GetPlayerTurn() == player01 &&
+			gameState.GetGamePhase() == gameDomain.GAME_PHASE_ACTION_PHASE &&
+			gameState.GetExecutingAction() == card_effects.StealNamedCard &&
+			gameState.GetAffectedPlayer() == player02
+
+		return isGameStateValid
+	}, 5*time.Second, 10*time.Millisecond)
+
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
-		GameID:         gameID,
-		PlayerID:       player01,
-		Effect:         card_effects.StealNamedCard,
-		TargetPlayerID: player02,
-		TargetCardID:   uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
+		GameID: gameID,
+		Effect: card_effects.StealNamedCard,
+		CardID: uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
 	})
 	gs.NoError(err)
 

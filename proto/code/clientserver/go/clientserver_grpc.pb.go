@@ -20,20 +20,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ClientServer_RetrieveCardsData_FullMethodName  = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
-	ClientServer_CreateNewGuestUser_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
-	ClientServer_GuestLogin_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
-	ClientServer_GetUserProfile_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
-	ClientServer_GetPlayersProfile_FullMethodName  = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
-	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
-	ClientServer_GetLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
-	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
-	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
-	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
-	ClientServer_StartMatch_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
-	ClientServer_GetGameMetaData_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
-	ClientServer_StreamGame_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
-	ClientServer_PlayCards_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	ClientServer_RetrieveCardsData_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
+	ClientServer_CreateNewGuestUser_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
+	ClientServer_GuestLogin_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	ClientServer_GetUserProfile_FullMethodName       = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
+	ClientServer_GetPlayersProfile_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
+	ClientServer_CreateLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	ClientServer_GetLobby_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
+	ClientServer_StreamLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
+	ClientServer_JoinLobby_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
+	ClientServer_LeaveLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	ClientServer_StartMatch_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
+	ClientServer_GetGameMetaData_FullMethodName      = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
+	ClientServer_StreamGame_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	ClientServer_PlayCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	ClientServer_PeekCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
+	ClientServer_SelectAffectedPlayer_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
+	ClientServer_StealCard_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
+	ClientServer_GiveCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -54,6 +58,10 @@ type ClientServerClient interface {
 	GetGameMetaData(ctx context.Context, in *GetGameMetaDataRequest, opts ...grpc.CallOption) (*GetGameMetaDataResponse, error)
 	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
 	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error)
+	SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type clientServerClient struct {
@@ -222,6 +230,46 @@ func (c *clientServerClient) PlayCards(ctx context.Context, in *PlayCardsRequest
 	return out, nil
 }
 
+func (c *clientServerClient) PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PeekCardsResponse)
+	err := c.cc.Invoke(ctx, ClientServer_PeekCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_SelectAffectedPlayer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_StealCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_GiveCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -240,6 +288,10 @@ type ClientServerServer interface {
 	GetGameMetaData(context.Context, *GetGameMetaDataRequest) (*GetGameMetaDataResponse, error)
 	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
 	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
+	PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error)
+	SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error)
+	StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error)
+	GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -290,6 +342,18 @@ func (UnimplementedClientServerServer) StreamGame(*StreamGameRequest, grpc.Serve
 }
 func (UnimplementedClientServerServer) PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PlayCards not implemented")
+}
+func (UnimplementedClientServerServer) PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PeekCards not implemented")
+}
+func (UnimplementedClientServerServer) SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectAffectedPlayer not implemented")
+}
+func (UnimplementedClientServerServer) StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StealCard not implemented")
+}
+func (UnimplementedClientServerServer) GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GiveCard not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -549,6 +613,78 @@ func _ClientServer_PlayCards_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_PeekCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PeekCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PeekCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PeekCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PeekCards(ctx, req.(*PeekCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_SelectAffectedPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelectAffectedPlayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).SelectAffectedPlayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_SelectAffectedPlayer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).SelectAffectedPlayer(ctx, req.(*SelectAffectedPlayerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_StealCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StealCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).StealCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_StealCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).StealCard(ctx, req.(*StealCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_GiveCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GiveCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GiveCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GiveCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GiveCard(ctx, req.(*GiveCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -603,6 +739,22 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PlayCards",
 			Handler:    _ClientServer_PlayCards_Handler,
+		},
+		{
+			MethodName: "PeekCards",
+			Handler:    _ClientServer_PeekCards_Handler,
+		},
+		{
+			MethodName: "SelectAffectedPlayer",
+			Handler:    _ClientServer_SelectAffectedPlayer_Handler,
+		},
+		{
+			MethodName: "StealCard",
+			Handler:    _ClientServer_StealCard_Handler,
+		},
+		{
+			MethodName: "GiveCard",
+			Handler:    _ClientServer_GiveCard_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

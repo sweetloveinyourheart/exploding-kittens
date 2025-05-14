@@ -117,10 +117,6 @@ func (c *ReceiveCards) Validate() error {
 		return &common.CommandFieldError{Field: "hand_id", Details: "empty field"}
 	}
 
-	if len(c.CardIDs) == 0 {
-		return &common.CommandFieldError{Field: "cards", Details: "empty list"}
-	}
-
 	return nil
 }
 
@@ -143,10 +139,6 @@ func (c *GiveCards) Validate() error {
 
 	if c.ToHandID == uuid.Nil {
 		return &common.CommandFieldError{Field: "to_hand_id", Details: "empty field"}
-	}
-
-	if len(c.CardIDs) == 0 {
-		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
 	}
 
 	return nil

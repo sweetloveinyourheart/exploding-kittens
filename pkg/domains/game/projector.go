@@ -88,9 +88,17 @@ func (p *Projector) HandleActionCreated(ctx context.Context, event common.Event,
 	return entity, nil
 }
 
+func (p *Projector) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_ACTION_PHASE
+	entity.AffectedPlayer = data.GetPlayerID()
+
+	return entity, nil
+}
+
 func (p *Projector) HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error) {
 	entity.GamePhase = GAME_PHASE_TURN_START
 	entity.ExecutingAction = ""
+	entity.AffectedPlayer = uuid.Nil
 
 	return entity, nil
 }
