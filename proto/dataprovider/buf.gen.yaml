@@ -1,0 +1,19 @@
+version: v1
+plugins:
+  - name: go
+    out: code/dataprovider/go
+    opt:
+      - paths=source_relative
+  - name: connect-go
+    out: code/dataprovider/go
+    opt:
+      - paths=source_relative
+  - name: go-grpc
+    out: code/dataprovider/go
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+  - name: doc
+    out: ../docs/api/dataprovider
+    opt:
+      - markdown,dataprovider.md

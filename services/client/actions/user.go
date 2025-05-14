@@ -15,7 +15,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
 
-func (a *actions) GetUserProfile(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.PlayerProfileResponse], err error) {
+func (a *actions) GetUserProfile(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.UserProfileResponse], err error) {
 	playerID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
 	if !ok {
 		// This should never happen as this endpoint should be authenticated
@@ -28,7 +28,7 @@ func (a *actions) GetUserProfile(ctx context.Context, request *connect.Request[e
 		return nil, grpc.NotFoundError(err)
 	}
 
-	return connect.NewResponse(&proto.PlayerProfileResponse{
+	return connect.NewResponse(&proto.UserProfileResponse{
 		User: &proto.User{
 			UserId:   profile.Msg.GetUser().GetUserId(),
 			Username: profile.Msg.GetUser().GetUsername(),
@@ -38,25 +38,31 @@ func (a *actions) GetUserProfile(ctx context.Context, request *connect.Request[e
 	}), nil
 }
 
-func (a *actions) GetPlayerProfile(ctx context.Context, request *connect.Request[proto.PlayerProfileRequest]) (response *connect.Response[proto.PlayerProfileResponse], err error) {
+func (a *actions) GetPlayersProfile(ctx context.Context, request *connect.Request[proto.PlayersProfileRequest]) (response *connect.Response[proto.PlayersProfileResponse], err error) {
 	_, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
 	if !ok {
 		// This should never happen as this endpoint should be authenticated
 		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
 	}
 
-	getUserRequest := userProto.GetUserRequest{UserId: request.Msg.GetUserId()}
-	profile, err := a.userServerClient.GetUser(ctx, connect.NewRequest(&getUserRequest))
-	if err != nil {
-		return nil, grpc.NotFoundError(err)
-	}
+	profiles := make([]*proto.User, 0)
+	for _, userID := range request.Msg.GetUserIds() {
+		getUserRequest := userProto.GetUserRequest{UserId: userID}
+		profile, err := a.userServerClient.GetUser(ctx, connect.NewRequest(&getUserRequest))
+		if err != nil {
+			return nil, grpc.NotFoundError(err)
+		}
 
-	return connect.NewResponse(&proto.PlayerProfileResponse{
-		User: &proto.User{
+		user := &proto.User{
 			UserId:   profile.Msg.GetUser().GetUserId(),
 			Username: profile.Msg.GetUser().GetUsername(),
 			FullName: profile.Msg.GetUser().GetFullName(),
 			Status:   profile.Msg.GetUser().GetStatus(),
-		},
+		}
+		profiles = append(profiles, user)
+	}
+
+	return connect.NewResponse(&proto.PlayersProfileResponse{
+		Users: profiles,
 	}), nil
 }

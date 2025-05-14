@@ -20,28 +20,48 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ClientServer_CreateNewGuestUser_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
-	ClientServer_GuestLogin_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
-	ClientServer_GetUserProfile_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
-	ClientServer_GetPlayerProfile_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
-	ClientServer_CreateLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
-	ClientServer_StreamLobby_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
-	ClientServer_JoinLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
-	ClientServer_LeaveLobby_FullMethodName         = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	ClientServer_RetrieveCardsData_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
+	ClientServer_CreateNewGuestUser_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
+	ClientServer_GuestLogin_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	ClientServer_GetUserProfile_FullMethodName       = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
+	ClientServer_GetPlayersProfile_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
+	ClientServer_CreateLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	ClientServer_GetLobby_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
+	ClientServer_StreamLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
+	ClientServer_JoinLobby_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
+	ClientServer_LeaveLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	ClientServer_StartMatch_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
+	ClientServer_GetGameMetaData_FullMethodName      = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
+	ClientServer_StreamGame_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	ClientServer_PlayCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	ClientServer_PeekCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
+	ClientServer_SelectAffectedPlayer_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
+	ClientServer_StealCard_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
+	ClientServer_GiveCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
 )
 
 // ClientServerClient is the client API for ClientServer service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientServerClient interface {
+	RetrieveCardsData(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RetrieveCardsDataResponse, error)
 	CreateNewGuestUser(ctx context.Context, in *CreateNewGuestUserRequest, opts ...grpc.CallOption) (*CreateNewGuestUserResponse, error)
 	GuestLogin(ctx context.Context, in *GuestLoginRequest, opts ...grpc.CallOption) (*GuestLoginResponse, error)
-	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
-	GetPlayerProfile(ctx context.Context, in *PlayerProfileRequest, opts ...grpc.CallOption) (*PlayerProfileResponse, error)
+	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserProfileResponse, error)
+	GetPlayersProfile(ctx context.Context, in *PlayersProfileRequest, opts ...grpc.CallOption) (*PlayersProfileResponse, error)
 	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
+	GetLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (*GetLobbyReply, error)
 	StreamLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetLobbyReply], error)
 	JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
+	StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetGameMetaData(ctx context.Context, in *GetGameMetaDataRequest, opts ...grpc.CallOption) (*GetGameMetaDataResponse, error)
+	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
+	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error)
+	SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type clientServerClient struct {
@@ -50,6 +70,16 @@ type clientServerClient struct {
 
 func NewClientServerClient(cc grpc.ClientConnInterface) ClientServerClient {
 	return &clientServerClient{cc}
+}
+
+func (c *clientServerClient) RetrieveCardsData(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RetrieveCardsDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RetrieveCardsDataResponse)
+	err := c.cc.Invoke(ctx, ClientServer_RetrieveCardsData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *clientServerClient) CreateNewGuestUser(ctx context.Context, in *CreateNewGuestUserRequest, opts ...grpc.CallOption) (*CreateNewGuestUserResponse, error) {
@@ -72,9 +102,9 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, in *GuestLoginReque
 	return out, nil
 }
 
-func (c *clientServerClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
+func (c *clientServerClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PlayerProfileResponse)
+	out := new(UserProfileResponse)
 	err := c.cc.Invoke(ctx, ClientServer_GetUserProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -82,10 +112,10 @@ func (c *clientServerClient) GetUserProfile(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *clientServerClient) GetPlayerProfile(ctx context.Context, in *PlayerProfileRequest, opts ...grpc.CallOption) (*PlayerProfileResponse, error) {
+func (c *clientServerClient) GetPlayersProfile(ctx context.Context, in *PlayersProfileRequest, opts ...grpc.CallOption) (*PlayersProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PlayerProfileResponse)
-	err := c.cc.Invoke(ctx, ClientServer_GetPlayerProfile_FullMethodName, in, out, cOpts...)
+	out := new(PlayersProfileResponse)
+	err := c.cc.Invoke(ctx, ClientServer_GetPlayersProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +126,16 @@ func (c *clientServerClient) CreateLobby(ctx context.Context, in *CreateLobbyReq
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateLobbyResponse)
 	err := c.cc.Invoke(ctx, ClientServer_CreateLobby_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) GetLobby(ctx context.Context, in *GetLobbyRequest, opts ...grpc.CallOption) (*GetLobbyReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLobbyReply)
+	err := c.cc.Invoke(ctx, ClientServer_GetLobby_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,18 +181,117 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, in *LeaveLobbyReque
 	return out, nil
 }
 
+func (c *clientServerClient) StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_StartMatch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) GetGameMetaData(ctx context.Context, in *GetGameMetaDataRequest, opts ...grpc.CallOption) (*GetGameMetaDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetGameMetaDataResponse)
+	err := c.cc.Invoke(ctx, ClientServer_GetGameMetaData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ClientServer_ServiceDesc.Streams[1], ClientServer_StreamGame_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamGameRequest, StreamGameReply]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ClientServer_StreamGameClient = grpc.ServerStreamingClient[StreamGameReply]
+
+func (c *clientServerClient) PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_PlayCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PeekCardsResponse)
+	err := c.cc.Invoke(ctx, ClientServer_PeekCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_SelectAffectedPlayer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_StealCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_GiveCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
 type ClientServerServer interface {
+	RetrieveCardsData(context.Context, *emptypb.Empty) (*RetrieveCardsDataResponse, error)
 	CreateNewGuestUser(context.Context, *CreateNewGuestUserRequest) (*CreateNewGuestUserResponse, error)
 	GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error)
-	GetUserProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error)
-	GetPlayerProfile(context.Context, *PlayerProfileRequest) (*PlayerProfileResponse, error)
+	GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileResponse, error)
+	GetPlayersProfile(context.Context, *PlayersProfileRequest) (*PlayersProfileResponse, error)
 	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
+	GetLobby(context.Context, *GetLobbyRequest) (*GetLobbyReply, error)
 	StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error
 	JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
+	StartMatch(context.Context, *StartMatchRequest) (*emptypb.Empty, error)
+	GetGameMetaData(context.Context, *GetGameMetaDataRequest) (*GetGameMetaDataResponse, error)
+	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
+	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
+	PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error)
+	SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error)
+	StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error)
+	GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -162,20 +301,26 @@ type ClientServerServer interface {
 // pointer dereference when methods are called.
 type UnimplementedClientServerServer struct{}
 
+func (UnimplementedClientServerServer) RetrieveCardsData(context.Context, *emptypb.Empty) (*RetrieveCardsDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveCardsData not implemented")
+}
 func (UnimplementedClientServerServer) CreateNewGuestUser(context.Context, *CreateNewGuestUserRequest) (*CreateNewGuestUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewGuestUser not implemented")
 }
 func (UnimplementedClientServerServer) GuestLogin(context.Context, *GuestLoginRequest) (*GuestLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GuestLogin not implemented")
 }
-func (UnimplementedClientServerServer) GetUserProfile(context.Context, *emptypb.Empty) (*PlayerProfileResponse, error) {
+func (UnimplementedClientServerServer) GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
 }
-func (UnimplementedClientServerServer) GetPlayerProfile(context.Context, *PlayerProfileRequest) (*PlayerProfileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPlayerProfile not implemented")
+func (UnimplementedClientServerServer) GetPlayersProfile(context.Context, *PlayersProfileRequest) (*PlayersProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPlayersProfile not implemented")
 }
 func (UnimplementedClientServerServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateLobby not implemented")
+}
+func (UnimplementedClientServerServer) GetLobby(context.Context, *GetLobbyRequest) (*GetLobbyReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLobby not implemented")
 }
 func (UnimplementedClientServerServer) StreamLobby(*GetLobbyRequest, grpc.ServerStreamingServer[GetLobbyReply]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamLobby not implemented")
@@ -185,6 +330,30 @@ func (UnimplementedClientServerServer) JoinLobby(context.Context, *JoinLobbyRequ
 }
 func (UnimplementedClientServerServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveLobby not implemented")
+}
+func (UnimplementedClientServerServer) StartMatch(context.Context, *StartMatchRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMatch not implemented")
+}
+func (UnimplementedClientServerServer) GetGameMetaData(context.Context, *GetGameMetaDataRequest) (*GetGameMetaDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGameMetaData not implemented")
+}
+func (UnimplementedClientServerServer) StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamGame not implemented")
+}
+func (UnimplementedClientServerServer) PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlayCards not implemented")
+}
+func (UnimplementedClientServerServer) PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PeekCards not implemented")
+}
+func (UnimplementedClientServerServer) SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectAffectedPlayer not implemented")
+}
+func (UnimplementedClientServerServer) StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StealCard not implemented")
+}
+func (UnimplementedClientServerServer) GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GiveCard not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -204,6 +373,24 @@ func RegisterClientServerServer(s grpc.ServiceRegistrar, srv ClientServerServer)
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ClientServer_ServiceDesc, srv)
+}
+
+func _ClientServer_RetrieveCardsData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).RetrieveCardsData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_RetrieveCardsData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).RetrieveCardsData(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ClientServer_CreateNewGuestUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -260,20 +447,20 @@ func _ClientServer_GetUserProfile_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ClientServer_GetPlayerProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PlayerProfileRequest)
+func _ClientServer_GetPlayersProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayersProfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClientServerServer).GetPlayerProfile(ctx, in)
+		return srv.(ClientServerServer).GetPlayersProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ClientServer_GetPlayerProfile_FullMethodName,
+		FullMethod: ClientServer_GetPlayersProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServerServer).GetPlayerProfile(ctx, req.(*PlayerProfileRequest))
+		return srv.(ClientServerServer).GetPlayersProfile(ctx, req.(*PlayersProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -292,6 +479,24 @@ func _ClientServer_CreateLobby_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClientServerServer).CreateLobby(ctx, req.(*CreateLobbyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_GetLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLobbyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GetLobby(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GetLobby_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GetLobby(ctx, req.(*GetLobbyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -343,6 +548,143 @@ func _ClientServer_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_StartMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartMatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).StartMatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_StartMatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).StartMatch(ctx, req.(*StartMatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_GetGameMetaData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGameMetaDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GetGameMetaData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GetGameMetaData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GetGameMetaData(ctx, req.(*GetGameMetaDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_StreamGame_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamGameRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ClientServerServer).StreamGame(m, &grpc.GenericServerStream[StreamGameRequest, StreamGameReply]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ClientServer_StreamGameServer = grpc.ServerStreamingServer[StreamGameReply]
+
+func _ClientServer_PlayCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PlayCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PlayCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PlayCards(ctx, req.(*PlayCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_PeekCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PeekCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PeekCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PeekCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PeekCards(ctx, req.(*PeekCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_SelectAffectedPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelectAffectedPlayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).SelectAffectedPlayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_SelectAffectedPlayer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).SelectAffectedPlayer(ctx, req.(*SelectAffectedPlayerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_StealCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StealCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).StealCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_StealCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).StealCard(ctx, req.(*StealCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_GiveCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GiveCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).GiveCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_GiveCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).GiveCard(ctx, req.(*GiveCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -350,6 +692,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "com.sweetloveinyourheart.kittens.clients.ClientServer",
 	HandlerType: (*ClientServerServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RetrieveCardsData",
+			Handler:    _ClientServer_RetrieveCardsData_Handler,
+		},
 		{
 			MethodName: "CreateNewGuestUser",
 			Handler:    _ClientServer_CreateNewGuestUser_Handler,
@@ -363,12 +709,16 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ClientServer_GetUserProfile_Handler,
 		},
 		{
-			MethodName: "GetPlayerProfile",
-			Handler:    _ClientServer_GetPlayerProfile_Handler,
+			MethodName: "GetPlayersProfile",
+			Handler:    _ClientServer_GetPlayersProfile_Handler,
 		},
 		{
 			MethodName: "CreateLobby",
 			Handler:    _ClientServer_CreateLobby_Handler,
+		},
+		{
+			MethodName: "GetLobby",
+			Handler:    _ClientServer_GetLobby_Handler,
 		},
 		{
 			MethodName: "JoinLobby",
@@ -378,11 +728,44 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "LeaveLobby",
 			Handler:    _ClientServer_LeaveLobby_Handler,
 		},
+		{
+			MethodName: "StartMatch",
+			Handler:    _ClientServer_StartMatch_Handler,
+		},
+		{
+			MethodName: "GetGameMetaData",
+			Handler:    _ClientServer_GetGameMetaData_Handler,
+		},
+		{
+			MethodName: "PlayCards",
+			Handler:    _ClientServer_PlayCards_Handler,
+		},
+		{
+			MethodName: "PeekCards",
+			Handler:    _ClientServer_PeekCards_Handler,
+		},
+		{
+			MethodName: "SelectAffectedPlayer",
+			Handler:    _ClientServer_SelectAffectedPlayer_Handler,
+		},
+		{
+			MethodName: "StealCard",
+			Handler:    _ClientServer_StealCard_Handler,
+		},
+		{
+			MethodName: "GiveCard",
+			Handler:    _ClientServer_GiveCard_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StreamLobby",
 			Handler:       _ClientServer_StreamLobby_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamGame",
+			Handler:       _ClientServer_StreamGame_Handler,
 			ServerStreams: true,
 		},
 	},

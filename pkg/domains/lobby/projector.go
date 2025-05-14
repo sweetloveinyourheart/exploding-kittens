@@ -66,3 +66,9 @@ func (p *Projector) HandleLobbyLeft(ctx context.Context, event common.Event, dat
 
 	return entity, nil
 }
+
+func (p *Projector) HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *LobbyMatchCreated, entity *Lobby) (*Lobby, error) {
+	entity.MatchID = data.GetMatchID()
+
+	return entity, nil
+}

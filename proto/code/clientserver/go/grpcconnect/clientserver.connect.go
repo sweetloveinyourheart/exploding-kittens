@@ -34,6 +34,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ClientServerRetrieveCardsDataProcedure is the fully-qualified name of the ClientServer's
+	// RetrieveCardsData RPC.
+	ClientServerRetrieveCardsDataProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
 	// ClientServerCreateNewGuestUserProcedure is the fully-qualified name of the ClientServer's
 	// CreateNewGuestUser RPC.
 	ClientServerCreateNewGuestUserProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
@@ -42,12 +45,14 @@ const (
 	// ClientServerGetUserProfileProcedure is the fully-qualified name of the ClientServer's
 	// GetUserProfile RPC.
 	ClientServerGetUserProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
-	// ClientServerGetPlayerProfileProcedure is the fully-qualified name of the ClientServer's
-	// GetPlayerProfile RPC.
-	ClientServerGetPlayerProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayerProfile"
+	// ClientServerGetPlayersProfileProcedure is the fully-qualified name of the ClientServer's
+	// GetPlayersProfile RPC.
+	ClientServerGetPlayersProfileProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
 	// ClientServerCreateLobbyProcedure is the fully-qualified name of the ClientServer's CreateLobby
 	// RPC.
 	ClientServerCreateLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	// ClientServerGetLobbyProcedure is the fully-qualified name of the ClientServer's GetLobby RPC.
+	ClientServerGetLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
 	// ClientServerStreamLobbyProcedure is the fully-qualified name of the ClientServer's StreamLobby
 	// RPC.
 	ClientServerStreamLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
@@ -55,19 +60,47 @@ const (
 	ClientServerJoinLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
 	// ClientServerLeaveLobbyProcedure is the fully-qualified name of the ClientServer's LeaveLobby RPC.
 	ClientServerLeaveLobbyProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	// ClientServerStartMatchProcedure is the fully-qualified name of the ClientServer's StartMatch RPC.
+	ClientServerStartMatchProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
+	// ClientServerGetGameMetaDataProcedure is the fully-qualified name of the ClientServer's
+	// GetGameMetaData RPC.
+	ClientServerGetGameMetaDataProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
+	// ClientServerStreamGameProcedure is the fully-qualified name of the ClientServer's StreamGame RPC.
+	ClientServerStreamGameProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	// ClientServerPlayCardsProcedure is the fully-qualified name of the ClientServer's PlayCards RPC.
+	ClientServerPlayCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	// ClientServerPeekCardsProcedure is the fully-qualified name of the ClientServer's PeekCards RPC.
+	ClientServerPeekCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
+	// ClientServerSelectAffectedPlayerProcedure is the fully-qualified name of the ClientServer's
+	// SelectAffectedPlayer RPC.
+	ClientServerSelectAffectedPlayerProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
+	// ClientServerStealCardProcedure is the fully-qualified name of the ClientServer's StealCard RPC.
+	ClientServerStealCardProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
+	// ClientServerGiveCardProcedure is the fully-qualified name of the ClientServer's GiveCard RPC.
+	ClientServerGiveCardProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
 // service.
 type ClientServerClient interface {
+	RetrieveCardsData(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error)
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
-	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
-	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
+	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error)
+	GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
+	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.ServerStreamForClient[_go.GetLobbyReply], error)
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
+	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
+	GetGameMetaData(context.Context, *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error)
+	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest]) (*connect.ServerStreamForClient[_go.StreamGameReply], error)
+	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	PeekCards(context.Context, *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error)
+	SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error)
+	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
+	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -82,6 +115,12 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 	baseURL = strings.TrimRight(baseURL, "/")
 	clientServerMethods := _go.File_clientserver_proto.Services().ByName("ClientServer").Methods()
 	return &clientServerClient{
+		retrieveCardsData: connect.NewClient[emptypb.Empty, _go.RetrieveCardsDataResponse](
+			httpClient,
+			baseURL+ClientServerRetrieveCardsDataProcedure,
+			connect.WithSchema(clientServerMethods.ByName("RetrieveCardsData")),
+			connect.WithClientOptions(opts...),
+		),
 		createNewGuestUser: connect.NewClient[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse](
 			httpClient,
 			baseURL+ClientServerCreateNewGuestUserProcedure,
@@ -94,22 +133,28 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("GuestLogin")),
 			connect.WithClientOptions(opts...),
 		),
-		getUserProfile: connect.NewClient[emptypb.Empty, _go.PlayerProfileResponse](
+		getUserProfile: connect.NewClient[emptypb.Empty, _go.UserProfileResponse](
 			httpClient,
 			baseURL+ClientServerGetUserProfileProcedure,
 			connect.WithSchema(clientServerMethods.ByName("GetUserProfile")),
 			connect.WithClientOptions(opts...),
 		),
-		getPlayerProfile: connect.NewClient[_go.PlayerProfileRequest, _go.PlayerProfileResponse](
+		getPlayersProfile: connect.NewClient[_go.PlayersProfileRequest, _go.PlayersProfileResponse](
 			httpClient,
-			baseURL+ClientServerGetPlayerProfileProcedure,
-			connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
+			baseURL+ClientServerGetPlayersProfileProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GetPlayersProfile")),
 			connect.WithClientOptions(opts...),
 		),
 		createLobby: connect.NewClient[_go.CreateLobbyRequest, _go.CreateLobbyResponse](
 			httpClient,
 			baseURL+ClientServerCreateLobbyProcedure,
 			connect.WithSchema(clientServerMethods.ByName("CreateLobby")),
+			connect.WithClientOptions(opts...),
+		),
+		getLobby: connect.NewClient[_go.GetLobbyRequest, _go.GetLobbyReply](
+			httpClient,
+			baseURL+ClientServerGetLobbyProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GetLobby")),
 			connect.WithClientOptions(opts...),
 		),
 		streamLobby: connect.NewClient[_go.GetLobbyRequest, _go.GetLobbyReply](
@@ -130,19 +175,82 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 			connect.WithClientOptions(opts...),
 		),
+		startMatch: connect.NewClient[_go.StartMatchRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerStartMatchProcedure,
+			connect.WithSchema(clientServerMethods.ByName("StartMatch")),
+			connect.WithClientOptions(opts...),
+		),
+		getGameMetaData: connect.NewClient[_go.GetGameMetaDataRequest, _go.GetGameMetaDataResponse](
+			httpClient,
+			baseURL+ClientServerGetGameMetaDataProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GetGameMetaData")),
+			connect.WithClientOptions(opts...),
+		),
+		streamGame: connect.NewClient[_go.StreamGameRequest, _go.StreamGameReply](
+			httpClient,
+			baseURL+ClientServerStreamGameProcedure,
+			connect.WithSchema(clientServerMethods.ByName("StreamGame")),
+			connect.WithClientOptions(opts...),
+		),
+		playCards: connect.NewClient[_go.PlayCardsRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerPlayCardsProcedure,
+			connect.WithSchema(clientServerMethods.ByName("PlayCards")),
+			connect.WithClientOptions(opts...),
+		),
+		peekCards: connect.NewClient[_go.PeekCardsRequest, _go.PeekCardsResponse](
+			httpClient,
+			baseURL+ClientServerPeekCardsProcedure,
+			connect.WithSchema(clientServerMethods.ByName("PeekCards")),
+			connect.WithClientOptions(opts...),
+		),
+		selectAffectedPlayer: connect.NewClient[_go.SelectAffectedPlayerRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerSelectAffectedPlayerProcedure,
+			connect.WithSchema(clientServerMethods.ByName("SelectAffectedPlayer")),
+			connect.WithClientOptions(opts...),
+		),
+		stealCard: connect.NewClient[_go.StealCardRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerStealCardProcedure,
+			connect.WithSchema(clientServerMethods.ByName("StealCard")),
+			connect.WithClientOptions(opts...),
+		),
+		giveCard: connect.NewClient[_go.GiveCardRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerGiveCardProcedure,
+			connect.WithSchema(clientServerMethods.ByName("GiveCard")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // clientServerClient implements ClientServerClient.
 type clientServerClient struct {
-	createNewGuestUser *connect.Client[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse]
-	guestLogin         *connect.Client[_go.GuestLoginRequest, _go.GuestLoginResponse]
-	getUserProfile     *connect.Client[emptypb.Empty, _go.PlayerProfileResponse]
-	getPlayerProfile   *connect.Client[_go.PlayerProfileRequest, _go.PlayerProfileResponse]
-	createLobby        *connect.Client[_go.CreateLobbyRequest, _go.CreateLobbyResponse]
-	streamLobby        *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
-	joinLobby          *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
-	leaveLobby         *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
+	retrieveCardsData    *connect.Client[emptypb.Empty, _go.RetrieveCardsDataResponse]
+	createNewGuestUser   *connect.Client[_go.CreateNewGuestUserRequest, _go.CreateNewGuestUserResponse]
+	guestLogin           *connect.Client[_go.GuestLoginRequest, _go.GuestLoginResponse]
+	getUserProfile       *connect.Client[emptypb.Empty, _go.UserProfileResponse]
+	getPlayersProfile    *connect.Client[_go.PlayersProfileRequest, _go.PlayersProfileResponse]
+	createLobby          *connect.Client[_go.CreateLobbyRequest, _go.CreateLobbyResponse]
+	getLobby             *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
+	streamLobby          *connect.Client[_go.GetLobbyRequest, _go.GetLobbyReply]
+	joinLobby            *connect.Client[_go.JoinLobbyRequest, _go.JoinLobbyResponse]
+	leaveLobby           *connect.Client[_go.LeaveLobbyRequest, _go.LeaveLobbyResponse]
+	startMatch           *connect.Client[_go.StartMatchRequest, emptypb.Empty]
+	getGameMetaData      *connect.Client[_go.GetGameMetaDataRequest, _go.GetGameMetaDataResponse]
+	streamGame           *connect.Client[_go.StreamGameRequest, _go.StreamGameReply]
+	playCards            *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	peekCards            *connect.Client[_go.PeekCardsRequest, _go.PeekCardsResponse]
+	selectAffectedPlayer *connect.Client[_go.SelectAffectedPlayerRequest, emptypb.Empty]
+	stealCard            *connect.Client[_go.StealCardRequest, emptypb.Empty]
+	giveCard             *connect.Client[_go.GiveCardRequest, emptypb.Empty]
+}
+
+// RetrieveCardsData calls com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData.
+func (c *clientServerClient) RetrieveCardsData(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error) {
+	return c.retrieveCardsData.CallUnary(ctx, req)
 }
 
 // CreateNewGuestUser calls
@@ -157,18 +265,23 @@ func (c *clientServerClient) GuestLogin(ctx context.Context, req *connect.Reques
 }
 
 // GetUserProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile.
-func (c *clientServerClient) GetUserProfile(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+func (c *clientServerClient) GetUserProfile(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error) {
 	return c.getUserProfile.CallUnary(ctx, req)
 }
 
-// GetPlayerProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile.
-func (c *clientServerClient) GetPlayerProfile(ctx context.Context, req *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error) {
-	return c.getPlayerProfile.CallUnary(ctx, req)
+// GetPlayersProfile calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile.
+func (c *clientServerClient) GetPlayersProfile(ctx context.Context, req *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error) {
+	return c.getPlayersProfile.CallUnary(ctx, req)
 }
 
 // CreateLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby.
 func (c *clientServerClient) CreateLobby(ctx context.Context, req *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error) {
 	return c.createLobby.CallUnary(ctx, req)
+}
+
+// GetLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby.
+func (c *clientServerClient) GetLobby(ctx context.Context, req *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error) {
+	return c.getLobby.CallUnary(ctx, req)
 }
 
 // StreamLobby calls com.sweetloveinyourheart.kittens.clients.ClientServer.StreamLobby.
@@ -186,17 +299,68 @@ func (c *clientServerClient) LeaveLobby(ctx context.Context, req *connect.Reques
 	return c.leaveLobby.CallUnary(ctx, req)
 }
 
+// StartMatch calls com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch.
+func (c *clientServerClient) StartMatch(ctx context.Context, req *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.startMatch.CallUnary(ctx, req)
+}
+
+// GetGameMetaData calls com.sweetloveinyourheart.kittens.clients.ClientServer.GetGameMetaData.
+func (c *clientServerClient) GetGameMetaData(ctx context.Context, req *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error) {
+	return c.getGameMetaData.CallUnary(ctx, req)
+}
+
+// StreamGame calls com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame.
+func (c *clientServerClient) StreamGame(ctx context.Context, req *connect.Request[_go.StreamGameRequest]) (*connect.ServerStreamForClient[_go.StreamGameReply], error) {
+	return c.streamGame.CallServerStream(ctx, req)
+}
+
+// PlayCards calls com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards.
+func (c *clientServerClient) PlayCards(ctx context.Context, req *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.playCards.CallUnary(ctx, req)
+}
+
+// PeekCards calls com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards.
+func (c *clientServerClient) PeekCards(ctx context.Context, req *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error) {
+	return c.peekCards.CallUnary(ctx, req)
+}
+
+// SelectAffectedPlayer calls
+// com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer.
+func (c *clientServerClient) SelectAffectedPlayer(ctx context.Context, req *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.selectAffectedPlayer.CallUnary(ctx, req)
+}
+
+// StealCard calls com.sweetloveinyourheart.kittens.clients.ClientServer.StealCard.
+func (c *clientServerClient) StealCard(ctx context.Context, req *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.stealCard.CallUnary(ctx, req)
+}
+
+// GiveCard calls com.sweetloveinyourheart.kittens.clients.ClientServer.GiveCard.
+func (c *clientServerClient) GiveCard(ctx context.Context, req *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.giveCard.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
+	RetrieveCardsData(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error)
 	CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error)
 	GuestLogin(context.Context, *connect.Request[_go.GuestLoginRequest]) (*connect.Response[_go.GuestLoginResponse], error)
-	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error)
-	GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error)
+	GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error)
+	GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error)
 	CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error)
+	GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error)
 	StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error
 	JoinLobby(context.Context, *connect.Request[_go.JoinLobbyRequest]) (*connect.Response[_go.JoinLobbyResponse], error)
 	LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error)
+	StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error)
+	GetGameMetaData(context.Context, *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error)
+	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error
+	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	PeekCards(context.Context, *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error)
+	SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error)
+	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
+	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -206,6 +370,12 @@ type ClientServerHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	clientServerMethods := _go.File_clientserver_proto.Services().ByName("ClientServer").Methods()
+	clientServerRetrieveCardsDataHandler := connect.NewUnaryHandler(
+		ClientServerRetrieveCardsDataProcedure,
+		svc.RetrieveCardsData,
+		connect.WithSchema(clientServerMethods.ByName("RetrieveCardsData")),
+		connect.WithHandlerOptions(opts...),
+	)
 	clientServerCreateNewGuestUserHandler := connect.NewUnaryHandler(
 		ClientServerCreateNewGuestUserProcedure,
 		svc.CreateNewGuestUser,
@@ -224,16 +394,22 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("GetUserProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
-	clientServerGetPlayerProfileHandler := connect.NewUnaryHandler(
-		ClientServerGetPlayerProfileProcedure,
-		svc.GetPlayerProfile,
-		connect.WithSchema(clientServerMethods.ByName("GetPlayerProfile")),
+	clientServerGetPlayersProfileHandler := connect.NewUnaryHandler(
+		ClientServerGetPlayersProfileProcedure,
+		svc.GetPlayersProfile,
+		connect.WithSchema(clientServerMethods.ByName("GetPlayersProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerCreateLobbyHandler := connect.NewUnaryHandler(
 		ClientServerCreateLobbyProcedure,
 		svc.CreateLobby,
 		connect.WithSchema(clientServerMethods.ByName("CreateLobby")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerGetLobbyHandler := connect.NewUnaryHandler(
+		ClientServerGetLobbyProcedure,
+		svc.GetLobby,
+		connect.WithSchema(clientServerMethods.ByName("GetLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerStreamLobbyHandler := connect.NewServerStreamHandler(
@@ -254,24 +430,92 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("LeaveLobby")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerStartMatchHandler := connect.NewUnaryHandler(
+		ClientServerStartMatchProcedure,
+		svc.StartMatch,
+		connect.WithSchema(clientServerMethods.ByName("StartMatch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerGetGameMetaDataHandler := connect.NewUnaryHandler(
+		ClientServerGetGameMetaDataProcedure,
+		svc.GetGameMetaData,
+		connect.WithSchema(clientServerMethods.ByName("GetGameMetaData")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerStreamGameHandler := connect.NewServerStreamHandler(
+		ClientServerStreamGameProcedure,
+		svc.StreamGame,
+		connect.WithSchema(clientServerMethods.ByName("StreamGame")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerPlayCardsHandler := connect.NewUnaryHandler(
+		ClientServerPlayCardsProcedure,
+		svc.PlayCards,
+		connect.WithSchema(clientServerMethods.ByName("PlayCards")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerPeekCardsHandler := connect.NewUnaryHandler(
+		ClientServerPeekCardsProcedure,
+		svc.PeekCards,
+		connect.WithSchema(clientServerMethods.ByName("PeekCards")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerSelectAffectedPlayerHandler := connect.NewUnaryHandler(
+		ClientServerSelectAffectedPlayerProcedure,
+		svc.SelectAffectedPlayer,
+		connect.WithSchema(clientServerMethods.ByName("SelectAffectedPlayer")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerStealCardHandler := connect.NewUnaryHandler(
+		ClientServerStealCardProcedure,
+		svc.StealCard,
+		connect.WithSchema(clientServerMethods.ByName("StealCard")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clientServerGiveCardHandler := connect.NewUnaryHandler(
+		ClientServerGiveCardProcedure,
+		svc.GiveCard,
+		connect.WithSchema(clientServerMethods.ByName("GiveCard")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ClientServerRetrieveCardsDataProcedure:
+			clientServerRetrieveCardsDataHandler.ServeHTTP(w, r)
 		case ClientServerCreateNewGuestUserProcedure:
 			clientServerCreateNewGuestUserHandler.ServeHTTP(w, r)
 		case ClientServerGuestLoginProcedure:
 			clientServerGuestLoginHandler.ServeHTTP(w, r)
 		case ClientServerGetUserProfileProcedure:
 			clientServerGetUserProfileHandler.ServeHTTP(w, r)
-		case ClientServerGetPlayerProfileProcedure:
-			clientServerGetPlayerProfileHandler.ServeHTTP(w, r)
+		case ClientServerGetPlayersProfileProcedure:
+			clientServerGetPlayersProfileHandler.ServeHTTP(w, r)
 		case ClientServerCreateLobbyProcedure:
 			clientServerCreateLobbyHandler.ServeHTTP(w, r)
+		case ClientServerGetLobbyProcedure:
+			clientServerGetLobbyHandler.ServeHTTP(w, r)
 		case ClientServerStreamLobbyProcedure:
 			clientServerStreamLobbyHandler.ServeHTTP(w, r)
 		case ClientServerJoinLobbyProcedure:
 			clientServerJoinLobbyHandler.ServeHTTP(w, r)
 		case ClientServerLeaveLobbyProcedure:
 			clientServerLeaveLobbyHandler.ServeHTTP(w, r)
+		case ClientServerStartMatchProcedure:
+			clientServerStartMatchHandler.ServeHTTP(w, r)
+		case ClientServerGetGameMetaDataProcedure:
+			clientServerGetGameMetaDataHandler.ServeHTTP(w, r)
+		case ClientServerStreamGameProcedure:
+			clientServerStreamGameHandler.ServeHTTP(w, r)
+		case ClientServerPlayCardsProcedure:
+			clientServerPlayCardsHandler.ServeHTTP(w, r)
+		case ClientServerPeekCardsProcedure:
+			clientServerPeekCardsHandler.ServeHTTP(w, r)
+		case ClientServerSelectAffectedPlayerProcedure:
+			clientServerSelectAffectedPlayerHandler.ServeHTTP(w, r)
+		case ClientServerStealCardProcedure:
+			clientServerStealCardHandler.ServeHTTP(w, r)
+		case ClientServerGiveCardProcedure:
+			clientServerGiveCardHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -281,6 +525,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 // UnimplementedClientServerHandler returns CodeUnimplemented from all methods.
 type UnimplementedClientServerHandler struct{}
 
+func (UnimplementedClientServerHandler) RetrieveCardsData(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.RetrieveCardsDataResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData is not implemented"))
+}
+
 func (UnimplementedClientServerHandler) CreateNewGuestUser(context.Context, *connect.Request[_go.CreateNewGuestUserRequest]) (*connect.Response[_go.CreateNewGuestUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.CreateNewGuestUser is not implemented"))
 }
@@ -289,16 +537,20 @@ func (UnimplementedClientServerHandler) GuestLogin(context.Context, *connect.Req
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GuestLogin is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.PlayerProfileResponse], error) {
+func (UnimplementedClientServerHandler) GetUserProfile(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[_go.UserProfileResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetUserProfile is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) GetPlayerProfile(context.Context, *connect.Request[_go.PlayerProfileRequest]) (*connect.Response[_go.PlayerProfileResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayerProfile is not implemented"))
+func (UnimplementedClientServerHandler) GetPlayersProfile(context.Context, *connect.Request[_go.PlayersProfileRequest]) (*connect.Response[_go.PlayersProfileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetPlayersProfile is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) CreateLobby(context.Context, *connect.Request[_go.CreateLobbyRequest]) (*connect.Response[_go.CreateLobbyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.CreateLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) GetLobby(context.Context, *connect.Request[_go.GetLobbyRequest]) (*connect.Response[_go.GetLobbyReply], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetLobby is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) StreamLobby(context.Context, *connect.Request[_go.GetLobbyRequest], *connect.ServerStream[_go.GetLobbyReply]) error {
@@ -311,4 +563,36 @@ func (UnimplementedClientServerHandler) JoinLobby(context.Context, *connect.Requ
 
 func (UnimplementedClientServerHandler) LeaveLobby(context.Context, *connect.Request[_go.LeaveLobbyRequest]) (*connect.Response[_go.LeaveLobbyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.LeaveLobby is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) StartMatch(context.Context, *connect.Request[_go.StartMatchRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StartMatch is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) GetGameMetaData(context.Context, *connect.Request[_go.GetGameMetaDataRequest]) (*connect.Response[_go.GetGameMetaDataResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GetGameMetaData is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StreamGame is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.PlayCards is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) PeekCards(context.Context, *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.StealCard is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.GiveCard is not implemented"))
 }

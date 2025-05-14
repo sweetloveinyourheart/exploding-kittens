@@ -2,16 +2,16 @@ package actions
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"strings"
 
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	"slices"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
@@ -19,6 +19,38 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
+
+func (a *actions) GetLobby(ctx context.Context, request *connect.Request[proto.GetLobbyRequest]) (response *connect.Response[proto.GetLobbyReply], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		// This should never happen as this endpoint should be authenticated
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	lobbyID := request.Msg.GetLobbyId()
+
+	lobbyState, err := domains.LobbyRepo.Find(ctx, lobbyID)
+	if err != nil {
+		return nil, grpc.NotFoundError(err)
+	}
+
+	isAuthorized := slices.Contains(lobbyState.GetParticipants(), userID)
+	if !isAuthorized {
+		return nil, grpc.NotFoundError(errors.Errorf("Lobby not found"))
+	}
+
+	return connect.NewResponse(&proto.GetLobbyReply{
+		Lobby: &proto.Lobby{
+			LobbyId:      lobbyState.GetLobbyID().String(),
+			LobbyCode:    lobbyState.GetLobbyCode(),
+			LobbyName:    lobbyState.GetLobbyName(),
+			HostUserId:   lobbyState.GetHostUserID().String(),
+			Participants: stringsutil.ConvertUUIDsToStrings(lobbyState.GetParticipants()),
+			MatchId:      stringsutil.ConvertUUIDToStringPtr(lobbyState.GetMatchID()),
+		},
+	}), nil
+
+}
 
 func (a *actions) CreateLobby(ctx context.Context, request *connect.Request[proto.CreateLobbyRequest]) (response *connect.Response[proto.CreateLobbyResponse], err error) {
 	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
@@ -85,11 +117,6 @@ func (a *actions) JoinLobby(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.InternalError(err)
 	}
 
-	err = a.emitLobbyUpdateEvent(lobbyID)
-	if err != nil {
-		return nil, grpc.InternalError(err)
-	}
-
 	return connect.NewResponse(&proto.JoinLobbyResponse{
 		LobbyId: lobbyID.String(),
 	}), nil
@@ -119,32 +146,46 @@ func (a *actions) LeaveLobby(ctx context.Context, request *connect.Request[proto
 		return nil, grpc.InternalError(err)
 	}
 
-	err = a.emitLobbyUpdateEvent(lobbyID)
-	if err != nil {
-		return nil, grpc.InternalError(err)
-	}
-
 	return connect.NewResponse(&proto.LeaveLobbyResponse{
 		LobbyId: lobbyID.String(),
 	}), nil
 }
 
-func (a *actions) emitLobbyUpdateEvent(lobbyID uuid.UUID) error {
-	msg := &proto.Lobby{
-		LobbyId: lobbyID.String(),
+func (a *actions) StartMatch(ctx context.Context, request *connect.Request[proto.StartMatchRequest]) (response *connect.Response[emptypb.Empty], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		// This should never happen as this endpoint should be authenticated
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
 	}
 
-	msgBytes, err := json.Marshal(msg)
+	lobbyIDString := request.Msg.GetLobbyId()
+	lobbyID, err := uuid.FromString(lobbyIDString)
 	if err != nil {
-		return err
+		return nil, grpc.InvalidArgumentError(errors.New("lobby_id must be in the correct format"))
 	}
 
-	err = a.bus.Publish(fmt.Sprintf("%s.%s", constants.LobbyStream, msg.GetLobbyId()), msgBytes)
-	if err != nil {
-		return err
+	matchID := uuid.Must(uuid.NewV7())
+	if err := domains.CommandBus.HandleCommand(ctx, &lobby.CreateLobbyMatch{
+		LobbyID:    lobbyID,
+		HostUserID: userID,
+		MatchID:    matchID,
+	}); err != nil {
+		if errors.Is(err, lobby.ErrLobbyNotAvailable) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "lobby_id", "lobby is not availale"))
+		}
+
+		if errors.Is(err, lobby.ErrHostUserNotRecognized) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "user_id", "action needs the host to be triggered"))
+		}
+
+		if errors.Is(err, lobby.ErrGameIsNotEnoughPlayer) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "player_ids", "not enough player to start a game"))
+		}
+
+		return nil, grpc.InternalError(err)
 	}
 
-	return nil
+	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
 type GetLobbyRequestValidator proto.GetLobbyRequest

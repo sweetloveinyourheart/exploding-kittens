@@ -7,15 +7,41 @@ option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/cod
 package com.sweetloveinyourheart.kittens.clients;
 
 service ClientServer {
+    rpc RetrieveCardsData(google.protobuf.Empty) returns (RetrieveCardsDataResponse);
+
     rpc CreateNewGuestUser(CreateNewGuestUserRequest) returns (CreateNewGuestUserResponse);
     rpc GuestLogin(GuestLoginRequest) returns (GuestLoginResponse);
-    rpc GetUserProfile(google.protobuf.Empty) returns (PlayerProfileResponse);
-    rpc GetPlayerProfile(PlayerProfileRequest) returns (PlayerProfileResponse);
+    rpc GetUserProfile(google.protobuf.Empty) returns (UserProfileResponse);
+    rpc GetPlayersProfile(PlayersProfileRequest) returns (PlayersProfileResponse);
     
     rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
+    rpc GetLobby(GetLobbyRequest) returns (GetLobbyReply);
     rpc StreamLobby(GetLobbyRequest) returns (stream GetLobbyReply);
     rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
     rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
+    rpc StartMatch(StartMatchRequest) returns (google.protobuf.Empty);
+
+    rpc GetGameMetaData(GetGameMetaDataRequest) returns (GetGameMetaDataResponse);
+    rpc StreamGame(StreamGameRequest) returns (stream StreamGameReply);
+
+    rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
+    rpc PeekCards(PeekCardsRequest) returns (PeekCardsResponse);
+    rpc SelectAffectedPlayer(SelectAffectedPlayerRequest) returns (google.protobuf.Empty);
+    rpc StealCard(StealCardRequest) returns (google.protobuf.Empty);
+    rpc GiveCard(GiveCardRequest) returns (google.protobuf.Empty);
+}
+
+// ========= Data Provider =============
+
+message Card {
+    string card_id = 1;
+    string name = 2;
+    string code = 3;
+    string description = 4;
+}
+
+message RetrieveCardsDataResponse {
+    repeated Card cards = 1;
 }
 
 // ========= User ==========
@@ -43,17 +69,22 @@ message GuestLoginRequest {
 }
   
 message GuestLoginResponse {
-    string user_id = 1; // The database id for this user (UUID).
+    User user = 1; // The user basic info
     string token = 2; // The session token for this user.
 }
 
-// Message for player profile
-message PlayerProfileRequest {
-    string user_id = 1; // Required: UUID of the guest user
+message UserProfileResponse {
+    User user = 1;
 }
 
-message PlayerProfileResponse {
-    User user = 1;
+// Message for players profile
+message PlayersProfileRequest {
+    repeated string user_ids = 1; // Required: UUID of the guest user
+}
+
+
+message PlayersProfileResponse {
+    repeated User users = 1;
 }
 
 // ========= Lobby ==========
@@ -64,6 +95,7 @@ message Lobby {
     string lobby_name = 3;
     string host_user_id = 4;
     repeated string participants = 5;
+    optional string match_id = 6;
 }
 
 // Message for create a lobby
@@ -99,4 +131,108 @@ message LeaveLobbyRequest {
 
 message LeaveLobbyResponse {
     string lobby_id = 1;
+}
+
+// Message for start a match
+message StartMatchRequest {
+    string lobby_id = 1;
+}
+
+// ========== Game ===========
+
+message Game {
+    enum Phase {
+        INITIALIZING = 0;    // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
+	    TURN_START   = 1;    // Active player begins their turn
+	    ACTION_PHASE = 2;    // Player can play as many action cards as they want
+	    CARD_DRAWING = 3;    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
+	    TURN_END     = 4;    // Finalize the turn, next player becomes active
+	    GAME_OVER    = 5;    // When only one player remains
+    }
+
+    message Player {
+        string player_id = 1;
+        bool active = 2;
+    }
+
+    message PlayerHand {
+        int32 remaining_cards = 1;
+        repeated string hands = 2;
+    }
+
+    message Desk {
+        string desk_id = 1;
+        int32 remaining_cards = 2;
+        repeated string discard_pile = 3;
+    }
+    
+    string game_id = 1;
+    Phase game_phase = 2;
+    string player_turn = 3;
+    repeated Player players = 4;
+    map<string, PlayerHand> player_hands = 5;
+    Desk desk = 6;
+    string executing_action = 7;
+}
+
+message GameMetaData {
+    string game_id = 1;
+    repeated string players = 2;
+}
+
+message StreamGameRequest {
+    string game_id = 1;
+}
+
+message StreamGameReply {
+    Game game_state = 1;
+}
+
+message GetGameMetaDataRequest {
+    string game_id = 1;
+}
+
+message GetGameMetaDataResponse {
+    GameMetaData meta = 1;
+}
+
+// ========== Game Play ===========
+
+// Message for playing cards
+// This message is used to play cards in the game
+message PlayCardsRequest {
+    string game_id = 1;
+    repeated string card_ids = 2;
+}
+
+// Message for peeking cards
+// This message is used to peek at the top card of the deck
+message PeekCardsRequest {
+    string game_id = 1;
+    string desk_id = 2;
+}
+
+message PeekCardsResponse {
+    repeated string card_ids = 1;
+}
+
+// Message for selecting affected players
+// This message is used to select affected players in the game
+message SelectAffectedPlayerRequest {
+    string game_id = 1;
+    string player_id = 2;
+}
+
+// Message for stealing a card
+// This message is used to steal a card from another player
+message StealCardRequest {
+    string game_id = 1;
+    optional string card_id = 2;
+}
+
+// Message for giving a card
+// This message is used to give a card to another player
+message GiveCardRequest {
+    string game_id = 1;
+    string card_id = 2;
 }

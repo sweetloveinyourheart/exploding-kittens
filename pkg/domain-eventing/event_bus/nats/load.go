@@ -15,6 +15,22 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 )
 
+func lastMsgForSubjectJetStreamCtx(ctx context.Context, js nats.JetStreamContext, stream string, subject string) (*natsStoredMsg, error) {
+	rawMsg, err := js.GetLastMsg(stream, subject)
+	if err != nil {
+		if errors.Is(err, jetstream.ErrNoMessages) || errors.Is(err, jetstream.ErrMsgNotFound) {
+			return &natsStoredMsg{}, nil
+		} else if errors.Is(err, nats.ErrMsgNotFound) {
+			return &natsStoredMsg{}, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+
+	return &natsStoredMsg{
+		Sequence: rawMsg.Sequence,
+	}, nil
+}
+
 func LoadJetStream(ctx context.Context, js jetstream.JetStream, stream string, subject string, codec eventing.EventCodec) ([]common.Event, error) {
 	lastMsg, err := lastMsgForSubjectJetStream(ctx, js, stream, subject)
 	if err != nil {
@@ -84,6 +100,68 @@ func LoadJetStream(ctx context.Context, js jetstream.JetStream, stream string, s
 
 	if res.Error() != nil {
 		return nil, errors.WithStack(res.Error())
+	}
+
+	return events, nil
+}
+
+func LoadJetStreamCtx(ctx context.Context, js nats.JetStreamContext, stream string, subject string, codec eventing.EventCodec) ([]common.Event, error) {
+	lastMsg, err := lastMsgForSubjectJetStreamCtx(ctx, js, stream, subject)
+	if err != nil {
+		return nil, err
+	}
+
+	if lastMsg.Sequence == 0 {
+		return nil, nil
+	}
+
+	// Ephemeral ordered consumer. read as fast as possible with least overhead.
+	sopts := []nats.SubOpt{
+		nats.OrderedConsumer(),
+		nats.DeliverAll(),
+	}
+
+	sub, err := js.SubscribeSync(subject, sopts...)
+	if err != nil {
+		return nil, err
+	}
+	defer sub.Unsubscribe() //nolint
+
+	events := make([]common.Event, 0)
+	priorSeq := uint64(0)
+	for {
+		msg, err := sub.NextMsgWithContext(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		md, err := msg.Metadata()
+		if err != nil {
+			return nil, fmt.Errorf("unpack: failed to get metadata: %s", err)
+		}
+		seq := md.Sequence.Stream
+
+		headers := msg.Header
+		eventOpts := []eventing.EventOption{
+			eventing.ForSequence(priorSeq, seq),
+		}
+		if headers.Get(EventUnregisteredHdr) == "true" {
+			eventOpts = append(eventOpts, eventing.AsUnregistered())
+		}
+
+		event, _, err := codec.UnmarshalEvent(ctx, msg.Data, eventOpts...)
+
+		if err != nil {
+			return nil, err
+		}
+		priorSeq = seq
+		_ = priorSeq
+
+		events = append(events, event)
+
+		if seq == lastMsg.Sequence {
+			break
+		}
 	}
 
 	return events, nil

@@ -16,12 +16,14 @@ type AllEventsProjector interface {
 	HandleLobbyCreated(ctx context.Context, event common.Event, data *LobbyCreated, entity *Lobby) (*Lobby, error)
 	HandleLobbyJoined(ctx context.Context, event common.Event, data *LobbyJoined, entity *Lobby) (*Lobby, error)
 	HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft, entity *Lobby) (*Lobby, error)
+	HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *LobbyMatchCreated, entity *Lobby) (*Lobby, error)
 }
 
 type eventsProjector interface {
 	handleLobbyCreated(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 	handleLobbyJoined(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 	handleLobbyLeft(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
+	handleLobbyMatchCreated(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error)
 }
 
 // LobbyProjector is an event handler for Projections in the Lobby domain.
@@ -139,6 +141,8 @@ func (p *LobbyProjector) handleLobbyEvent(ctx context.Context, event common.Even
 		eventHandler = p.handleLobbyJoined
 	case EventTypeLobbyLeft:
 		eventHandler = p.handleLobbyLeft
+	case EventTypeLobbyMatchCreated:
+		eventHandler = p.handleLobbyMatchCreated
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -213,6 +217,28 @@ func (p *LobbyProjector) handleLobbyLeft(ctx context.Context, event common.Event
 		HandleLobbyLeft(ctx context.Context, event common.Event, data *LobbyLeft) error
 	}); ok {
 		return entity, handler.HandleLobbyLeft(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleLobbyMatchCreated handles user leaves a lobby events.
+func (p *LobbyProjector) handleLobbyMatchCreated(ctx context.Context, event common.Event, entity *Lobby) (*Lobby, error) {
+	data, ok := event.Data().(*LobbyMatchCreated)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleLobbyMatchCreated"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *LobbyMatchCreated, entity *Lobby) (*Lobby, error)
+	}); ok {
+		return handler.HandleLobbyMatchCreated(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *LobbyMatchCreated) error
+	}); ok {
+		return entity, handler.HandleLobbyMatchCreated(ctx, event, data)
 	}
 
 	return entity, nil

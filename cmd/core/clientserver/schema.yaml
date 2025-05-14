@@ -41,6 +41,20 @@
       - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT
     defaultDatabaseName: ""
   config:
+  - name: dataprovider-url
+    usage: Dataprovider connection URL
+    default: http://dataprovider:50055
+    valueType: string
+    path: clientserver.dataprovider.url
+    env:
+    - CLIENTSERVER_DATAPROVIDER_URL
+  - name: gameengineserver-url
+    usage: Game Engine Server connection URL
+    default: http://gameengineserver:50054
+    valueType: string
+    path: clientserver.gameengineserver.url
+    env:
+    - CLIENTSERVER_GAMEENGINESERVER_URL
   - name: grpc-port
     usage: GRPC Port to listen on
     default: 50051

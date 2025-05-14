@@ -14,6 +14,7 @@ type Lobby struct {
 	LobbyName    string      `json:"lobby_name"`
 	HostUserID   uuid.UUID   `json:"host_user_id"`
 	Participants []uuid.UUID `json:"participants"`
+	MatchID      uuid.UUID   `json:"match_id"`
 	CreatedAt    time.Time   `json:"created_at"`
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
@@ -42,6 +43,10 @@ func (t *Lobby) GetHostUserID() uuid.UUID {
 
 func (t *Lobby) GetParticipants() []uuid.UUID {
 	return t.Participants
+}
+
+func (t *Lobby) GetMatchID() uuid.UUID {
+	return t.MatchID
 }
 
 func (t *Lobby) GetCreatedAt() time.Time {

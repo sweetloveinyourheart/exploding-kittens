@@ -44,7 +44,12 @@ func (a *actions) GuestLogin(ctx context.Context, request *connect.Request[proto
 	}
 
 	return connect.NewResponse(&proto.GuestLoginResponse{
-		UserId: resp.Msg.GetUserId(),
-		Token:  resp.Msg.GetToken(),
+		User: &proto.User{
+			UserId:   resp.Msg.GetUser().GetUserId(),
+			Username: resp.Msg.GetUser().GetUsername(),
+			FullName: resp.Msg.GetUser().GetFullName(),
+			Status:   resp.Msg.GetUser().GetStatus(),
+		},
+		Token: resp.Msg.GetToken(),
 	}), nil
 }
