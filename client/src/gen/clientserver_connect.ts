@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, ExecuteActionRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -139,11 +139,38 @@ export const ClientServer = {
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards
      */
-    executeAction: {
-      name: "ExecuteAction",
-      I: ExecuteActionRequest,
+    peekCards: {
+      name: "PeekCards",
+      I: PeekCardsRequest,
+      O: PeekCardsResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer
+     */
+    selectAffectedPlayer: {
+      name: "SelectAffectedPlayer",
+      I: SelectAffectedPlayerRequest,
+      O: Empty,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StealCard
+     */
+    stealCard: {
+      name: "StealCard",
+      I: StealCardRequest,
+      O: Empty,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GiveCard
+     */
+    giveCard: {
+      name: "GiveCard",
+      I: GiveCardRequest,
       O: Empty,
       kind: MethodKind.Unary,
     },

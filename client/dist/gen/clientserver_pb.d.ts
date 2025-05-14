@@ -661,7 +661,8 @@ export declare class GetGameMetaDataResponse extends Message<GetGameMetaDataResp
     static equals(a: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined, b: GetGameMetaDataResponse | PlainMessage<GetGameMetaDataResponse> | undefined): boolean;
 }
 /**
- * ========== Game Play ===========
+ * Message for playing cards
+ * This message is used to play cards in the game
  *
  * @generated from message com.sweetloveinyourheart.kittens.clients.PlayCardsRequest
  */
@@ -684,31 +685,115 @@ export declare class PlayCardsRequest extends Message<PlayCardsRequest> {
     static equals(a: PlayCardsRequest | PlainMessage<PlayCardsRequest> | undefined, b: PlayCardsRequest | PlainMessage<PlayCardsRequest> | undefined): boolean;
 }
 /**
- * @generated from message com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest
+ * Message for peeking cards
+ * This message is used to peek at the top card of the deck
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PeekCardsRequest
  */
-export declare class ExecuteActionRequest extends Message<ExecuteActionRequest> {
+export declare class PeekCardsRequest extends Message<PeekCardsRequest> {
     /**
      * @generated from field: string game_id = 1;
      */
     gameId: string;
     /**
-     * @generated from field: string effect = 2;
+     * @generated from field: string desk_id = 2;
      */
-    effect: string;
-    /**
-     * @generated from field: optional string target_user = 3;
-     */
-    targetUser?: string;
-    /**
-     * @generated from field: optional string target_card = 4;
-     */
-    targetCard?: string;
-    constructor(data?: PartialMessage<ExecuteActionRequest>);
+    deskId: string;
+    constructor(data?: PartialMessage<PeekCardsRequest>);
     static readonly runtime: typeof proto3;
-    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest";
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PeekCardsRequest";
     static readonly fields: FieldList;
-    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecuteActionRequest;
-    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExecuteActionRequest;
-    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExecuteActionRequest;
-    static equals(a: ExecuteActionRequest | PlainMessage<ExecuteActionRequest> | undefined, b: ExecuteActionRequest | PlainMessage<ExecuteActionRequest> | undefined): boolean;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PeekCardsRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PeekCardsRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PeekCardsRequest;
+    static equals(a: PeekCardsRequest | PlainMessage<PeekCardsRequest> | undefined, b: PeekCardsRequest | PlainMessage<PeekCardsRequest> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PeekCardsResponse
+ */
+export declare class PeekCardsResponse extends Message<PeekCardsResponse> {
+    /**
+     * @generated from field: repeated string card_ids = 1;
+     */
+    cardIds: string[];
+    constructor(data?: PartialMessage<PeekCardsResponse>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PeekCardsResponse";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PeekCardsResponse;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PeekCardsResponse;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PeekCardsResponse;
+    static equals(a: PeekCardsResponse | PlainMessage<PeekCardsResponse> | undefined, b: PeekCardsResponse | PlainMessage<PeekCardsResponse> | undefined): boolean;
+}
+/**
+ * Message for selecting affected players
+ * This message is used to select affected players in the game
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.SelectAffectedPlayerRequest
+ */
+export declare class SelectAffectedPlayerRequest extends Message<SelectAffectedPlayerRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * @generated from field: string player_id = 2;
+     */
+    playerId: string;
+    constructor(data?: PartialMessage<SelectAffectedPlayerRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.SelectAffectedPlayerRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SelectAffectedPlayerRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SelectAffectedPlayerRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SelectAffectedPlayerRequest;
+    static equals(a: SelectAffectedPlayerRequest | PlainMessage<SelectAffectedPlayerRequest> | undefined, b: SelectAffectedPlayerRequest | PlainMessage<SelectAffectedPlayerRequest> | undefined): boolean;
+}
+/**
+ * Message for stealing a card
+ * This message is used to steal a card from another player
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.StealCardRequest
+ */
+export declare class StealCardRequest extends Message<StealCardRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * @generated from field: optional string card_id = 2;
+     */
+    cardId?: string;
+    constructor(data?: PartialMessage<StealCardRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StealCardRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StealCardRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StealCardRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StealCardRequest;
+    static equals(a: StealCardRequest | PlainMessage<StealCardRequest> | undefined, b: StealCardRequest | PlainMessage<StealCardRequest> | undefined): boolean;
+}
+/**
+ * Message for giving a card
+ * This message is used to give a card to another player
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.GiveCardRequest
+ */
+export declare class GiveCardRequest extends Message<GiveCardRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * @generated from field: string card_id = 2;
+     */
+    cardId: string;
+    constructor(data?: PartialMessage<GiveCardRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.GiveCardRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GiveCardRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GiveCardRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GiveCardRequest;
+    static equals(a: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined, b: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined): boolean;
 }

@@ -1,5 +1,5 @@
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, ExecuteActionRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, StartMatchRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
  */
@@ -133,11 +133,38 @@ export declare const ClientServer: {
             readonly kind: MethodKind.Unary;
         };
         /**
-         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards
          */
-        readonly executeAction: {
-            readonly name: "ExecuteAction";
-            readonly I: typeof ExecuteActionRequest;
+        readonly peekCards: {
+            readonly name: "PeekCards";
+            readonly I: typeof PeekCardsRequest;
+            readonly O: typeof PeekCardsResponse;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer
+         */
+        readonly selectAffectedPlayer: {
+            readonly name: "SelectAffectedPlayer";
+            readonly I: typeof SelectAffectedPlayerRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StealCard
+         */
+        readonly stealCard: {
+            readonly name: "StealCard";
+            readonly I: typeof StealCardRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GiveCard
+         */
+        readonly giveCard: {
+            readonly name: "GiveCard";
+            readonly I: typeof GiveCardRequest;
             readonly O: typeof Empty;
             readonly kind: MethodKind.Unary;
         };

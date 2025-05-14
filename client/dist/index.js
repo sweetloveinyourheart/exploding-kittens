@@ -3812,29 +3812,21 @@ var PlayCardsRequest = class _PlayCardsRequest extends Message {
     return proto3.util.equals(_PlayCardsRequest, a, b);
   }
 };
-var ExecuteActionRequest = class _ExecuteActionRequest extends Message {
+var PeekCardsRequest = class _PeekCardsRequest extends Message {
   /**
    * @generated from field: string game_id = 1;
    */
   gameId = "";
   /**
-   * @generated from field: string effect = 2;
+   * @generated from field: string desk_id = 2;
    */
-  effect = "";
-  /**
-   * @generated from field: optional string target_user = 3;
-   */
-  targetUser;
-  /**
-   * @generated from field: optional string target_card = 4;
-   */
-  targetCard;
+  deskId = "";
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
   }
   static runtime = proto3;
-  static typeName = "com.sweetloveinyourheart.kittens.clients.ExecuteActionRequest";
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PeekCardsRequest";
   static fields = proto3.util.newFieldList(() => [
     {
       no: 1,
@@ -3845,25 +3837,176 @@ var ExecuteActionRequest = class _ExecuteActionRequest extends Message {
     },
     {
       no: 2,
-      name: "effect",
+      name: "desk_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PeekCardsRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PeekCardsRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PeekCardsRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PeekCardsRequest, a, b);
+  }
+};
+var PeekCardsResponse = class _PeekCardsResponse extends Message {
+  /**
+   * @generated from field: repeated string card_ids = 1;
+   */
+  cardIds = [];
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PeekCardsResponse";
+  static fields = proto3.util.newFieldList(() => [
+    { no: 1, name: "card_ids", kind: "scalar", T: 9, repeated: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PeekCardsResponse().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PeekCardsResponse().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PeekCardsResponse().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PeekCardsResponse, a, b);
+  }
+};
+var SelectAffectedPlayerRequest = class _SelectAffectedPlayerRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: string player_id = 2;
+   */
+  playerId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.SelectAffectedPlayerRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
       kind: "scalar",
       T: 9
       /* ScalarType.STRING */
     },
-    { no: 3, name: "target_user", kind: "scalar", T: 9, opt: true },
-    { no: 4, name: "target_card", kind: "scalar", T: 9, opt: true }
+    {
+      no: 2,
+      name: "player_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
   ]);
   static fromBinary(bytes, options) {
-    return new _ExecuteActionRequest().fromBinary(bytes, options);
+    return new _SelectAffectedPlayerRequest().fromBinary(bytes, options);
   }
   static fromJson(jsonValue, options) {
-    return new _ExecuteActionRequest().fromJson(jsonValue, options);
+    return new _SelectAffectedPlayerRequest().fromJson(jsonValue, options);
   }
   static fromJsonString(jsonString, options) {
-    return new _ExecuteActionRequest().fromJsonString(jsonString, options);
+    return new _SelectAffectedPlayerRequest().fromJsonString(jsonString, options);
   }
   static equals(a, b) {
-    return proto3.util.equals(_ExecuteActionRequest, a, b);
+    return proto3.util.equals(_SelectAffectedPlayerRequest, a, b);
+  }
+};
+var StealCardRequest = class _StealCardRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: optional string card_id = 2;
+   */
+  cardId;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.StealCardRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "card_id", kind: "scalar", T: 9, opt: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _StealCardRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _StealCardRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _StealCardRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_StealCardRequest, a, b);
+  }
+};
+var GiveCardRequest = class _GiveCardRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: string card_id = 2;
+   */
+  cardId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.GiveCardRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "card_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _GiveCardRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _GiveCardRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _GiveCardRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_GiveCardRequest, a, b);
   }
 };
 
@@ -3998,11 +4141,38 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.ExecuteAction
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards
      */
-    executeAction: {
-      name: "ExecuteAction",
-      I: ExecuteActionRequest,
+    peekCards: {
+      name: "PeekCards",
+      I: PeekCardsRequest,
+      O: PeekCardsResponse,
+      kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer
+     */
+    selectAffectedPlayer: {
+      name: "SelectAffectedPlayer",
+      I: SelectAffectedPlayerRequest,
+      O: Empty,
+      kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.StealCard
+     */
+    stealCard: {
+      name: "StealCard",
+      I: StealCardRequest,
+      O: Empty,
+      kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.GiveCard
+     */
+    giveCard: {
+      name: "GiveCard",
+      I: GiveCardRequest,
       O: Empty,
       kind: MethodKind.Unary
     }
@@ -4015,7 +4185,6 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
-  ExecuteActionRequest,
   Game,
   GameMetaData,
   Game_Desk,
@@ -4026,6 +4195,7 @@ export {
   GetGameMetaDataResponse,
   GetLobbyReply,
   GetLobbyRequest,
+  GiveCardRequest,
   GuestLoginRequest,
   GuestLoginResponse,
   JoinLobbyRequest,
@@ -4033,11 +4203,15 @@ export {
   LeaveLobbyRequest,
   LeaveLobbyResponse,
   Lobby,
+  PeekCardsRequest,
+  PeekCardsResponse,
   PlayCardsRequest,
   PlayersProfileRequest,
   PlayersProfileResponse,
   RetrieveCardsDataResponse,
+  SelectAffectedPlayerRequest,
   StartMatchRequest,
+  StealCardRequest,
   StreamGameReply,
   StreamGameRequest,
   User,
