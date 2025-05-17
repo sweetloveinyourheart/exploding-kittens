@@ -10,6 +10,7 @@ import (
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/stretchr/testify/suite"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"

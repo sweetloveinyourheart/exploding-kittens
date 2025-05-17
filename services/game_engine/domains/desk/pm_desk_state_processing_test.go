@@ -7,6 +7,7 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/gofrs/uuid"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	retrymw "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/command_hander"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
