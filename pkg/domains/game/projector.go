@@ -78,6 +78,7 @@ func (p *Projector) HandleTurnReversed(ctx context.Context, event common.Event, 
 }
 
 func (p *Projector) HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Game) (*Game, error) {
+	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	return entity, nil
 }
 

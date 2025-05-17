@@ -45,7 +45,7 @@ func (p *Projector) HandleHandCreated(ctx context.Context, event common.Event, d
 }
 
 func (p *Projector) HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Hand) (*Hand, error) {
-	cardIDs := entity.GetCardIDs()
+	cardIDs := slices.Clone(entity.GetCardIDs())
 
 	for _, cardID := range data.GetCardIDs() {
 		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
@@ -83,14 +83,29 @@ func (p *Projector) HandleCardsReceived(ctx context.Context, event common.Event,
 }
 
 func (p *Projector) HandleCardsGiven(ctx context.Context, event common.Event, data *CardsGiven, entity *Hand) (*Hand, error) {
-	cardIDs := entity.GetCardIDs()
+	cardIDs := slices.Clone(entity.GetCardIDs())
 
-	for _, cardID := range data.GetCardIDs() {
-		index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
-			return cID == cardID
-		})
-		if index != -1 {
-			cardIDs = slices.Delete(cardIDs, index, index+1)
+	if len(data.GetCardIDs()) > 0 && len(cardIDs) > 0 {
+		for _, cardID := range data.GetCardIDs() {
+			index := slices.IndexFunc(cardIDs, func(cID uuid.UUID) bool {
+				return cID == cardID
+			})
+
+			if index != -1 {
+				cardIDs = slices.Delete(cardIDs, index, index+1)
+			}
+		}
+	}
+
+	if len(data.GetCardIndexes()) > 0 && len(cardIDs) > 0 {
+		// Remove cards at the specified indexes, in descending order to avoid shifting issues
+		indexes := data.GetCardIndexes()
+		slices.SortFunc(indexes, func(a, b int) int { return b - a }) // sort descending
+
+		for _, idx := range indexes {
+			if idx >= 0 && idx < len(cardIDs) {
+				cardIDs = slices.Delete(cardIDs, idx, idx+1)
+			}
 		}
 	}
 

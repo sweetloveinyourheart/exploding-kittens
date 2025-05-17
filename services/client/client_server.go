@@ -22,6 +22,11 @@ func InitializeRepos(ctx context.Context) error {
 		return err
 	}
 
+	err = game.AddNATSGameCommandHandlers(ctx, appID, domains.CommandBus)
+	if err != nil {
+		return err
+	}
+
 	domains.LobbyRepo, err = lobby.CreateNATSRepoLobbies(ctx, appID)
 	if err != nil {
 		return err

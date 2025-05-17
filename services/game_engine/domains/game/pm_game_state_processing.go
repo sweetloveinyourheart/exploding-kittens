@@ -77,6 +77,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		game.EventTypeGameInitialized,
 		game.EventTypeTurnStarted,
 		game.EventTypeActionCreated,
+		game.EventTypeAffectedPlayerSelected,
 		game.EventTypeTurnFinished,
 		game.EventTypeTurnReversed,
 	)
@@ -344,6 +345,17 @@ func (w *GameInteractionProcessor) HandleActionCreated(ctx context.Context, even
 	}
 
 	log.Global().InfoContext(ctx, "Action created", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *game.AffectedPlayerSelected) error {
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Affected player selected", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
 
 	return nil
 }

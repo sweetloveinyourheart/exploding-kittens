@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"slices"
 	"strings"
 	"time"
@@ -186,19 +185,32 @@ func NewHandStateProcessor(ctx context.Context) (*HandStateProcessor, error) {
 }
 
 func (w *HandStateProcessor) HandleHandCreated(ctx context.Context, event common.Event, data *hand.HandCreated) error {
+	log.Global().InfoContext(ctx, "hand created", zap.String("handID", data.GetHandID().String()))
+
 	w.handCardIDs[data.GetHandID()] = data.GetCardIDs()
 
 	return nil
 }
 
-func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
-	handCardIDs := w.handCardIDs[data.GetHandID()]
-
+func (w *HandStateProcessor) HandleCardsPlayed(ctx context.Context, event common.Event, data *hand.CardsPlayed) error {
+	// Remove the played cards from the hand
+	handCardIDs := slices.Clone(w.handCardIDs[data.GetHandID()])
 	for _, cardID := range data.GetCardIDs() {
-		if slices.Contains(handCardIDs, cardID) {
-			w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, slices.Index(handCardIDs, cardID), 1)
+		index := slices.IndexFunc(handCardIDs, func(cID uuid.UUID) bool {
+			return cID == cardID
+		})
+		if index != -1 {
+			handCardIDs = slices.Delete(handCardIDs, index, index+1)
 		}
 	}
+
+	w.handCardIDs[data.GetHandID()] = handCardIDs
+
+	log.Global().InfoContext(ctx, "card played",
+		zap.String("handID", data.GetHandID().String()),
+		zap.Strings("cardIDs", lo.Map(data.GetCardIDs(), func(c uuid.UUID, _ int) string {
+			return c.String()
+		})))
 
 	// Emit hand state update event
 	err := w.emitHandStateUpdateEvent(data.GetHandID())
@@ -211,7 +223,14 @@ func (w *HandStateProcessor) HandleCardPlayed(ctx context.Context, event common.
 }
 
 func (w *HandStateProcessor) HandleCardsReceived(ctx context.Context, event common.Event, data *hand.CardsReceived) error {
+	// Add the received cards to the hand
 	w.handCardIDs[data.GetHandID()] = append(w.handCardIDs[data.GetHandID()], data.GetCardIDs()...)
+
+	log.Global().InfoContext(ctx, "cards received",
+		zap.String("handID", data.GetHandID().String()),
+		zap.Strings("cardIDs", lo.Map(data.GetCardIDs(), func(c uuid.UUID, _ int) string {
+			return c.String()
+		})))
 
 	// Emit hand state update event
 	err := w.emitHandStateUpdateEvent(data.GetHandID())
@@ -224,32 +243,58 @@ func (w *HandStateProcessor) HandleCardsReceived(ctx context.Context, event comm
 }
 
 func (w *HandStateProcessor) HandleCardsGiven(ctx context.Context, event common.Event, data *hand.CardsGiven) error {
-	cardIDs := data.GetCardIDs()
-	handCardIDs := w.handCardIDs[data.GetHandID()]
+	handCardIDs := slices.Clone(w.handCardIDs[data.GetHandID()])
 
-	if len(cardIDs) == 0 {
-		randomIndex := rand.Intn(len(handCardIDs))
-		randomCardID := handCardIDs[randomIndex]
+	cardIDsToGive := make([]uuid.UUID, 0)
+	if len(data.GetCardIDs()) > 0 && len(handCardIDs) > 0 {
+		cardIDsToGive = data.GetCardIDs()
 
-		w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, randomIndex, randomIndex+1)
-		cardIDs = append(cardIDs, randomCardID)
+		for _, cardID := range data.GetCardIDs() {
+			index := slices.IndexFunc(handCardIDs, func(cID uuid.UUID) bool {
+				return cID == cardID
+			})
 
-		log.Global().InfoContext(ctx, "random card selected", zap.String("cardID", randomCardID.String()))
-	} else {
-		for _, cardID := range cardIDs {
-			if slices.Contains(handCardIDs, cardID) {
-				index := slices.Index(handCardIDs, cardID)
-				w.handCardIDs[data.GetHandID()] = slices.Delete(handCardIDs, index, index+1)
+			if index != -1 {
+				handCardIDs = slices.Delete(handCardIDs, index, index+1)
 			}
 		}
 	}
 
+	if len(data.GetCardIndexes()) > 0 && len(handCardIDs) > 0 {
+		// Remove cards at the specified indexes, in descending order to avoid shifting issues
+		indexes := data.GetCardIndexes()
+		slices.SortFunc(indexes, func(a, b int) int { return b - a }) // sort descending
+
+		for _, idx := range indexes {
+			if idx >= 0 && idx < len(handCardIDs) {
+				cardIDsToGive = append(cardIDsToGive, handCardIDs[idx])
+				handCardIDs = slices.Delete(handCardIDs, idx, idx+1)
+			}
+		}
+	}
+
+	w.handCardIDs[data.GetHandID()] = handCardIDs
+
 	if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
-		HandID:  data.ToHandID,
-		CardIDs: cardIDs,
+		HandID:  data.GetToHandID(),
+		CardIDs: cardIDsToGive,
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
 
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "cards given",
+		zap.String("handID", data.GetHandID().String()),
+		zap.String("toHandID", data.GetToHandID().String()),
+		zap.Strings("cardIDs", lo.Map(cardIDsToGive, func(c uuid.UUID, _ int) string {
+			return c.String()
+		})))
+
+	// Emit hand state update event
+	err := w.emitHandStateUpdateEvent(data.GetHandID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit hand state update event", zap.Error(err))
 		return err
 	}
 

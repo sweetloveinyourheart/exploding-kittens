@@ -454,6 +454,10 @@ export declare class Game extends Message<Game> {
      * @generated from field: string executing_action = 7;
      */
     executingAction: string;
+    /**
+     * @generated from field: string affected_player = 8;
+     */
+    affectedPlayer: string;
     constructor(data?: PartialMessage<Game>);
     static readonly runtime: typeof proto3;
     static readonly typeName = "com.sweetloveinyourheart.kittens.clients.Game";
@@ -764,6 +768,10 @@ export declare class StealCardRequest extends Message<StealCardRequest> {
      * @generated from field: optional string card_id = 2;
      */
     cardId?: string;
+    /**
+     * @generated from field: optional int32 card_index = 3;
+     */
+    cardIndex?: number;
     constructor(data?: PartialMessage<StealCardRequest>);
     static readonly runtime: typeof proto3;
     static readonly typeName = "com.sweetloveinyourheart.kittens.clients.StealCardRequest";

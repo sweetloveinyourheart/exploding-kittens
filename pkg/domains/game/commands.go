@@ -249,9 +249,9 @@ func (c *SelectAffectedPlayer) Validate() error {
 }
 
 type ExecuteAction struct {
-	GameID uuid.UUID `json:"game_id"`
-	Effect string    `json:"effect"`
-	CardID uuid.UUID `json:"card_id"`
+	GameID uuid.UUID        `json:"game_id"`
+	Effect string           `json:"effect"`
+	Args   *ActionArguments `json:"args"`
 }
 
 func (c *ExecuteAction) AggregateType() common.AggregateType { return AggregateType }

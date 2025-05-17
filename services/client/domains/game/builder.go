@@ -64,6 +64,7 @@ func (a *GameResponseBuilder) Build(gameState *game.Game, deskState *desk.Desk, 
 		PlayerHands:     playerHands,
 		Desk:            desk,
 		ExecutingAction: gameState.GetExecutingAction(),
+		AffectedPlayer:  gameState.GetAffectedPlayer().String(),
 	}
 
 	return result, nil

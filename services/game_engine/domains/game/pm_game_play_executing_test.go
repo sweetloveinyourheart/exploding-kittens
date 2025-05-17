@@ -124,7 +124,9 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Favor() {
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
 		GameID: gameID,
 		Effect: card_effects.StealCard,
-		CardID: uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
+		Args: &gameDomain.ActionArguments{
+			CardIDs: []uuid.UUID{uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId()))},
+		},
 	})
 	gs.NoError(err)
 
@@ -256,6 +258,9 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo2_HairyPotatoCat()
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
 		GameID: gameID,
 		Effect: card_effects.StealRandomCard,
+		Args: &gameDomain.ActionArguments{
+			CardIndexes: []int{0},
+		},
 	})
 	gs.NoError(err)
 
@@ -389,7 +394,9 @@ func (gs *GameSuite) TestGamePlayExecutor_HandleCardPlay_Combo3_BreadCat() {
 	err = commandBus.HandleCommand(ctx, &gameDomain.ExecuteAction{
 		GameID: gameID,
 		Effect: card_effects.StealNamedCard,
-		CardID: uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId())),
+		Args: &gameDomain.ActionArguments{
+			CardIDs: []uuid.UUID{uuid.Must(uuid.FromString(cardsCodeMap[cards.Defuse].GetCardId()))},
+		},
 	})
 	gs.NoError(err)
 

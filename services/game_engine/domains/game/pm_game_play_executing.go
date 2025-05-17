@@ -198,7 +198,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 }
 
 func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
-	w.gameCardsToDraw[data.GameID.String()] = 1
+	w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
 	w.gameDeskID[data.GameID.String()] = data.GetDesk()
 	w.gamePlayerHands[data.GameID.String()] = data.GetPlayerHands()
 	w.gameAffectingPlayerID[data.GameID.String()] = uuid.Nil
@@ -364,9 +364,20 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 		w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount + w.gameCardsToDraw[data.GameID.String()]
 
 	case card_effects.PeekCards:
-		// No action needed, just a notification
+		if err := domains.CommandBus.HandleCommand(ctx, &desk.PeekCards{
+			DeskID: w.gameDeskID[data.GameID.String()],
+			Count:  card_effects.PeekCardsCount,
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to peek cards", zap.Error(err))
+			return err
+		}
 
 	case card_effects.StealCard: // Target player must give a card to the current player
+		args := data.GetArgs()
+		if args == nil {
+			return errors.Errorf("no args found for game ID: %s", data.GameID.String())
+		}
+
 		currentPlayerID, ok := w.gamePlayerTurnID[data.GameID.String()]
 		if !ok {
 			return errors.Errorf("no player turn found for game ID: %s", data.GameID.String())
@@ -390,24 +401,22 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 			return errors.Errorf("no hand found for player ID: %s", currentPlayerID.String())
 		}
 
-		cardIDs := make([]uuid.UUID, 0)
-		if data.GetCardID() != uuid.Nil {
-			cardIDs = append(cardIDs, data.GetCardID())
-		} else {
-			return errors.Errorf("no target card ID found for game ID: %s", data.GameID.String())
-		}
-
 		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
 			HandID:   handID,
 			ToHandID: toHandID,
-			CardIDs:  cardIDs,
+			CardIDs:  args.GetCardIDs(),
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
 			return err
 		}
 		w.gameAffectingPlayerID[data.GameID.String()] = uuid.Nil
 
-	case card_effects.StealNamedCard, card_effects.StealRandomCard: // Steal a card from the target player
+	case card_effects.StealRandomCard: // Steal a card from the target player
+		args := data.GetArgs()
+		if args == nil {
+			return errors.Errorf("no args found for game ID: %s", data.GameID.String())
+		}
+
 		currentPlayerID := w.gamePlayerTurnID[data.GameID.String()]
 		if currentPlayerID == uuid.Nil {
 			return errors.Errorf("no current player found for game ID: %s", data.GameID.String())
@@ -431,15 +440,49 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 			return errors.Errorf("no hand found for player ID: %s", currentPlayerID.String())
 		}
 
-		cardIDs := make([]uuid.UUID, 0)
-		if data.GetCardID() != uuid.Nil {
-			cardIDs = append(cardIDs, data.GetCardID())
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
+			HandID:      handID,
+			ToHandID:    toHandID,
+			CardIndexes: args.GetCardIndexes(),
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
+			return err
+		}
+		w.gameAffectingPlayerID[data.GameID.String()] = uuid.Nil
+
+	case card_effects.StealNamedCard: // Steal a named card from the target player
+		args := data.GetArgs()
+		if args == nil {
+			return errors.Errorf("no args found for game ID: %s", data.GameID.String())
+		}
+
+		currentPlayerID := w.gamePlayerTurnID[data.GameID.String()]
+		if currentPlayerID == uuid.Nil {
+			return errors.Errorf("no current player found for game ID: %s", data.GameID.String())
+		}
+
+		targetPlayerID, ok := w.gameAffectingPlayerID[data.GameID.String()]
+		if !ok {
+			return errors.Errorf("no affecting player found for game ID: %s", data.GameID.String())
+		}
+		if targetPlayerID == uuid.Nil {
+			return errors.Errorf("no target player found for game ID: %s", data.GameID.String())
+		}
+
+		handID, ok := w.gamePlayerHands[data.GameID.String()][targetPlayerID]
+		if !ok {
+			return errors.Errorf("no hand found for player ID: %s", targetPlayerID.String())
+		}
+
+		toHandID, ok := w.gamePlayerHands[data.GameID.String()][currentPlayerID]
+		if !ok {
+			return errors.Errorf("no hand found for player ID: %s", currentPlayerID.String())
 		}
 
 		if err := domains.CommandBus.HandleCommand(ctx, &hand.GiveCards{
 			HandID:   handID,
 			ToHandID: toHandID,
-			CardIDs:  cardIDs,
+			CardIDs:  args.CardIDs,
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to steal card", zap.Error(err))
 			return err

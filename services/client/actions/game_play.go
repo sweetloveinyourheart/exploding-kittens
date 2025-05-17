@@ -45,7 +45,7 @@ func (a *actions) PeekCards(ctx context.Context, request *connect.Request[proto.
 		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
 	}
 
-	deskState, err := domains.DeskRepo.Find(ctx, request.Msg.GetGameId())
+	deskState, err := domains.DeskRepo.Find(ctx, request.Msg.GetDeskId())
 	if err != nil {
 		if errors.Is(err, desk.ErrDeskNotAvailable) {
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "desk_id", "no such desk"))
@@ -70,8 +70,8 @@ func (a *actions) PeekCards(ctx context.Context, request *connect.Request[proto.
 	}
 
 	peekedCards := deskState.GetCardIDs()
-	if len(peekedCards) > 3 {
-		peekedCards = peekedCards[len(peekedCards)-3:]
+	if len(peekedCards) > card_effects.PeekCardsCount {
+		peekedCards = peekedCards[len(peekedCards)-card_effects.PeekCardsCount:]
 	} else if len(peekedCards) > 0 {
 		peekedCards = peekedCards[:]
 	}
@@ -112,19 +112,19 @@ func (a *actions) StealCard(ctx context.Context, request *connect.Request[proto.
 	}
 
 	var cardEffect string
-	var cardID uuid.UUID
+	var args game.ActionArguments
 	if request.Msg.GetCardId() != "" {
 		cardEffect = card_effects.StealNamedCard
-		cardID = stringsutil.ConvertStringToUUID(request.Msg.GetCardId())
+		args.CardIDs = []uuid.UUID{stringsutil.ConvertStringToUUID(request.Msg.GetCardId())}
 	} else {
 		cardEffect = card_effects.StealRandomCard
-		cardID = uuid.Nil
+		args.CardIndexes = []int{int(request.Msg.GetCardIndex())}
 	}
 
 	if err := domains.CommandBus.HandleCommand(ctx, &game.ExecuteAction{
 		GameID: stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
 		Effect: cardEffect,
-		CardID: cardID,
+		Args:   &args,
 	}); err != nil {
 		if errors.Is(err, game.ErrGameNotFound) {
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "game_id", "no such game"))
@@ -149,7 +149,9 @@ func (a *actions) GiveCard(ctx context.Context, request *connect.Request[proto.G
 	if err := domains.CommandBus.HandleCommand(ctx, &game.ExecuteAction{
 		GameID: stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
 		Effect: card_effects.StealCard,
-		CardID: stringsutil.ConvertStringToUUID(request.Msg.GetCardId()),
+		Args: &game.ActionArguments{
+			CardIDs: []uuid.UUID{stringsutil.ConvertStringToUUID(request.Msg.GetCardId())},
+		},
 	}); err != nil {
 		if errors.Is(err, game.ErrGameNotFound) {
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "game_id", "no such game"))

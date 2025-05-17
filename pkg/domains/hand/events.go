@@ -87,9 +87,10 @@ func (p *CardsPlayed) GetHandID() uuid.UUID { return p.HandID }
 func (p *CardsPlayed) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 type CardsGiven struct {
-	HandID   uuid.UUID   `json:"hand_id"`
-	CardIDs  []uuid.UUID `json:"card_ids"`
-	ToHandID uuid.UUID   `json:"to_hand_id"`
+	HandID      uuid.UUID   `json:"hand_id"`
+	ToHandID    uuid.UUID   `json:"to_hand_id"`
+	CardIndexes []int       `json:"card_indexes"` // for random selection
+	CardIDs     []uuid.UUID `json:"card_ids"`     // for specific selection
 }
 
 func (p *CardsGiven) EventType() common.EventType { return "HAND_CARDS_GIVEN" }
@@ -99,3 +100,5 @@ func (p *CardsGiven) GetHandID() uuid.UUID { return p.HandID }
 func (p *CardsGiven) GetToHandID() uuid.UUID { return p.ToHandID }
 
 func (p *CardsGiven) GetCardIDs() []uuid.UUID { return p.CardIDs }
+
+func (p *CardsGiven) GetCardIndexes() []int { return p.CardIndexes }

@@ -52,6 +52,7 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 
 	deskMatcher := eventing.NewMatchEventSubject(desk.SubjectFactory, desk.AggregateType,
 		desk.EventTypeDeskShuffled,
+		desk.EventTypeCardsPeeked,
 	)
 
 	deskSubject := nats2.CreateConsumerSubject(constants.DeskStream, deskMatcher)
@@ -177,7 +178,20 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 }
 
 func (w *DeskStateProcessor) HandleDeskShuffled(ctx context.Context, event common.Event, data *desk.DeskShuffled) error {
-	log.Global().DebugContext(ctx, "desk shuffled", zap.String("desk_id", data.GetDeskID().String()))
+	log.Global().InfoContext(ctx, "desk shuffled", zap.String("desk_id", data.GetDeskID().String()))
+
+	// Emit desk state update event
+	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *DeskStateProcessor) HandleCardsPeeked(ctx context.Context, event common.Event, data *desk.CardsPeeked) error {
+	log.Global().InfoContext(ctx, "cards peeked", zap.String("desk_id", data.GetDeskID().String()), zap.Int("count", data.GetCount()))
 
 	// Emit desk state update event
 	err := w.emitDeskStateUpdateEvent(data.GetDeskID())

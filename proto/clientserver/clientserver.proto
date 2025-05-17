@@ -173,6 +173,7 @@ message Game {
     map<string, PlayerHand> player_hands = 5;
     Desk desk = 6;
     string executing_action = 7;
+    string affected_player = 8;
 }
 
 message GameMetaData {
@@ -228,6 +229,7 @@ message SelectAffectedPlayerRequest {
 message StealCardRequest {
     string game_id = 1;
     optional string card_id = 2;
+    optional int32 card_index = 3;
 }
 
 // Message for giving a card

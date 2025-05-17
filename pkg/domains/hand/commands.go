@@ -121,9 +121,10 @@ func (c *ReceiveCards) Validate() error {
 }
 
 type GiveCards struct {
-	HandID   uuid.UUID   `json:"hand_id"`
-	CardIDs  []uuid.UUID `json:"card_ids"`
-	ToHandID uuid.UUID   `json:"to_hand_id"`
+	HandID      uuid.UUID   `json:"hand_id"`
+	ToHandID    uuid.UUID   `json:"to_hand_id"`
+	CardIndexes []int       `json:"card_indexes"` // for random selection
+	CardIDs     []uuid.UUID `json:"card_ids"`     // for specific selection
 }
 
 func (c *GiveCards) AggregateType() common.AggregateType { return AggregateType }

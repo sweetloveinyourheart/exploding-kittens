@@ -3422,6 +3422,10 @@ var Game = class _Game extends Message {
    * @generated from field: string executing_action = 7;
    */
   executingAction = "";
+  /**
+   * @generated from field: string affected_player = 8;
+   */
+  affectedPlayer = "";
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -3450,6 +3454,13 @@ var Game = class _Game extends Message {
     {
       no: 7,
       name: "executing_action",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 8,
+      name: "affected_player",
       kind: "scalar",
       T: 9
       /* ScalarType.STRING */
@@ -3936,6 +3947,10 @@ var StealCardRequest = class _StealCardRequest extends Message {
    * @generated from field: optional string card_id = 2;
    */
   cardId;
+  /**
+   * @generated from field: optional int32 card_index = 3;
+   */
+  cardIndex;
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -3950,7 +3965,8 @@ var StealCardRequest = class _StealCardRequest extends Message {
       T: 9
       /* ScalarType.STRING */
     },
-    { no: 2, name: "card_id", kind: "scalar", T: 9, opt: true }
+    { no: 2, name: "card_id", kind: "scalar", T: 9, opt: true },
+    { no: 3, name: "card_index", kind: "scalar", T: 5, opt: true }
   ]);
   static fromBinary(bytes, options) {
     return new _StealCardRequest().fromBinary(bytes, options);

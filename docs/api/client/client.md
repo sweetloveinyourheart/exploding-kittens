@@ -150,6 +150,7 @@ Message for creating a new guest user
 | player_hands | [Game.PlayerHandsEntry](#com-sweetloveinyourheart-kittens-clients-Game-PlayerHandsEntry) | repeated |  |
 | desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
 | executing_action | [string](#string) |  |  |
+| affected_player | [string](#string) |  |  |
 
 
 
@@ -562,6 +563,7 @@ This message is used to steal a card from another player
 | ----- | ---- | ----- | ----------- |
 | game_id | [string](#string) |  |  |
 | card_id | [string](#string) | optional |  |
+| card_index | [int32](#int32) | optional |  |
 
 
 

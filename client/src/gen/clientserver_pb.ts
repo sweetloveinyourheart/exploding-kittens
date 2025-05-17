@@ -891,6 +891,11 @@ export class Game extends Message<Game> {
    */
   executingAction = "";
 
+  /**
+   * @generated from field: string affected_player = 8;
+   */
+  affectedPlayer = "";
+
   constructor(data?: PartialMessage<Game>) {
     super();
     proto3.util.initPartial(data, this);
@@ -906,6 +911,7 @@ export class Game extends Message<Game> {
     { no: 5, name: "player_hands", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: Game_PlayerHand} },
     { no: 6, name: "desk", kind: "message", T: Game_Desk },
     { no: 7, name: "executing_action", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "affected_player", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Game {
@@ -1499,6 +1505,11 @@ export class StealCardRequest extends Message<StealCardRequest> {
    */
   cardId?: string;
 
+  /**
+   * @generated from field: optional int32 card_index = 3;
+   */
+  cardIndex?: number;
+
   constructor(data?: PartialMessage<StealCardRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -1509,6 +1520,7 @@ export class StealCardRequest extends Message<StealCardRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "card_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "card_index", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StealCardRequest {

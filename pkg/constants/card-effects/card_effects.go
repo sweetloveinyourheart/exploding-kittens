@@ -18,6 +18,7 @@ const (
 
 const (
 	AttackBonusCount = 1
+	PeekCardsCount   = 3
 )
 
 var AllCardEffects = []string{

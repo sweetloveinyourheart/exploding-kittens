@@ -286,11 +286,11 @@ func (p *GameProjector) handleTurnReversed(ctx context.Context, event common.Eve
 	return entity, nil
 }
 
-// handleCardPlayed handles cards played events.
+// handleCardsPlayed handles cards played events.
 func (p *GameProjector) handleCardsPlayed(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
 	data, ok := event.Data().(*CardsPlayed)
 	if !ok {
-		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardPlayed"))
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsPlayed"))
 	}
 
 	if handler, ok := p.handler.(interface {

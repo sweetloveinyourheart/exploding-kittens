@@ -11,23 +11,27 @@ func init() {
 	eventing.RegisterCommand[CreateDesk, *CreateDesk]()
 	eventing.RegisterCommand[ShuffleDesk, *ShuffleDesk]()
 	eventing.RegisterCommand[DiscardCards, *DiscardCards]()
+	eventing.RegisterCommand[PeekCards, *PeekCards]()
 }
 
 const (
 	CreateDeskCommand   = common.CommandType("desk:create")
 	ShuffleDeskCommand  = common.CommandType("desk:shuffle")
 	DiscardCardsCommand = common.CommandType("desk:cards:discard")
+	PeekCardsCommand    = common.CommandType("desk:cards:peek")
 )
 
 var AllCommands = []common.CommandType{
 	CreateDeskCommand,
 	ShuffleDeskCommand,
 	DiscardCardsCommand,
+	PeekCardsCommand,
 }
 
 var _ = eventing.Command(&CreateDesk{})
 var _ = eventing.Command(&ShuffleDesk{})
 var _ = eventing.Command(&DiscardCards{})
+var _ = eventing.Command(&PeekCards{})
 
 type CreateDesk struct {
 	DeskID  uuid.UUID   `json:"desk_id"`
@@ -88,6 +92,29 @@ func (c *DiscardCards) Validate() error {
 
 	if len(c.CardIDs) == 0 {
 		return &common.CommandFieldError{Field: "card_ids", Details: "empty list"}
+	}
+
+	return nil
+}
+
+type PeekCards struct {
+	DeskID uuid.UUID `json:"desk_id"`
+	Count  int       `json:"count"`
+}
+
+func (c *PeekCards) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *PeekCards) AggregateID() string { return c.DeskID.String() }
+
+func (c *PeekCards) CommandType() common.CommandType { return PeekCardsCommand }
+
+func (c *PeekCards) Validate() error {
+	if c.DeskID == uuid.Nil {
+		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	if c.Count <= 0 {
+		return &common.CommandFieldError{Field: "count", Details: "invalid count"}
 	}
 
 	return nil

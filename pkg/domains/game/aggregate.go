@@ -69,10 +69,9 @@ const AggregateType = common.AggregateType("game")
 type Aggregate struct {
 	*aggregate.AggregateBase
 
-	actived          bool
-	currentGameID    uuid.UUID
-	currentGamePhase int
-	playerTurn       uuid.UUID
+	actived       bool
+	currentGameID uuid.UUID
+	playerTurn    uuid.UUID
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -146,17 +145,9 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrPlayerNotInTheirTurn
 		}
 
-		if a.currentGamePhase != GAME_PHASE_TURN_START {
-			return ErrGameNotInPlayPhase
-		}
-
 	case *CreateAction:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
-		}
-
-		if a.currentGamePhase != GAME_PHASE_TURN_START {
-			return ErrGameNotInPlayPhase
 		}
 
 	case *ExecuteAction:
@@ -164,17 +155,9 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameNotFound
 		}
 
-		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
-			return ErrGameNotInActionPhase
-		}
-
 	case *SelectAffectedPlayer:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
-		}
-
-		if a.currentGamePhase != GAME_PHASE_ACTION_PHASE {
-			return ErrGameNotInActionPhase
 		}
 
 	}
@@ -237,7 +220,7 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		a.AppendEvent(EventTypeActionExecuted, &ActionExecuted{
 			GameID: cmd.GameID,
 			Effect: cmd.Effect,
-			CardID: cmd.CardID,
+			Args:   cmd.Args,
 		}, TimeNow())
 
 	default:
@@ -282,22 +265,17 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.playerTurn = data.GetPlayerID()
-		a.currentGamePhase = GAME_PHASE_TURN_START
 
 	case EventTypeTurnFinished:
 		a.playerTurn = uuid.Nil
-		a.currentGamePhase = GAME_PHASE_TURN_FINISH
 
 	case EventTypeTurnReversed:
 		a.playerTurn = uuid.Nil
-		a.currentGamePhase = GAME_PHASE_TURN_FINISH
 
 	case EventTypeCardsPlayed:
 	case EventTypeActionCreated:
-		a.currentGamePhase = GAME_PHASE_ACTION_PHASE // action phase starts after action is created
 	case EventTypeAffectedPlayerSelected:
 	case EventTypeActionExecuted:
-		a.currentGamePhase = GAME_PHASE_TURN_START // player turn starts after action is executed
 	}
 
 	return nil

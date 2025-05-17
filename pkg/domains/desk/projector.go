@@ -81,3 +81,9 @@ func (p *Projector) HandleCardsDiscarded(ctx context.Context, event common.Event
 
 	return entity, nil
 }
+
+func (p *Projector) HandleCardsPeeked(ctx context.Context, event common.Event, data *CardsPeeked, entity *Desk) (*Desk, error) {
+	entity.DeskID = data.GetDeskID()
+
+	return entity, nil
+}
