@@ -18,6 +18,7 @@ func init() {
 	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
 
 	eventing.RegisterCommand[PlayCards, *PlayCards]()
+	eventing.RegisterCommand[DrawCards, *DrawCards]()
 	eventing.RegisterCommand[CreateAction, *CreateAction]()
 	eventing.RegisterCommand[ExecuteAction, *ExecuteAction]()
 	eventing.RegisterCommand[SelectAffectedPlayer, *SelectAffectedPlayer]()
@@ -31,6 +32,7 @@ const (
 	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
 
 	PlayCardsCommand            = common.CommandType("game:cards:play")
+	DrawCardsCommand            = common.CommandType("game:cards:draw")
 	CreateActionCommand         = common.CommandType("game:action:create")
 	SelectAffectedPlayerCommand = common.CommandType("game:action:select-affected-player")
 	ExecuteActionCommand        = common.CommandType("game:action:execute")
@@ -44,6 +46,7 @@ var AllCommands = []common.CommandType{
 	ReverseTurnCommand,
 
 	PlayCardsCommand,
+	DrawCardsCommand,
 	CreateActionCommand,
 	SelectAffectedPlayerCommand,
 	ExecuteActionCommand,
@@ -55,6 +58,7 @@ var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&ReverseTurn{})
 var _ = eventing.Command(&PlayCards{})
+var _ = eventing.Command(&DrawCards{})
 var _ = eventing.Command(&CreateAction{})
 var _ = eventing.Command(&SelectAffectedPlayer{})
 var _ = eventing.Command(&ExecuteAction{})
@@ -272,6 +276,29 @@ func (c *ExecuteAction) Validate() error {
 	// Check if the effect is valid
 	if !slices.Contains(card_effects.AllCardEffects, c.Effect) {
 		return &common.CommandFieldError{Field: "effect", Details: "invalid effect"}
+	}
+
+	return nil
+}
+
+type DrawCards struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *DrawCards) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *DrawCards) AggregateID() string { return c.GameID.String() }
+
+func (c *DrawCards) CommandType() common.CommandType { return DrawCardsCommand }
+
+func (c *DrawCards) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	return nil

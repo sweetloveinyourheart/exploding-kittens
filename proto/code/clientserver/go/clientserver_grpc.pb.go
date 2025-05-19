@@ -35,6 +35,7 @@ const (
 	ClientServer_StreamGame_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
 	ClientServer_PlayCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
 	ClientServer_PeekCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
+	ClientServer_DrawCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DrawCards"
 	ClientServer_SelectAffectedPlayer_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
 	ClientServer_StealCard_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
 	ClientServer_GiveCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
@@ -59,6 +60,7 @@ type ClientServerClient interface {
 	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
 	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error)
+	DrawCards(ctx context.Context, in *DrawCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -240,6 +242,16 @@ func (c *clientServerClient) PeekCards(ctx context.Context, in *PeekCardsRequest
 	return out, nil
 }
 
+func (c *clientServerClient) DrawCards(ctx context.Context, in *DrawCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_DrawCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *clientServerClient) SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -289,6 +301,7 @@ type ClientServerServer interface {
 	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
 	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
 	PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error)
+	DrawCards(context.Context, *DrawCardsRequest) (*emptypb.Empty, error)
 	SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error)
 	StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error)
 	GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error)
@@ -345,6 +358,9 @@ func (UnimplementedClientServerServer) PlayCards(context.Context, *PlayCardsRequ
 }
 func (UnimplementedClientServerServer) PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PeekCards not implemented")
+}
+func (UnimplementedClientServerServer) DrawCards(context.Context, *DrawCardsRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DrawCards not implemented")
 }
 func (UnimplementedClientServerServer) SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelectAffectedPlayer not implemented")
@@ -631,6 +647,24 @@ func _ClientServer_PeekCards_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_DrawCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DrawCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).DrawCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_DrawCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).DrawCards(ctx, req.(*DrawCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ClientServer_SelectAffectedPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SelectAffectedPlayerRequest)
 	if err := dec(in); err != nil {
@@ -743,6 +777,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PeekCards",
 			Handler:    _ClientServer_PeekCards_Handler,
+		},
+		{
+			MethodName: "DrawCards",
+			Handler:    _ClientServer_DrawCards_Handler,
 		},
 		{
 			MethodName: "SelectAffectedPlayer",

@@ -87,3 +87,13 @@ func (p *Projector) HandleCardsPeeked(ctx context.Context, event common.Event, d
 
 	return entity, nil
 }
+
+func (p *Projector) HandleCardsDrawn(ctx context.Context, event common.Event, data *CardsDrawn, entity *Desk) (*Desk, error) {
+	entity.DeskID = data.GetDeskID()
+
+	cardIDs := entity.GetCardIDs()
+	cardIDs = cardIDs[:len(cardIDs)-data.GetCount()]
+	entity.CardIDs = cardIDs
+
+	return entity, nil
+}

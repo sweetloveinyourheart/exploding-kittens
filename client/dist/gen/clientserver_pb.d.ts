@@ -805,3 +805,23 @@ export declare class GiveCardRequest extends Message<GiveCardRequest> {
     static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GiveCardRequest;
     static equals(a: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined, b: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined): boolean;
 }
+/**
+ * Message for drawing cards
+ * This message is used to draw cards from the deck
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardsRequest
+ */
+export declare class DrawCardsRequest extends Message<DrawCardsRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    constructor(data?: PartialMessage<DrawCardsRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardsRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardsRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardsRequest;
+    static equals(a: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined, b: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined): boolean;
+}

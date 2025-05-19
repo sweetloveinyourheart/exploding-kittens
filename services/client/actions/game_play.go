@@ -166,3 +166,24 @@ func (a *actions) GiveCard(ctx context.Context, request *connect.Request[proto.G
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
 }
+
+func (a *actions) DrawCards(ctx context.Context, request *connect.Request[proto.DrawCardsRequest]) (response *connect.Response[emptypb.Empty], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	if err := domains.CommandBus.HandleCommand(ctx, &game.DrawCards{
+		GameID:   stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
+		PlayerID: userID,
+	}); err != nil {
+		if errors.Is(err, game.ErrGameNotFound) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "game_id", "no such game"))
+		}
+		if errors.Is(err, game.ErrPlayerNotInTheirTurn) {
+			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "player_id", "not in their turn"))
+		}
+	}
+
+	return connect.NewResponse(&emptypb.Empty{}), nil
+}

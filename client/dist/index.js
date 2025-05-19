@@ -4025,6 +4025,39 @@ var GiveCardRequest = class _GiveCardRequest extends Message {
     return proto3.util.equals(_GiveCardRequest, a, b);
   }
 };
+var DrawCardsRequest = class _DrawCardsRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _DrawCardsRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _DrawCardsRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _DrawCardsRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_DrawCardsRequest, a, b);
+  }
+};
 
 // src/gen/clientserver_connect.ts
 var ClientServer = {
@@ -4166,6 +4199,15 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCards
+     */
+    drawCards: {
+      name: "DrawCards",
+      I: DrawCardsRequest,
+      O: Empty,
+      kind: MethodKind.Unary
+    },
+    /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer
      */
     selectAffectedPlayer: {
@@ -4201,6 +4243,7 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
+  DrawCardsRequest,
   Game,
   GameMetaData,
   Game_Desk,

@@ -12,6 +12,7 @@ func init() {
 	eventing.RegisterCommand[ShuffleDesk, *ShuffleDesk]()
 	eventing.RegisterCommand[DiscardCards, *DiscardCards]()
 	eventing.RegisterCommand[PeekCards, *PeekCards]()
+	eventing.RegisterCommand[DrawCards, *DrawCards]()
 }
 
 const (
@@ -19,6 +20,7 @@ const (
 	ShuffleDeskCommand  = common.CommandType("desk:shuffle")
 	DiscardCardsCommand = common.CommandType("desk:cards:discard")
 	PeekCardsCommand    = common.CommandType("desk:cards:peek")
+	DrawCardsCommand    = common.CommandType("desk:cards:draw")
 )
 
 var AllCommands = []common.CommandType{
@@ -26,12 +28,14 @@ var AllCommands = []common.CommandType{
 	ShuffleDeskCommand,
 	DiscardCardsCommand,
 	PeekCardsCommand,
+	DrawCardsCommand,
 }
 
 var _ = eventing.Command(&CreateDesk{})
 var _ = eventing.Command(&ShuffleDesk{})
 var _ = eventing.Command(&DiscardCards{})
 var _ = eventing.Command(&PeekCards{})
+var _ = eventing.Command(&DrawCards{})
 
 type CreateDesk struct {
 	DeskID  uuid.UUID   `json:"desk_id"`
@@ -111,6 +115,39 @@ func (c *PeekCards) CommandType() common.CommandType { return PeekCardsCommand }
 func (c *PeekCards) Validate() error {
 	if c.DeskID == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	if c.Count <= 0 {
+		return &common.CommandFieldError{Field: "count", Details: "invalid count"}
+	}
+
+	return nil
+}
+
+type DrawCards struct {
+	DeskID   uuid.UUID `json:"desk_id"`
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Count    int       `json:"count"`
+}
+
+func (c *DrawCards) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *DrawCards) AggregateID() string { return c.DeskID.String() }
+
+func (c *DrawCards) CommandType() common.CommandType { return DrawCardsCommand }
+
+func (c *DrawCards) Validate() error {
+	if c.DeskID == uuid.Nil {
+		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
 	if c.Count <= 0 {

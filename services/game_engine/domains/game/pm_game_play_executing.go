@@ -73,6 +73,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 		game.EventTypeActionCreated,
 		game.EventTypeAffectedPlayerSelected,
 		game.EventTypeActionExecuted,
+		game.EventTypeCardsDrawn,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -214,6 +215,11 @@ func (w *GamePlayExecutor) HandleTurnStarted(ctx context.Context, event common.E
 }
 
 func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.Event, data *game.CardsPlayed) error {
+	cards := data.GetCardIDs()
+	if len(cards) == 0 {
+		return errors.Errorf("failed to play: no card to play")
+	}
+
 	if err := domains.CommandBus.HandleCommand(ctx, &hand.PlayCards{
 		HandID:  w.gamePlayerHands[data.GameID.String()][data.PlayerID],
 		CardIDs: data.GetCardIDs(),
@@ -228,11 +234,6 @@ func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.E
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to discard cards", zap.Error(err))
 		return err
-	}
-
-	cards := data.GetCardIDs()
-	if len(cards) == 0 {
-		return errors.Errorf("failed to play: no card to play")
 	}
 
 	cardDataRes, err := w.dataProvider.GetMapCards(ctx, &connect.Request[emptypb.Empty]{})
@@ -514,6 +515,24 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 	}
 
 	log.Global().InfoContext(ctx, "Action executed", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
+
+	return nil
+}
+
+func (w *GamePlayExecutor) HandleCardsDrawn(ctx context.Context, event common.Event, data *game.CardsDrawn) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &desk.DrawCards{
+		DeskID:   w.gameDeskID[data.GameID.String()],
+		GameID:   data.GetGameID(),
+		PlayerID: data.GetPlayerID(),
+		Count:    w.gameCardsToDraw[data.GameID.String()],
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to draw cards", zap.Error(err))
+		return err
+	}
+
+	w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
+
+	log.Global().InfoContext(ctx, "Cards drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
 
 	return nil
 }

@@ -159,6 +159,13 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
+	case *DrawCards:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
 
 	}
 	return nil
@@ -223,6 +230,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			Args:   cmd.Args,
 		}, TimeNow())
 
+	case *DrawCards:
+		a.AppendEvent(EventTypeCardsDrawn, &CardsDrawn{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -273,6 +286,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.playerTurn = uuid.Nil
 
 	case EventTypeCardsPlayed:
+	case EventTypeCardsDrawn:
 	case EventTypeActionCreated:
 	case EventTypeAffectedPlayerSelected:
 	case EventTypeActionExecuted:

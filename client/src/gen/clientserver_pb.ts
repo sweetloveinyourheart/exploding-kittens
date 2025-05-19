@@ -1586,3 +1586,43 @@ export class GiveCardRequest extends Message<GiveCardRequest> {
   }
 }
 
+/**
+ * Message for drawing cards
+ * This message is used to draw cards from the deck
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardsRequest
+ */
+export class DrawCardsRequest extends Message<DrawCardsRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  constructor(data?: PartialMessage<DrawCardsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardsRequest {
+    return new DrawCardsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardsRequest {
+    return new DrawCardsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardsRequest {
+    return new DrawCardsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined, b: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined): boolean {
+    return proto3.util.equals(DrawCardsRequest, a, b);
+  }
+}
+

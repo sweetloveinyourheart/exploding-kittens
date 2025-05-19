@@ -5,19 +5,23 @@ import (
 	"fmt"
 	goTesting "testing"
 
-	"github.com/gofrs/uuid"
+	"connectrpc.com/connect"
 	"github.com/nats-io/nats.go"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
 	"github.com/stretchr/testify/suite"
 
+	goMock "github.com/stretchr/testify/mock"
+
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/mock"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/testing"
+
 	dataProviderProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
+	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
-	deskDomain "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains/desk"
 
 	"go.uber.org/zap"
 )
@@ -25,9 +29,13 @@ import (
 type DeskSuite struct {
 	*testing.Suite
 	deferred []func()
+
+	mockDataProviderClient *mock.MockDataProviderClient
 }
 
-func (as *DeskSuite) SetupTest() {}
+func (as *DeskSuite) SetupTest() {
+	as.mockDataProviderClient = new(mock.MockDataProviderClient)
+}
 
 func (as *DeskSuite) TearDownTest() {
 	if len(as.deferred) > 0 {
@@ -40,23 +48,24 @@ func (as *DeskSuite) TearDownTest() {
 
 func TestDeskSuite(t *goTesting.T) {
 	hs := &DeskSuite{
-		Suite: testing.MakeSuite(t),
+		Suite:                  testing.MakeSuite(t),
+		mockDataProviderClient: new(mock.MockDataProviderClient),
 	}
 	suite.Run(t, hs)
 }
 
-func (hs *DeskSuite) setupEnvironment() {
-	bus, shutdown := testing.StartLocalNATSServer(hs.T())
-	hs.deferred = append(hs.deferred, shutdown)
+func (ds *DeskSuite) setupEnvironment() {
+	bus, shutdown := testing.StartLocalNATSServer(ds.T())
+	ds.deferred = append(ds.deferred, shutdown)
 
 	busAddress := "nats://" + bus.Addr().String() // use server address
 	busConnection, err := nats.Connect(busAddress)
-	hs.NoError(err)
+	ds.NoError(err)
 
-	testing.NATSWaitConnected(hs.T(), busConnection) // wait connection if not connected yet
+	testing.NATSWaitConnected(ds.T(), busConnection) // wait connection if not connected yet
 
 	jetStream, err := busConnection.JetStream()
-	hs.NoError(err)
+	ds.NoError(err)
 
 	connPool := pool.New(100, busAddress,
 		nats.NoEcho(),
@@ -65,6 +74,10 @@ func (hs *DeskSuite) setupEnvironment() {
 			log.Global().Error("nats error", zap.Error(err))
 		}),
 	)
+
+	do.Override[dataProviderGrpc.DataProviderClient](nil, func(i *do.Injector) (dataProviderGrpc.DataProviderClient, error) {
+		return ds.mockDataProviderClient, nil
+	})
 
 	do.OverrideNamed[*pool.ConnPool](nil, string(constants.ConnectionPool),
 		func(i *do.Injector) (*pool.ConnPool, error) {
@@ -82,17 +95,12 @@ func (hs *DeskSuite) setupEnvironment() {
 		})
 
 	ctx, cancel := context.WithCancel(context.Background())
-	hs.deferred = append(hs.deferred, cancel)
-
-	err = gameengine.InitializeCoreRepos(uuid.Must(uuid.NewV7()).String(), ctx)
-	hs.NoError(err)
-
-	_, err = deskDomain.NewDeskStateProcessor(ctx)
-
-	hs.NoError(err)
+	ds.deferred = append(ds.deferred, cancel)
+	err = gameengine.InitializeRepos(ctx)
+	ds.NoError(err)
 }
 
-func (gs *DeskSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*dataProviderProto.Card, map[string]*dataProviderProto.Card) {
+func (ds *DeskSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*dataProviderProto.Card, map[string]*dataProviderProto.Card) {
 	cardsData := []*dataProviderProto.Card{
 		{CardId: "123e4567-e89b-12d3-a456-426655440001", Code: cards.ExplodingKitten, Quantity: 4, Effects: []byte(`{"type": "explode"}`)},
 		{CardId: "123e4567-e89b-12d3-a456-426655440002", Code: cards.Defuse, Quantity: 6, Effects: []byte(`{"type": "prevent_explode"}`)},
@@ -140,6 +148,14 @@ func (gs *DeskSuite) prepareCards() ([]*dataProviderProto.Card, map[string]*data
 		cards.TacoCat:            {CardId: "123e4567-e89b-12d3-a456-426655440012", Code: cards.TacoCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
 		cards.RainbowRalphingCat: {CardId: "123e4567-e89b-12d3-a456-426655440013", Code: cards.RainbowRalphingCat, Quantity: 4, ComboEffects: []byte(`[{"type": "steal_random_card", "required_cards": 2}, {"type": "steal_named_card", "required_cards": 3}]`)},
 	}
+
+	ds.mockDataProviderClient.On("GetCards", goMock.Anything, goMock.Anything).Return(connect.NewResponse(&dataProviderProto.GetCardsResponse{
+		Cards: cardsData,
+	}), nil)
+
+	ds.mockDataProviderClient.On("GetMapCards", goMock.Anything, goMock.Anything).Return(connect.NewResponse(&dataProviderProto.GetMapCardsResponse{
+		Cards: cardsMap,
+	}), nil)
 
 	return cardsData, cardsMap, cardsMapByCode
 }
