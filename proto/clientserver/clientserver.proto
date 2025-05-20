@@ -30,6 +30,7 @@ service ClientServer {
     rpc SelectAffectedPlayer(SelectAffectedPlayerRequest) returns (google.protobuf.Empty);
     rpc StealCard(StealCardRequest) returns (google.protobuf.Empty);
     rpc GiveCard(GiveCardRequest) returns (google.protobuf.Empty);
+    rpc DefuseExplodingKitten(DefuseExplodingKittenRequest) returns (google.protobuf.Empty);
 }
 
 // ========= Data Provider =============
@@ -244,4 +245,9 @@ message GiveCardRequest {
 // This message is used to draw cards from the deck
 message DrawCardRequest {
     string game_id = 1;
+}
+
+message DefuseExplodingKittenRequest {
+    string game_id = 1;
+    optional string card_id = 2;
 }

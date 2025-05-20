@@ -36,11 +36,15 @@ const (
 const (
 	// GameServerPlayCardsProcedure is the fully-qualified name of the GameServer's PlayCards RPC.
 	GameServerPlayCardsProcedure = "/com.sweetloveinyourheart.kittens.games.GameServer/PlayCards"
+	// GameServerDefuseExplodingKittenProcedure is the fully-qualified name of the GameServer's
+	// DefuseExplodingKitten RPC.
+	GameServerDefuseExplodingKittenProcedure = "/com.sweetloveinyourheart.kittens.games.GameServer/DefuseExplodingKitten"
 )
 
 // GameServerClient is a client for the com.sweetloveinyourheart.kittens.games.GameServer service.
 type GameServerClient interface {
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewGameServerClient constructs a client for the com.sweetloveinyourheart.kittens.games.GameServer
@@ -60,12 +64,19 @@ func NewGameServerClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(gameServerMethods.ByName("PlayCards")),
 			connect.WithClientOptions(opts...),
 		),
+		defuseExplodingKitten: connect.NewClient[_go.DefuseExplodingKittenRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GameServerDefuseExplodingKittenProcedure,
+			connect.WithSchema(gameServerMethods.ByName("DefuseExplodingKitten")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // gameServerClient implements GameServerClient.
 type gameServerClient struct {
-	playCards *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	playCards             *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
+	defuseExplodingKitten *connect.Client[_go.DefuseExplodingKittenRequest, emptypb.Empty]
 }
 
 // PlayCards calls com.sweetloveinyourheart.kittens.games.GameServer.PlayCards.
@@ -73,10 +84,17 @@ func (c *gameServerClient) PlayCards(ctx context.Context, req *connect.Request[_
 	return c.playCards.CallUnary(ctx, req)
 }
 
+// DefuseExplodingKitten calls
+// com.sweetloveinyourheart.kittens.games.GameServer.DefuseExplodingKitten.
+func (c *gameServerClient) DefuseExplodingKitten(ctx context.Context, req *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.defuseExplodingKitten.CallUnary(ctx, req)
+}
+
 // GameServerHandler is an implementation of the com.sweetloveinyourheart.kittens.games.GameServer
 // service.
 type GameServerHandler interface {
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewGameServerHandler builds an HTTP handler from the service implementation. It returns the path
@@ -92,10 +110,18 @@ func NewGameServerHandler(svc GameServerHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(gameServerMethods.ByName("PlayCards")),
 		connect.WithHandlerOptions(opts...),
 	)
+	gameServerDefuseExplodingKittenHandler := connect.NewUnaryHandler(
+		GameServerDefuseExplodingKittenProcedure,
+		svc.DefuseExplodingKitten,
+		connect.WithSchema(gameServerMethods.ByName("DefuseExplodingKitten")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.games.GameServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GameServerPlayCardsProcedure:
 			gameServerPlayCardsHandler.ServeHTTP(w, r)
+		case GameServerDefuseExplodingKittenProcedure:
+			gameServerDefuseExplodingKittenHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -107,4 +133,8 @@ type UnimplementedGameServerHandler struct{}
 
 func (UnimplementedGameServerHandler) PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.games.GameServer.PlayCards is not implemented"))
+}
+
+func (UnimplementedGameServerHandler) DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.games.GameServer.DefuseExplodingKitten is not implemented"))
 }

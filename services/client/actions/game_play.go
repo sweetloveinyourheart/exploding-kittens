@@ -187,3 +187,23 @@ func (a *actions) DrawCard(ctx context.Context, request *connect.Request[proto.D
 
 	return connect.NewResponse(&emptypb.Empty{}), nil
 }
+
+func (a *actions) DefuseExplodingKitten(ctx context.Context, request *connect.Request[proto.DefuseExplodingKittenRequest]) (response *connect.Response[emptypb.Empty], err error) {
+	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
+	if !ok {
+		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
+	}
+
+	getUserRequest := gameProto.DefuseExplodingKittenRequest{
+		GameId: request.Msg.GetGameId(),
+		UserId: userID.String(),
+		CardId: request.Msg.CardId,
+	}
+
+	_, err = a.gameEngineServerClient.DefuseExplodingKitten(ctx, connect.NewRequest(&getUserRequest))
+	if err != nil {
+		return nil, grpc.InvalidArgumentError(errors.Wrap(err, "failed to defuse exploding kitten"))
+	}
+
+	return connect.NewResponse(&emptypb.Empty{}), nil
+}

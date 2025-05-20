@@ -9,6 +9,7 @@
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
+    - [DefuseExplodingKittenRequest](#com-sweetloveinyourheart-kittens-clients-DefuseExplodingKittenRequest)
     - [DrawCardRequest](#com-sweetloveinyourheart-kittens-clients-DrawCardRequest)
     - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
     - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
@@ -130,6 +131,22 @@ Message for creating a new guest user
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | user | [User](#com-sweetloveinyourheart-kittens-clients-User) |  | The user basic info |
+
+
+
+
+
+
+<a name="com-sweetloveinyourheart-kittens-clients-DefuseExplodingKittenRequest"></a>
+
+### DefuseExplodingKittenRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| card_id | [string](#string) | optional |  |
 
 
 
@@ -698,6 +715,7 @@ This message is used to steal a card from another player
 | SelectAffectedPlayer | [SelectAffectedPlayerRequest](#com-sweetloveinyourheart-kittens-clients-SelectAffectedPlayerRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | StealCard | [StealCardRequest](#com-sweetloveinyourheart-kittens-clients-StealCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | GiveCard | [GiveCardRequest](#com-sweetloveinyourheart-kittens-clients-GiveCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| DefuseExplodingKitten | [DefuseExplodingKittenRequest](#com-sweetloveinyourheart-kittens-clients-DefuseExplodingKittenRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

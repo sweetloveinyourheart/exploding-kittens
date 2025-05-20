@@ -8,10 +8,17 @@ package com.sweetloveinyourheart.kittens.games;
 
 service GameServer {
     rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
+    rpc DefuseExplodingKitten(DefuseExplodingKittenRequest) returns (google.protobuf.Empty);
 }
 
 message PlayCardsRequest {
     string game_id = 1;
     string user_id = 2;
     repeated string card_ids = 3;
+}
+
+message DefuseExplodingKittenRequest {
+    string game_id = 1;
+    string user_id = 2;
+    optional string card_id = 3; // ID of the defuse card
 }

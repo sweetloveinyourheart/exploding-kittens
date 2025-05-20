@@ -4,6 +4,7 @@
 ## Table of Contents
 
 - [gameserver.proto](#gameserver-proto)
+    - [DefuseExplodingKittenRequest](#com-sweetloveinyourheart-kittens-games-DefuseExplodingKittenRequest)
     - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest)
   
     - [GameServer](#com-sweetloveinyourheart-kittens-games-GameServer)
@@ -16,6 +17,23 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## gameserver.proto
+
+
+
+<a name="com-sweetloveinyourheart-kittens-games-DefuseExplodingKittenRequest"></a>
+
+### DefuseExplodingKittenRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| user_id | [string](#string) |  |  |
+| card_id | [string](#string) | optional | ID of the defuse card |
+
+
+
 
 
 
@@ -50,6 +68,7 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-games-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| DefuseExplodingKitten | [DefuseExplodingKittenRequest](#com-sweetloveinyourheart-kittens-games-DefuseExplodingKittenRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 
