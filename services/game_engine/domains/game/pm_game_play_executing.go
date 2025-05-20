@@ -73,7 +73,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 		game.EventTypeActionCreated,
 		game.EventTypeAffectedPlayerSelected,
 		game.EventTypeActionExecuted,
-		game.EventTypeCardsDrawn,
+		game.EventTypeCardDrawn,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -519,18 +519,22 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 	return nil
 }
 
-func (w *GamePlayExecutor) HandleCardsDrawn(ctx context.Context, event common.Event, data *game.CardsDrawn) error {
-	if err := domains.CommandBus.HandleCommand(ctx, &desk.DrawCards{
-		DeskID:   w.gameDeskID[data.GameID.String()],
-		GameID:   data.GetGameID(),
-		PlayerID: data.GetPlayerID(),
-		Count:    w.gameCardsToDraw[data.GameID.String()],
+func (w *GamePlayExecutor) HandleCardDrawn(ctx context.Context, event common.Event, data *game.CardDrawn) error {
+	cardToDraw := w.gameCardsToDraw[data.GameID.String()]
+
+	if err := domains.CommandBus.HandleCommand(ctx, &desk.DrawCard{
+		DeskID:        w.gameDeskID[data.GameID.String()],
+		GameID:        data.GetGameID(),
+		PlayerID:      data.GetPlayerID(),
+		CanFinishTurn: cardToDraw == card_effects.AttackBonusCount,
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to draw cards", zap.Error(err))
 		return err
 	}
 
-	w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
+	if cardToDraw > card_effects.AttackBonusCount {
+		w.gameCardsToDraw[data.GameID.String()] = cardToDraw - 1
+	}
 
 	log.Global().InfoContext(ctx, "Cards drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
 

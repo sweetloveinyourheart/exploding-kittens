@@ -159,10 +159,39 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
-	case *DrawCards:
+
+	case *DrawCard:
 		if a.currentGameID != typed.GameID {
 			return ErrGameNotFound
 		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
+	case *DrawExplodingKitten:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
+	case *DefuseExplodingKitten:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
+	case *EliminatePlayer:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
 		if a.playerTurn != typed.PlayerID {
 			return ErrPlayerNotInTheirTurn
 		}
@@ -230,8 +259,26 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			Args:   cmd.Args,
 		}, TimeNow())
 
-	case *DrawCards:
-		a.AppendEvent(EventTypeCardsDrawn, &CardsDrawn{
+	case *DrawCard:
+		a.AppendEvent(EventTypeCardDrawn, &CardDrawn{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *DrawExplodingKitten:
+		a.AppendEvent(EventTypeExplodingDrawn, &ExplodingDrawn{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *DefuseExplodingKitten:
+		a.AppendEvent(EventTypeExplodingDefused, &ExplodingDefused{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *EliminatePlayer:
+		a.AppendEvent(EventTypePlayerEliminated, &PlayerEliminated{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
 		}, TimeNow())
@@ -286,10 +333,13 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		a.playerTurn = uuid.Nil
 
 	case EventTypeCardsPlayed:
-	case EventTypeCardsDrawn:
+	case EventTypeCardDrawn:
 	case EventTypeActionCreated:
 	case EventTypeAffectedPlayerSelected:
 	case EventTypeActionExecuted:
+	case EventTypeExplodingDrawn:
+	case EventTypeExplodingDefused:
+	case EventTypePlayerEliminated:
 	}
 
 	return nil

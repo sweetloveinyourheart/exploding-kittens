@@ -1590,39 +1590,39 @@ export class GiveCardRequest extends Message<GiveCardRequest> {
  * Message for drawing cards
  * This message is used to draw cards from the deck
  *
- * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardsRequest
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardRequest
  */
-export class DrawCardsRequest extends Message<DrawCardsRequest> {
+export class DrawCardRequest extends Message<DrawCardRequest> {
   /**
    * @generated from field: string game_id = 1;
    */
   gameId = "";
 
-  constructor(data?: PartialMessage<DrawCardsRequest>) {
+  constructor(data?: PartialMessage<DrawCardRequest>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardsRequest {
-    return new DrawCardsRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardsRequest {
-    return new DrawCardsRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardsRequest {
-    return new DrawCardsRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined, b: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined): boolean {
-    return proto3.util.equals(DrawCardsRequest, a, b);
+  static equals(a: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined, b: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined): boolean {
+    return proto3.util.equals(DrawCardRequest, a, b);
   }
 }
 

@@ -115,15 +115,12 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrInvalidPeekCount
 		}
 
-	case *DrawCards:
+	case *DrawCard:
 		// An aggregate can only be drawn from once.
 		if a.currentDeskID != typed.DeskID {
 			return ErrDeskNotAvailable
 		}
 
-		if typed.Count <= 0 {
-			return ErrInvalidDrawCount
-		}
 	}
 
 	return nil
@@ -154,12 +151,12 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			Count:  cmd.Count,
 		}, TimeNow())
 
-	case *DrawCards:
-		a.AppendEvent(EventTypeCardsDrawn, &CardsDrawn{
-			DeskID:   cmd.DeskID,
-			GameID:   cmd.GameID,
-			PlayerID: cmd.PlayerID,
-			Count:    cmd.Count,
+	case *DrawCard:
+		a.AppendEvent(EventTypeCardDrawn, &CardDrawn{
+			DeskID:        cmd.DeskID,
+			GameID:        cmd.GameID,
+			PlayerID:      cmd.PlayerID,
+			CanFinishTurn: cmd.CanFinishTurn,
 		}, TimeNow())
 
 	default:
@@ -197,7 +194,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 	case EventTypeDeskShuffled:
 	case EventTypeCardsDiscarded:
 	case EventTypeCardsPeeked:
-	case EventTypeCardsDrawn:
+	case EventTypeCardDrawn:
 	}
 
 	return nil

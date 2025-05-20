@@ -26,7 +26,7 @@ service ClientServer {
 
     rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
     rpc PeekCards(PeekCardsRequest) returns (PeekCardsResponse);
-    rpc DrawCards(DrawCardsRequest) returns (google.protobuf.Empty);
+    rpc DrawCard(DrawCardRequest) returns (google.protobuf.Empty);
     rpc SelectAffectedPlayer(SelectAffectedPlayerRequest) returns (google.protobuf.Empty);
     rpc StealCard(StealCardRequest) returns (google.protobuf.Empty);
     rpc GiveCard(GiveCardRequest) returns (google.protobuf.Empty);
@@ -242,6 +242,6 @@ message GiveCardRequest {
 
 // Message for drawing cards
 // This message is used to draw cards from the deck
-message DrawCardsRequest {
+message DrawCardRequest {
     string game_id = 1;
 }

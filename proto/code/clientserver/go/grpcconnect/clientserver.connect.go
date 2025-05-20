@@ -71,8 +71,8 @@ const (
 	ClientServerPlayCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
 	// ClientServerPeekCardsProcedure is the fully-qualified name of the ClientServer's PeekCards RPC.
 	ClientServerPeekCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
-	// ClientServerDrawCardsProcedure is the fully-qualified name of the ClientServer's DrawCards RPC.
-	ClientServerDrawCardsProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DrawCards"
+	// ClientServerDrawCardProcedure is the fully-qualified name of the ClientServer's DrawCard RPC.
+	ClientServerDrawCardProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DrawCard"
 	// ClientServerSelectAffectedPlayerProcedure is the fully-qualified name of the ClientServer's
 	// SelectAffectedPlayer RPC.
 	ClientServerSelectAffectedPlayerProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
@@ -100,7 +100,7 @@ type ClientServerClient interface {
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest]) (*connect.ServerStreamForClient[_go.StreamGameReply], error)
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
 	PeekCards(context.Context, *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error)
-	DrawCards(context.Context, *connect.Request[_go.DrawCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	DrawCard(context.Context, *connect.Request[_go.DrawCardRequest]) (*connect.Response[emptypb.Empty], error)
 	SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error)
 	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
 	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
@@ -208,10 +208,10 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("PeekCards")),
 			connect.WithClientOptions(opts...),
 		),
-		drawCards: connect.NewClient[_go.DrawCardsRequest, emptypb.Empty](
+		drawCard: connect.NewClient[_go.DrawCardRequest, emptypb.Empty](
 			httpClient,
-			baseURL+ClientServerDrawCardsProcedure,
-			connect.WithSchema(clientServerMethods.ByName("DrawCards")),
+			baseURL+ClientServerDrawCardProcedure,
+			connect.WithSchema(clientServerMethods.ByName("DrawCard")),
 			connect.WithClientOptions(opts...),
 		),
 		selectAffectedPlayer: connect.NewClient[_go.SelectAffectedPlayerRequest, emptypb.Empty](
@@ -252,7 +252,7 @@ type clientServerClient struct {
 	streamGame           *connect.Client[_go.StreamGameRequest, _go.StreamGameReply]
 	playCards            *connect.Client[_go.PlayCardsRequest, emptypb.Empty]
 	peekCards            *connect.Client[_go.PeekCardsRequest, _go.PeekCardsResponse]
-	drawCards            *connect.Client[_go.DrawCardsRequest, emptypb.Empty]
+	drawCard             *connect.Client[_go.DrawCardRequest, emptypb.Empty]
 	selectAffectedPlayer *connect.Client[_go.SelectAffectedPlayerRequest, emptypb.Empty]
 	stealCard            *connect.Client[_go.StealCardRequest, emptypb.Empty]
 	giveCard             *connect.Client[_go.GiveCardRequest, emptypb.Empty]
@@ -334,9 +334,9 @@ func (c *clientServerClient) PeekCards(ctx context.Context, req *connect.Request
 	return c.peekCards.CallUnary(ctx, req)
 }
 
-// DrawCards calls com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCards.
-func (c *clientServerClient) DrawCards(ctx context.Context, req *connect.Request[_go.DrawCardsRequest]) (*connect.Response[emptypb.Empty], error) {
-	return c.drawCards.CallUnary(ctx, req)
+// DrawCard calls com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard.
+func (c *clientServerClient) DrawCard(ctx context.Context, req *connect.Request[_go.DrawCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.drawCard.CallUnary(ctx, req)
 }
 
 // SelectAffectedPlayer calls
@@ -373,7 +373,7 @@ type ClientServerHandler interface {
 	StreamGame(context.Context, *connect.Request[_go.StreamGameRequest], *connect.ServerStream[_go.StreamGameReply]) error
 	PlayCards(context.Context, *connect.Request[_go.PlayCardsRequest]) (*connect.Response[emptypb.Empty], error)
 	PeekCards(context.Context, *connect.Request[_go.PeekCardsRequest]) (*connect.Response[_go.PeekCardsResponse], error)
-	DrawCards(context.Context, *connect.Request[_go.DrawCardsRequest]) (*connect.Response[emptypb.Empty], error)
+	DrawCard(context.Context, *connect.Request[_go.DrawCardRequest]) (*connect.Response[emptypb.Empty], error)
 	SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error)
 	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
 	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
@@ -476,10 +476,10 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("PeekCards")),
 		connect.WithHandlerOptions(opts...),
 	)
-	clientServerDrawCardsHandler := connect.NewUnaryHandler(
-		ClientServerDrawCardsProcedure,
-		svc.DrawCards,
-		connect.WithSchema(clientServerMethods.ByName("DrawCards")),
+	clientServerDrawCardHandler := connect.NewUnaryHandler(
+		ClientServerDrawCardProcedure,
+		svc.DrawCard,
+		connect.WithSchema(clientServerMethods.ByName("DrawCard")),
 		connect.WithHandlerOptions(opts...),
 	)
 	clientServerSelectAffectedPlayerHandler := connect.NewUnaryHandler(
@@ -532,8 +532,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerPlayCardsHandler.ServeHTTP(w, r)
 		case ClientServerPeekCardsProcedure:
 			clientServerPeekCardsHandler.ServeHTTP(w, r)
-		case ClientServerDrawCardsProcedure:
-			clientServerDrawCardsHandler.ServeHTTP(w, r)
+		case ClientServerDrawCardProcedure:
+			clientServerDrawCardHandler.ServeHTTP(w, r)
 		case ClientServerSelectAffectedPlayerProcedure:
 			clientServerSelectAffectedPlayerHandler.ServeHTTP(w, r)
 		case ClientServerStealCardProcedure:
@@ -609,8 +609,8 @@ func (UnimplementedClientServerHandler) PeekCards(context.Context, *connect.Requ
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.PeekCards is not implemented"))
 }
 
-func (UnimplementedClientServerHandler) DrawCards(context.Context, *connect.Request[_go.DrawCardsRequest]) (*connect.Response[emptypb.Empty], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCards is not implemented"))
+func (UnimplementedClientServerHandler) DrawCard(context.Context, *connect.Request[_go.DrawCardRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard is not implemented"))
 }
 
 func (UnimplementedClientServerHandler) SelectAffectedPlayer(context.Context, *connect.Request[_go.SelectAffectedPlayerRequest]) (*connect.Response[emptypb.Empty], error) {

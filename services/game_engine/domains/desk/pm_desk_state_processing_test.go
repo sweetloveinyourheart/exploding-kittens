@@ -100,8 +100,7 @@ func (hs *DeskSuite) TestDeskStateProcessing_DeskShuffled_Successfully() {
 
 func (hs *DeskSuite) TestDeskStateProcessing_DeskDrawn_Successfully() {
 	hs.setupEnvironment()
-
-	cardIDs, _, _ := hs.prepareCards()
+	hs.prepareCards()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
@@ -120,11 +119,6 @@ func (hs *DeskSuite) TestDeskStateProcessing_DeskDrawn_Successfully() {
 
 	deskRepo, err := desk.CreateNATSRepoDesk(ctx, "test")
 	hs.NoError(err)
-
-	cards := make([]uuid.UUID, 0, len(cardIDs))
-	for _, card := range cardIDs {
-		cards = append(cards, uuid.Must(uuid.FromString(card.GetCardId())))
-	}
 
 	gameID := uuid.Must(uuid.NewV7())
 	player01 := uuid.Must(uuid.NewV7())
@@ -155,11 +149,10 @@ func (hs *DeskSuite) TestDeskStateProcessing_DeskDrawn_Successfully() {
 			deskStateErr == nil && deskCards > 0
 	}, 5*time.Second, 10*time.Millisecond)
 
-	err = commandBus.HandleCommand(ctx, &desk.DrawCards{
+	err = commandBus.HandleCommand(ctx, &desk.DrawCard{
 		DeskID:   deskID,
 		GameID:   gameID,
 		PlayerID: player01,
-		Count:    1,
 	})
 	hs.NoError(err)
 

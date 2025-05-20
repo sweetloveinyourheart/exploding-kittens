@@ -167,13 +167,13 @@ func (a *actions) GiveCard(ctx context.Context, request *connect.Request[proto.G
 	return connect.NewResponse(&emptypb.Empty{}), nil
 }
 
-func (a *actions) DrawCards(ctx context.Context, request *connect.Request[proto.DrawCardsRequest]) (response *connect.Response[emptypb.Empty], err error) {
+func (a *actions) DrawCard(ctx context.Context, request *connect.Request[proto.DrawCardRequest]) (response *connect.Response[emptypb.Empty], err error) {
 	userID, ok := ctx.Value(grpc.AuthToken).(uuid.UUID)
 	if !ok {
 		return nil, grpc.UnauthenticatedError(helpers.ErrInvalidSession)
 	}
 
-	if err := domains.CommandBus.HandleCommand(ctx, &game.DrawCards{
+	if err := domains.CommandBus.HandleCommand(ctx, &game.DrawCard{
 		GameID:   stringsutil.ConvertStringToUUID(request.Msg.GetGameId()),
 		PlayerID: userID,
 	}); err != nil {

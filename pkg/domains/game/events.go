@@ -24,7 +24,10 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[ActionCreated](EventTypeActionCreated, args...)
 	eventing.RegisterEventData[ActionExecuted](EventTypeActionExecuted, args...)
 	eventing.RegisterEventData[AffectedPlayerSelected](EventTypeAffectedPlayerSelected, args...)
-	eventing.RegisterEventData[CardsDrawn](EventTypeCardsDrawn, args...)
+	eventing.RegisterEventData[CardDrawn](EventTypeCardDrawn, args...)
+	eventing.RegisterEventData[ExplodingDrawn](EventTypeExplodingDrawn, args...)
+	eventing.RegisterEventData[ExplodingDefused](EventTypeExplodingDefused, args...)
+	eventing.RegisterEventData[PlayerEliminated](EventTypePlayerEliminated, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -54,8 +57,17 @@ var EventTypeActionExecuted = (&ActionExecuted{}).EventType()
 // EventTypeAffectedPlayerSelected is the event type for when an affected player is selected
 var EventTypeAffectedPlayerSelected = (&AffectedPlayerSelected{}).EventType()
 
-// EventTypeCardsDrawn is the event type for when cards are drawn
-var EventTypeCardsDrawn = (&CardsDrawn{}).EventType()
+// EventTypeCardDrawn is the event type for when cards are drawn
+var EventTypeCardDrawn = (&CardDrawn{}).EventType()
+
+// EventTypeExplodingDrawn is the event type for when an exploding kitten is drawn
+var EventTypeExplodingDrawn = (&ExplodingDrawn{}).EventType()
+
+// EventTypeExplodingDefused is the event type for when an exploding
+var EventTypeExplodingDefused = (&ExplodingDefused{}).EventType()
+
+// EventTypePlayerEliminated is the event type for when a player is eliminated
+var EventTypePlayerEliminated = (&PlayerEliminated{}).EventType()
 
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
@@ -67,7 +79,10 @@ var AllEventTypes = []common.EventType{
 	EventTypeActionCreated,
 	EventTypeActionExecuted,
 	EventTypeAffectedPlayerSelected,
-	EventTypeCardsDrawn,
+	EventTypeCardDrawn,
+	EventTypeExplodingDrawn,
+	EventTypeExplodingDefused,
+	EventTypePlayerEliminated,
 }
 
 type GameCreated struct {
@@ -187,13 +202,46 @@ func (p *ActionArguments) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 func (p *ActionArguments) GetCardIndexes() []int { return p.CardIndexes }
 
-type CardsDrawn struct {
+type CardDrawn struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
 }
 
-func (p *CardsDrawn) EventType() common.EventType { return "GAME_CARDS_DRAWN" }
+func (p *CardDrawn) EventType() common.EventType { return "GAME_CARDS_DRAWN" }
 
-func (p *CardsDrawn) GetGameID() uuid.UUID { return p.GameID }
+func (p *CardDrawn) GetGameID() uuid.UUID { return p.GameID }
 
-func (p *CardsDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+func (p *CardDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type ExplodingDrawn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *ExplodingDrawn) EventType() common.EventType { return "GAME_EXPLODING_DRAWN" }
+
+func (p *ExplodingDrawn) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ExplodingDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type ExplodingDefused struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *ExplodingDefused) EventType() common.EventType { return "GAME_EXPLODING_DEFUSED" }
+
+func (p *ExplodingDefused) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ExplodingDefused) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type PlayerEliminated struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *PlayerEliminated) EventType() common.EventType { return "GAME_PLAYER_ELIMINATED" }
+
+func (p *PlayerEliminated) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *PlayerEliminated) GetPlayerID() uuid.UUID { return p.PlayerID }

@@ -112,8 +112,32 @@ func (p *Projector) HandleActionExecuted(ctx context.Context, event common.Event
 	return entity, nil
 }
 
-func (p *Projector) HandleCardsDrawn(ctx context.Context, event common.Event, data *CardsDrawn, entity *Game) (*Game, error) {
+func (p *Projector) HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleExplodingDrawn(ctx context.Context, event common.Event, data *ExplodingDrawn, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_EXPLODING_DRAWN
+	entity.PlayerTurn = uuid.Nil
+
+	return entity, nil
+}
+
+func (p *Projector) HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_EXPLODING_DEFUSED
+	entity.PlayerTurn = data.GetPlayerID()
+
+	return entity, nil
+}
+
+func (p *Projector) HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_PLAYER_ELIMINATED
+	entity.PlayerTurn = uuid.Nil
 
 	return entity, nil
 }

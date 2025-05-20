@@ -9,7 +9,7 @@
     - [CreateLobbyResponse](#com-sweetloveinyourheart-kittens-clients-CreateLobbyResponse)
     - [CreateNewGuestUserRequest](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserRequest)
     - [CreateNewGuestUserResponse](#com-sweetloveinyourheart-kittens-clients-CreateNewGuestUserResponse)
-    - [DrawCardsRequest](#com-sweetloveinyourheart-kittens-clients-DrawCardsRequest)
+    - [DrawCardRequest](#com-sweetloveinyourheart-kittens-clients-DrawCardRequest)
     - [Game](#com-sweetloveinyourheart-kittens-clients-Game)
     - [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk)
     - [Game.Player](#com-sweetloveinyourheart-kittens-clients-Game-Player)
@@ -136,9 +136,9 @@ Message for creating a new guest user
 
 
 
-<a name="com-sweetloveinyourheart-kittens-clients-DrawCardsRequest"></a>
+<a name="com-sweetloveinyourheart-kittens-clients-DrawCardRequest"></a>
 
-### DrawCardsRequest
+### DrawCardRequest
 Message for drawing cards
 This message is used to draw cards from the deck
 
@@ -694,7 +694,7 @@ This message is used to steal a card from another player
 | StreamGame | [StreamGameRequest](#com-sweetloveinyourheart-kittens-clients-StreamGameRequest) | [StreamGameReply](#com-sweetloveinyourheart-kittens-clients-StreamGameReply) stream |  |
 | PlayCards | [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | PeekCards | [PeekCardsRequest](#com-sweetloveinyourheart-kittens-clients-PeekCardsRequest) | [PeekCardsResponse](#com-sweetloveinyourheart-kittens-clients-PeekCardsResponse) |  |
-| DrawCards | [DrawCardsRequest](#com-sweetloveinyourheart-kittens-clients-DrawCardsRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| DrawCard | [DrawCardRequest](#com-sweetloveinyourheart-kittens-clients-DrawCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | SelectAffectedPlayer | [SelectAffectedPlayerRequest](#com-sweetloveinyourheart-kittens-clients-SelectAffectedPlayerRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | StealCard | [StealCardRequest](#com-sweetloveinyourheart-kittens-clients-StealCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | GiveCard | [GiveCardRequest](#com-sweetloveinyourheart-kittens-clients-GiveCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |

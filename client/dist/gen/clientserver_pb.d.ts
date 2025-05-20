@@ -809,19 +809,19 @@ export declare class GiveCardRequest extends Message<GiveCardRequest> {
  * Message for drawing cards
  * This message is used to draw cards from the deck
  *
- * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardsRequest
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardRequest
  */
-export declare class DrawCardsRequest extends Message<DrawCardsRequest> {
+export declare class DrawCardRequest extends Message<DrawCardRequest> {
     /**
      * @generated from field: string game_id = 1;
      */
     gameId: string;
-    constructor(data?: PartialMessage<DrawCardsRequest>);
+    constructor(data?: PartialMessage<DrawCardRequest>);
     static readonly runtime: typeof proto3;
-    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardRequest";
     static readonly fields: FieldList;
-    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardsRequest;
-    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardsRequest;
-    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardsRequest;
-    static equals(a: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined, b: DrawCardsRequest | PlainMessage<DrawCardsRequest> | undefined): boolean;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardRequest;
+    static equals(a: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined, b: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined): boolean;
 }

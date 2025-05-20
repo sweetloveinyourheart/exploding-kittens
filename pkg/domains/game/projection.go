@@ -22,7 +22,10 @@ type AllEventsProjector interface {
 	HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error)
 	HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error)
 	HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected, entity *Game) (*Game, error)
-	HandleCardsDrawn(ctx context.Context, event common.Event, data *CardsDrawn, entity *Game) (*Game, error)
+	HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Game) (*Game, error)
+	HandleExplodingDrawn(ctx context.Context, event common.Event, data *ExplodingDrawn, entity *Game) (*Game, error)
+	HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused, entity *Game) (*Game, error)
+	HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
@@ -35,7 +38,10 @@ type eventsProjector interface {
 	handleActionCreated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleActionExecuted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleAffectedPlayerSelected(ctx context.Context, event common.Event, entity *Game) (*Game, error)
-	handleCardsDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleCardDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleExplodingDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleExplodingDefused(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handlePlayerEliminated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -165,8 +171,14 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleActionExecuted
 	case EventTypeCardsPlayed:
 		eventHandler = p.handleCardsPlayed
-	case EventTypeCardsDrawn:
-		eventHandler = p.handleCardsDrawn
+	case EventTypeCardDrawn:
+		eventHandler = p.handleCardDrawn
+	case EventTypeExplodingDrawn:
+		eventHandler = p.handleExplodingDrawn
+	case EventTypeExplodingDefused:
+		eventHandler = p.handleExplodingDefused
+	case EventTypePlayerEliminated:
+		eventHandler = p.handlePlayerEliminated
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -378,23 +390,89 @@ func (p *GameProjector) handleActionExecuted(ctx context.Context, event common.E
 	return entity, nil
 }
 
-// handleCardsDrawn handles cards drawn events.
-func (p *GameProjector) handleCardsDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
-	data, ok := event.Data().(*CardsDrawn)
+// handleCardDrawn handles cards drawn events.
+func (p *GameProjector) handleCardDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*CardDrawn)
 	if !ok {
-		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardsDrawn"))
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardDrawn"))
 	}
 
 	if handler, ok := p.handler.(interface {
-		HandleCardsDrawn(ctx context.Context, event common.Event, data *CardsDrawn, entity *Game) (*Game, error)
+		HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Game) (*Game, error)
 	}); ok {
-		return handler.HandleCardsDrawn(ctx, event, data, entity)
+		return handler.HandleCardDrawn(ctx, event, data, entity)
 	}
 
 	if handler, ok := p.handler.(interface {
-		HandleCardsDrawn(ctx context.Context, event common.Event, data *CardsDrawn) error
+		HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn) error
 	}); ok {
-		return entity, handler.HandleCardsDrawn(ctx, event, data)
+		return entity, handler.HandleCardDrawn(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleExplodingDrawn handles exploding drawn events.
+func (p *GameProjector) handleExplodingDrawn(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*ExplodingDrawn)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleExplodingDrawn"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleExplodingDrawn(ctx context.Context, event common.Event, data *ExplodingDrawn, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleExplodingDrawn(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleExplodingDrawn(ctx context.Context, event common.Event, data *ExplodingDrawn) error
+	}); ok {
+		return entity, handler.HandleExplodingDrawn(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleExplodingDefused handles exploding defused events.
+func (p *GameProjector) handleExplodingDefused(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*ExplodingDefused)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleExplodingDefused"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleExplodingDefused(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused) error
+	}); ok {
+		return entity, handler.HandleExplodingDefused(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handlePlayerEliminated handles player eliminated events.
+func (p *GameProjector) handlePlayerEliminated(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*PlayerEliminated)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handlePlayerEliminated"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandlePlayerEliminated(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated) error
+	}); ok {
+		return entity, handler.HandlePlayerEliminated(ctx, event, data)
 	}
 
 	return entity, nil

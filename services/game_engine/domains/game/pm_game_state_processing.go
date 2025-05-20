@@ -27,6 +27,7 @@ import (
 	dataProviderProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go"
 	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/interfaces"
 
 	"go.uber.org/zap"
 
@@ -366,7 +367,14 @@ func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event
 
 	for i, player := range players {
 		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
-			nextTurn = players[(i+1)%len(players)].GetPlayerID()
+			// Find the next active player in order
+			for j := 1; j < len(players); j++ {
+				nextPlayer := players[(i+j)%len(players)]
+				if nextPlayer.Active {
+					nextTurn = nextPlayer.GetPlayerID()
+					break
+				}
+			}
 			break
 		}
 	}
@@ -408,13 +416,77 @@ func (w *GameInteractionProcessor) HandleTurnReversed(ctx context.Context, event
 	return nil
 }
 
-type CardSetup struct {
-	StandardCards        []uuid.UUID
-	ExplodingKittenCards []uuid.UUID
-	DefuseCards          []uuid.UUID
+func (w *GameInteractionProcessor) HandleExplodingDrawn(ctx context.Context, event common.Event, data *game.ExplodingDrawn) error {
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Exploding drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
 }
 
-func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int) (*CardSetup, error) {
+func (w *GameInteractionProcessor) HandleExplodingDefused(ctx context.Context, event common.Event, data *game.ExplodingDefused) error {
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Exploding defused", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandlePlayerEliminated(ctx context.Context, event common.Event, data *game.PlayerEliminated) error {
+	var nextTurn uuid.UUID
+	players := w.gamePlayers[data.GetGameID().String()]
+
+	for i, player := range players {
+		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
+			player.Active = false
+
+			// Find the next active player
+			for j := 1; j < len(players); j++ {
+				nextPlayer := players[(i+j)%len(players)]
+				if nextPlayer.Active {
+					nextTurn = nextPlayer.GetPlayerID()
+					break
+				}
+			}
+			break
+		}
+	}
+
+	remainingPlayers := lo.Filter(players, func(player *game.Player, _ int) bool {
+		return player.Active
+	})
+
+	if len(remainingPlayers) == 1 {
+		// If only one player is left, they win the game
+		// TODO: Handle game win logic
+	} else {
+		// If there are still players left, start the next turn
+		if err := domains.CommandBus.HandleCommand(ctx, &game.StartTurn{
+			GameID:   data.GetGameID(),
+			PlayerID: nextTurn,
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to start new turn", zap.Error(err))
+			return err
+		}
+	}
+
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Player eliminated", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int) (*interfaces.CardSetup, error) {
 	// Get cards registry
 	response, err := w.dataProvider.GetCards(ctx, &connect.Request[emptypb.Empty]{})
 	if err != nil {
@@ -460,7 +532,7 @@ func (w *GameInteractionProcessor) setupCards(ctx context.Context, playerNum int
 		defuseCardIDs = append(defuseCardIDs, uuid.FromStringOrNil(card.CardId))
 	}
 
-	return &CardSetup{
+	return &interfaces.CardSetup{
 		StandardCards:        standardCardIDs,
 		ExplodingKittenCards: explodingKittenCardIDs,
 		DefuseCards:          defuseCardIDs,

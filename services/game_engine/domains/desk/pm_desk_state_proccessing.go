@@ -48,7 +48,8 @@ type DeskStateProcessor struct {
 	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus          *nats.Conn
 
-	deskCardIDs map[uuid.UUID][]uuid.UUID
+	deskCardIDs                     map[uuid.UUID][]uuid.UUID
+	deskActiveExplodingKittenCardID map[uuid.UUID]uuid.UUID
 }
 
 func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
@@ -67,7 +68,7 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 		desk.EventTypeDeskCreated,
 		desk.EventTypeDeskShuffled,
 		desk.EventTypeCardsPeeked,
-		desk.EventTypeCardsDrawn,
+		desk.EventTypeCardDrawn,
 	)
 
 	deskSubject := nats2.CreateConsumerSubject(constants.DeskStream, deskMatcher)
@@ -233,15 +234,14 @@ func (w *DeskStateProcessor) HandleCardsPeeked(ctx context.Context, event common
 	return nil
 }
 
-func (w *DeskStateProcessor) HandleCardsDrawn(ctx context.Context, event common.Event, data *desk.CardsDrawn) error {
+func (w *DeskStateProcessor) HandleCardDrawn(ctx context.Context, event common.Event, data *desk.CardDrawn) error {
 	cardIDs := w.deskCardIDs[data.GetDeskID()]
 
-	var drawnCardIDs []uuid.UUID
-	if data.GetCount() > 0 && data.GetCount() <= len(cardIDs) {
-		drawnCardIDs = cardIDs[len(cardIDs)-data.GetCount():]
-	} else {
-		drawnCardIDs = cardIDs[:]
+	if len(cardIDs) == 0 {
+		return errors.Errorf("cannot draw card, desk is empty")
 	}
+
+	drawnCardID := cardIDs[len(cardIDs)-1]
 
 	cardDataRes, err := w.dataProvider.GetMapCards(ctx, &connect.Request[emptypb.Empty]{})
 	if err != nil {
@@ -251,51 +251,47 @@ func (w *DeskStateProcessor) HandleCardsDrawn(ctx context.Context, event common.
 
 	cardsMap := cardDataRes.Msg.GetCards()
 
-	cardIDsToSend := make([]uuid.UUID, 0)
-	isExplodingKitten := false
-	for _, cardID := range drawnCardIDs {
-		cardInformation, ok := cardsMap[cardID.String()]
-		if !ok || cardInformation == nil {
-			return errors.Errorf("cannot recognize card information")
-		}
-
-		if cardInformation.GetCode() == cards.ExplodingKitten {
-			isExplodingKitten = true
-		} else {
-			cardIDsToSend = append(cardIDsToSend, cardID)
-		}
+	cardInformation, ok := cardsMap[drawnCardID.String()]
+	if !ok || cardInformation == nil {
+		return errors.Errorf("cannot recognize card information")
 	}
 
-	handID := hand.NewPlayerHandID(data.GetGameID(), data.GetPlayerID())
-	if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
-		HandID:  handID,
-		CardIDs: cardIDsToSend,
-	}); err != nil {
-		log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
-		return err
-	}
-
-	if isExplodingKitten {
+	if cardInformation.GetCode() == cards.ExplodingKitten {
 		log.Global().InfoContext(ctx, "exploding kitten drawn", zap.String("desk_id", data.GetDeskID().String()), zap.String("player_id", data.GetPlayerID().String()))
 
-		// TODO: handle exploding kitten
-	} else {
-		if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
+		if err := domains.CommandBus.HandleCommand(ctx, &game.DrawExplodingKitten{
 			GameID:   data.GetGameID(),
 			PlayerID: data.GetPlayerID(),
 		}); err != nil {
-			log.Global().ErrorContext(ctx, "failed to finish turn", zap.Error(err))
+			log.Global().ErrorContext(ctx, "failed to create action", zap.Error(err))
+		}
+
+		w.deskActiveExplodingKittenCardID[data.GetDeskID()] = drawnCardID
+	} else {
+		handID := hand.NewPlayerHandID(data.GetGameID(), data.GetPlayerID())
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
+			HandID:  handID,
+			CardIDs: []uuid.UUID{drawnCardID},
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
 			return err
 		}
+
+		// Check if the player can finish their turn after drawing a card
+		if data.GetCanFinishTurn() {
+			if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
+				GameID:   data.GetGameID(),
+				PlayerID: data.GetPlayerID(),
+			}); err != nil {
+				log.Global().ErrorContext(ctx, "failed to finish turn", zap.Error(err))
+				return err
+			}
+		}
+
+		log.Global().InfoContext(ctx, "card drawn", zap.String("desk_id", data.GetDeskID().String()))
 	}
 
-	log.Global().InfoContext(ctx, "cards drawn", zap.String("desk_id", data.GetDeskID().String()), zap.Int("count", data.GetCount()))
-
-	if data.GetCount() > 0 && data.GetCount() <= len(cardIDs) {
-		w.deskCardIDs[data.GetDeskID()] = cardIDs[:len(cardIDs)-data.GetCount()]
-	} else {
-		w.deskCardIDs[data.GetDeskID()] = []uuid.UUID{}
-	}
+	w.deskCardIDs[data.GetDeskID()] = cardIDs[:len(cardIDs)-1]
 
 	// Emit desk state update event
 	err = w.emitDeskStateUpdateEvent(data.GetDeskID())

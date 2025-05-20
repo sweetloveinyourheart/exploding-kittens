@@ -12,7 +12,7 @@ func init() {
 	eventing.RegisterCommand[ShuffleDesk, *ShuffleDesk]()
 	eventing.RegisterCommand[DiscardCards, *DiscardCards]()
 	eventing.RegisterCommand[PeekCards, *PeekCards]()
-	eventing.RegisterCommand[DrawCards, *DrawCards]()
+	eventing.RegisterCommand[DrawCard, *DrawCard]()
 }
 
 const (
@@ -20,7 +20,7 @@ const (
 	ShuffleDeskCommand  = common.CommandType("desk:shuffle")
 	DiscardCardsCommand = common.CommandType("desk:cards:discard")
 	PeekCardsCommand    = common.CommandType("desk:cards:peek")
-	DrawCardsCommand    = common.CommandType("desk:cards:draw")
+	DrawCardCommand     = common.CommandType("desk:card:draw")
 )
 
 var AllCommands = []common.CommandType{
@@ -28,14 +28,14 @@ var AllCommands = []common.CommandType{
 	ShuffleDeskCommand,
 	DiscardCardsCommand,
 	PeekCardsCommand,
-	DrawCardsCommand,
+	DrawCardCommand,
 }
 
 var _ = eventing.Command(&CreateDesk{})
 var _ = eventing.Command(&ShuffleDesk{})
 var _ = eventing.Command(&DiscardCards{})
 var _ = eventing.Command(&PeekCards{})
-var _ = eventing.Command(&DrawCards{})
+var _ = eventing.Command(&DrawCard{})
 
 type CreateDesk struct {
 	DeskID  uuid.UUID   `json:"desk_id"`
@@ -124,20 +124,20 @@ func (c *PeekCards) Validate() error {
 	return nil
 }
 
-type DrawCards struct {
-	DeskID   uuid.UUID `json:"desk_id"`
-	GameID   uuid.UUID `json:"game_id"`
-	PlayerID uuid.UUID `json:"player_id"`
-	Count    int       `json:"count"`
+type DrawCard struct {
+	DeskID        uuid.UUID `json:"desk_id"`
+	GameID        uuid.UUID `json:"game_id"`
+	PlayerID      uuid.UUID `json:"player_id"`
+	CanFinishTurn bool      `json:"can_finish_turn"` // Indicates if the player can finish their turn after drawing a card
 }
 
-func (c *DrawCards) AggregateType() common.AggregateType { return AggregateType }
+func (c *DrawCard) AggregateType() common.AggregateType { return AggregateType }
 
-func (c *DrawCards) AggregateID() string { return c.DeskID.String() }
+func (c *DrawCard) AggregateID() string { return c.DeskID.String() }
 
-func (c *DrawCards) CommandType() common.CommandType { return DrawCardsCommand }
+func (c *DrawCard) CommandType() common.CommandType { return DrawCardCommand }
 
-func (c *DrawCards) Validate() error {
+func (c *DrawCard) Validate() error {
 	if c.DeskID == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
 	}
@@ -148,10 +148,6 @@ func (c *DrawCards) Validate() error {
 
 	if c.PlayerID == uuid.Nil {
 		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
-	}
-
-	if c.Count <= 0 {
-		return &common.CommandFieldError{Field: "count", Details: "invalid count"}
 	}
 
 	return nil

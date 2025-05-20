@@ -18,10 +18,14 @@ func init() {
 	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
 
 	eventing.RegisterCommand[PlayCards, *PlayCards]()
-	eventing.RegisterCommand[DrawCards, *DrawCards]()
+	eventing.RegisterCommand[DrawCard, *DrawCard]()
 	eventing.RegisterCommand[CreateAction, *CreateAction]()
 	eventing.RegisterCommand[ExecuteAction, *ExecuteAction]()
 	eventing.RegisterCommand[SelectAffectedPlayer, *SelectAffectedPlayer]()
+
+	eventing.RegisterCommand[DrawExplodingKitten, *DrawExplodingKitten]()
+	eventing.RegisterCommand[DefuseExplodingKitten, *DefuseExplodingKitten]()
+	eventing.RegisterCommand[EliminatePlayer, *EliminatePlayer]()
 }
 
 const (
@@ -32,10 +36,14 @@ const (
 	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
 
 	PlayCardsCommand            = common.CommandType("game:cards:play")
-	DrawCardsCommand            = common.CommandType("game:cards:draw")
-	CreateActionCommand         = common.CommandType("game:action:create")
-	SelectAffectedPlayerCommand = common.CommandType("game:action:select-affected-player")
-	ExecuteActionCommand        = common.CommandType("game:action:execute")
+	DrawCardCommand             = common.CommandType("game:cards:draw")
+	CreateActionCommand         = common.CommandType("game:cards:action:create")
+	SelectAffectedPlayerCommand = common.CommandType("game:cards:action:select-affected-player")
+	ExecuteActionCommand        = common.CommandType("game:cards:action:execute")
+
+	DrawExplodingCommand   = common.CommandType("game:action:draw-exploding")
+	DefuseExplodingCommand = common.CommandType("game:action:defuse-exploding")
+	EliminatePlayerCommand = common.CommandType("game:action:eliminate-player")
 )
 
 var AllCommands = []common.CommandType{
@@ -46,10 +54,14 @@ var AllCommands = []common.CommandType{
 	ReverseTurnCommand,
 
 	PlayCardsCommand,
-	DrawCardsCommand,
+	DrawCardCommand,
 	CreateActionCommand,
 	SelectAffectedPlayerCommand,
 	ExecuteActionCommand,
+
+	DrawExplodingCommand,
+	DefuseExplodingCommand,
+	EliminatePlayerCommand,
 }
 
 var _ = eventing.Command(&CreateGame{})
@@ -58,10 +70,13 @@ var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&ReverseTurn{})
 var _ = eventing.Command(&PlayCards{})
-var _ = eventing.Command(&DrawCards{})
+var _ = eventing.Command(&DrawCard{})
 var _ = eventing.Command(&CreateAction{})
 var _ = eventing.Command(&SelectAffectedPlayer{})
 var _ = eventing.Command(&ExecuteAction{})
+var _ = eventing.Command(&DrawExplodingKitten{})
+var _ = eventing.Command(&DefuseExplodingKitten{})
+var _ = eventing.Command(&EliminatePlayer{})
 
 type CreateGame struct {
 	GameID    uuid.UUID   `json:"game_id"`
@@ -281,18 +296,87 @@ func (c *ExecuteAction) Validate() error {
 	return nil
 }
 
-type DrawCards struct {
+type DrawCard struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
 }
 
-func (c *DrawCards) AggregateType() common.AggregateType { return AggregateType }
+func (c *DrawCard) AggregateType() common.AggregateType { return AggregateType }
 
-func (c *DrawCards) AggregateID() string { return c.GameID.String() }
+func (c *DrawCard) AggregateID() string { return c.GameID.String() }
 
-func (c *DrawCards) CommandType() common.CommandType { return DrawCardsCommand }
+func (c *DrawCard) CommandType() common.CommandType { return DrawCardCommand }
 
-func (c *DrawCards) Validate() error {
+func (c *DrawCard) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type DrawExplodingKitten struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *DrawExplodingKitten) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *DrawExplodingKitten) AggregateID() string { return c.GameID.String() }
+
+func (c *DrawExplodingKitten) CommandType() common.CommandType { return DrawExplodingCommand }
+
+func (c *DrawExplodingKitten) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type DefuseExplodingKitten struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *DefuseExplodingKitten) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *DefuseExplodingKitten) AggregateID() string { return c.GameID.String() }
+
+func (c *DefuseExplodingKitten) CommandType() common.CommandType { return DefuseExplodingCommand }
+
+func (c *DefuseExplodingKitten) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type EliminatePlayer struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (c *EliminatePlayer) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *EliminatePlayer) AggregateID() string { return c.GameID.String() }
+
+func (c *EliminatePlayer) CommandType() common.CommandType { return EliminatePlayerCommand }
+
+func (c *EliminatePlayer) Validate() error {
 	if c.GameID == uuid.Nil {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}

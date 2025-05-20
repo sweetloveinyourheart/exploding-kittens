@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, DrawCardsRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, DrawCardRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -148,11 +148,11 @@ export const ClientServer = {
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCards
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard
      */
-    drawCards: {
-      name: "DrawCards",
-      I: DrawCardsRequest,
+    DrawCard: {
+      name: "DrawCard",
+      I: DrawCardRequest,
       O: Empty,
       kind: MethodKind.Unary,
     },

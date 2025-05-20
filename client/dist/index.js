@@ -4025,7 +4025,7 @@ var GiveCardRequest = class _GiveCardRequest extends Message {
     return proto3.util.equals(_GiveCardRequest, a, b);
   }
 };
-var DrawCardsRequest = class _DrawCardsRequest extends Message {
+var DrawCardRequest = class _DrawCardRequest extends Message {
   /**
    * @generated from field: string game_id = 1;
    */
@@ -4035,7 +4035,7 @@ var DrawCardsRequest = class _DrawCardsRequest extends Message {
     proto3.util.initPartial(data, this);
   }
   static runtime = proto3;
-  static typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardsRequest";
+  static typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardRequest";
   static fields = proto3.util.newFieldList(() => [
     {
       no: 1,
@@ -4046,16 +4046,16 @@ var DrawCardsRequest = class _DrawCardsRequest extends Message {
     }
   ]);
   static fromBinary(bytes, options) {
-    return new _DrawCardsRequest().fromBinary(bytes, options);
+    return new _DrawCardRequest().fromBinary(bytes, options);
   }
   static fromJson(jsonValue, options) {
-    return new _DrawCardsRequest().fromJson(jsonValue, options);
+    return new _DrawCardRequest().fromJson(jsonValue, options);
   }
   static fromJsonString(jsonString, options) {
-    return new _DrawCardsRequest().fromJsonString(jsonString, options);
+    return new _DrawCardRequest().fromJsonString(jsonString, options);
   }
   static equals(a, b) {
-    return proto3.util.equals(_DrawCardsRequest, a, b);
+    return proto3.util.equals(_DrawCardRequest, a, b);
   }
 };
 
@@ -4199,11 +4199,11 @@ var ClientServer = {
       kind: MethodKind.Unary
     },
     /**
-     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCards
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard
      */
-    drawCards: {
-      name: "DrawCards",
-      I: DrawCardsRequest,
+    DrawCard: {
+      name: "DrawCard",
+      I: DrawCardRequest,
       O: Empty,
       kind: MethodKind.Unary
     },
@@ -4243,7 +4243,7 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
-  DrawCardsRequest,
+  DrawCardRequest,
   Game,
   GameMetaData,
   Game_Desk,

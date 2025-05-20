@@ -9,12 +9,15 @@ import (
 )
 
 const (
-	GAME_PHASE_INITIALIZING = iota // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
-	GAME_PHASE_TURN_START   = 1    // Active player begins their turn, player can play as many action cards as they want
-	GAME_PHASE_ACTION_PHASE = 2    // Execute the action of the played card
-	GAME_PHASE_CARD_DRAWING = 3    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
-	GAME_PHASE_TURN_FINISH  = 4    // Finalize the turn, next player becomes active
-	GAME_PHASE_GAME_OVER    = 5    // When only one player remains
+	GAME_PHASE_INITIALIZING      = iota // Setting up players, shuffling and dealing cards, inserting Exploding Kittens and Defuse cards into the deck
+	GAME_PHASE_TURN_START        = 1    // Active player begins their turn, player can play as many action cards as they want
+	GAME_PHASE_ACTION_PHASE      = 2    // Execute the action of the played card
+	GAME_PHASE_CARD_DRAWING      = 3    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
+	GAME_PHASE_TURN_FINISH       = 4    // Finalize the turn, next player becomes active
+	GAME_PHASE_GAME_OVER         = 5    // When only one player remains
+	GAME_PHASE_EXPLODING_DRAWN   = 6    // When a player draws an Exploding Kitten card
+	GAME_PHASE_EXPLODING_DEFUSED = 7    // When a player defuses an Exploding Kitten card
+	GAME_PHASE_PLAYER_ELIMINATED = 8    // When a player is eliminated from the game
 )
 
 type Game struct {
