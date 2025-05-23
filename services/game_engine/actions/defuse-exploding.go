@@ -45,6 +45,7 @@ func (a *actions) DefuseExplodingKitten(ctx context.Context, request *connect.Re
 	if err := domains.CommandBus.HandleCommand(ctx, &game.DefuseExplodingKitten{
 		GameID:   gameID,
 		PlayerID: playerId,
+		CardID:   stringsutil.ConvertStringToUUID(request.Msg.GetCardId()),
 	}); err != nil {
 		if errors.Is(err, game.ErrGameNotFound) {
 			return nil, grpc.PreconditionError(grpc.PreconditionFailure("state", "game_id", "no such game"))

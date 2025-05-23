@@ -13,6 +13,7 @@ func init() {
 	eventing.RegisterCommand[DiscardCards, *DiscardCards]()
 	eventing.RegisterCommand[PeekCards, *PeekCards]()
 	eventing.RegisterCommand[DrawCard, *DrawCard]()
+	eventing.RegisterCommand[InsertCard, *InsertCard]()
 }
 
 const (
@@ -21,6 +22,7 @@ const (
 	DiscardCardsCommand = common.CommandType("desk:cards:discard")
 	PeekCardsCommand    = common.CommandType("desk:cards:peek")
 	DrawCardCommand     = common.CommandType("desk:card:draw")
+	InsertCardCommand   = common.CommandType("desk:card:insert")
 )
 
 var AllCommands = []common.CommandType{
@@ -29,6 +31,7 @@ var AllCommands = []common.CommandType{
 	DiscardCardsCommand,
 	PeekCardsCommand,
 	DrawCardCommand,
+	InsertCardCommand,
 }
 
 var _ = eventing.Command(&CreateDesk{})
@@ -36,6 +39,7 @@ var _ = eventing.Command(&ShuffleDesk{})
 var _ = eventing.Command(&DiscardCards{})
 var _ = eventing.Command(&PeekCards{})
 var _ = eventing.Command(&DrawCard{})
+var _ = eventing.Command(&InsertCard{})
 
 type CreateDesk struct {
 	DeskID  uuid.UUID   `json:"desk_id"`
@@ -148,6 +152,34 @@ func (c *DrawCard) Validate() error {
 
 	if c.PlayerID == uuid.Nil {
 		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type InsertCard struct {
+	DeskID uuid.UUID `json:"desk_id"`
+	CardID uuid.UUID `json:"card_id"`
+	Index  int       `json:"index"`
+}
+
+func (c *InsertCard) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *InsertCard) AggregateID() string { return c.DeskID.String() }
+
+func (c *InsertCard) CommandType() common.CommandType { return InsertCardCommand }
+
+func (c *InsertCard) Validate() error {
+	if c.DeskID == uuid.Nil {
+		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	if c.CardID == uuid.Nil {
+		return &common.CommandFieldError{Field: "card_id", Details: "empty field"}
+	}
+
+	if c.Index < 0 {
+		return &common.CommandFieldError{Field: "index", Details: "invalid index"}
 	}
 
 	return nil

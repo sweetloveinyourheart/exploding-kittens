@@ -196,6 +196,19 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrPlayerNotInTheirTurn
 		}
 
+	case *PlantTheKitten:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
+		if a.playerTurn != typed.PlayerID {
+			return ErrPlayerNotInTheirTurn
+		}
+
+		if typed.Index < 0 {
+			return ErrInvalidIndexToPlant
+		}
+
 	}
 	return nil
 }
@@ -269,18 +282,27 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 		a.AppendEvent(EventTypeExplodingDrawn, &ExplodingDrawn{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
+			CardID:   cmd.CardID,
 		}, TimeNow())
 
 	case *DefuseExplodingKitten:
 		a.AppendEvent(EventTypeExplodingDefused, &ExplodingDefused{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
+			CardID:   cmd.CardID,
 		}, TimeNow())
 
 	case *EliminatePlayer:
 		a.AppendEvent(EventTypePlayerEliminated, &PlayerEliminated{
 			GameID:   cmd.GameID,
 			PlayerID: cmd.PlayerID,
+		}, TimeNow())
+
+	case *PlantTheKitten:
+		a.AppendEvent(EventTypeKittenPlanted, &KittenPlanted{
+			GameID:   cmd.GameID,
+			PlayerID: cmd.PlayerID,
+			Index:    cmd.Index,
 		}, TimeNow())
 
 	default:
@@ -340,6 +362,7 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 	case EventTypeExplodingDrawn:
 	case EventTypeExplodingDefused:
 	case EventTypePlayerEliminated:
+	case EventTypeKittenPlanted:
 	}
 
 	return nil

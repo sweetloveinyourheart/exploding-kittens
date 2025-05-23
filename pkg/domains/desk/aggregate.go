@@ -69,6 +69,7 @@ const AggregateType = common.AggregateType("desk")
 type Aggregate struct {
 	*aggregate.AggregateBase
 	currentDeskID uuid.UUID
+	cardCount     int
 }
 
 var _ eventing.Aggregate = (*Aggregate)(nil)
@@ -121,6 +122,20 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrDeskNotAvailable
 		}
 
+		if a.cardCount <= 0 {
+			return ErrNoCardToDraw
+		}
+
+	case *InsertCard:
+		// An aggregate can only be inserted into once.
+		if a.currentDeskID != typed.DeskID {
+			return ErrDeskNotAvailable
+		}
+
+		if typed.Index < 0 || typed.Index > a.cardCount {
+			return ErrInvalidInsertIndex
+		}
+
 	}
 
 	return nil
@@ -159,6 +174,13 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			CanFinishTurn: cmd.CanFinishTurn,
 		}, TimeNow())
 
+	case *InsertCard:
+		a.AppendEvent(EventTypeCardInserted, &CardInserted{
+			DeskID: cmd.DeskID,
+			CardID: cmd.CardID,
+			Index:  cmd.Index,
+		}, TimeNow())
+
 	default:
 		return fmt.Errorf("could not handle command: %s", cmd.CommandType())
 	}
@@ -190,11 +212,15 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 			return fmt.Errorf("could not apply event: %s", event.EventType())
 		}
 		a.currentDeskID = data.GetDeskID()
+		a.cardCount = len(data.GetCardIDs())
 
 	case EventTypeDeskShuffled:
 	case EventTypeCardsDiscarded:
 	case EventTypeCardsPeeked:
 	case EventTypeCardDrawn:
+		a.cardCount--
+	case EventTypeCardInserted:
+		a.cardCount++
 	}
 
 	return nil

@@ -20,6 +20,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[CardsDiscarded](EventTypeCardsDiscarded, args...)
 	eventing.RegisterEventData[CardsPeeked](EventTypeCardsPeeked, args...)
 	eventing.RegisterEventData[CardDrawn](EventTypeCardDrawn, args...)
+	eventing.RegisterEventData[CardInserted](EventTypeCardInserted, args...)
 }
 
 // EventTypeDeskCreated is the event type for when a desk is created
@@ -37,12 +38,16 @@ var EventTypeCardsPeeked = (&CardsPeeked{}).EventType()
 // EventTypeCardDrawn is the event type for when a card is drawn
 var EventTypeCardDrawn = (&CardDrawn{}).EventType()
 
+// EventTypeCardInserted is the event type for when a card is inserted
+var EventTypeCardInserted = (&CardInserted{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeDeskCreated,
 	EventTypeDeskShuffled,
 	EventTypeCardsDiscarded,
 	EventTypeCardsPeeked,
 	EventTypeCardDrawn,
+	EventTypeCardInserted,
 }
 
 type DeskCreated struct {
@@ -102,3 +107,17 @@ func (p *CardDrawn) GetGameID() uuid.UUID { return p.GameID }
 func (p *CardDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
 
 func (p *CardDrawn) GetCanFinishTurn() bool { return p.CanFinishTurn }
+
+type CardInserted struct {
+	DeskID uuid.UUID `json:"desk_id"`
+	CardID uuid.UUID `json:"card_id"`
+	Index  int       `json:"index"`
+}
+
+func (p *CardInserted) EventType() common.EventType { return "DESK_CARD_INSERTED" }
+
+func (p *CardInserted) GetDeskID() uuid.UUID { return p.DeskID }
+
+func (p *CardInserted) GetCardID() uuid.UUID { return p.CardID }
+
+func (p *CardInserted) GetIndex() int { return p.Index }

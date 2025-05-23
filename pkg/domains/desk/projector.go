@@ -97,3 +97,15 @@ func (p *Projector) HandleCardDrawn(ctx context.Context, event common.Event, dat
 
 	return entity, nil
 }
+
+func (p *Projector) HandleCardInserted(ctx context.Context, event common.Event, data *CardInserted, entity *Desk) (*Desk, error) {
+	entity.DeskID = data.GetDeskID()
+
+	cardIDs := entity.GetCardIDs()
+	cardIndex := data.GetIndex()
+	cardIDs = append(cardIDs[:cardIndex], append([]uuid.UUID{data.GetCardID()}, cardIDs[cardIndex:]...)...)
+
+	entity.CardIDs = cardIDs
+
+	return entity, nil
+}

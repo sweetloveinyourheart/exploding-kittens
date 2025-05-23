@@ -69,6 +69,7 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 		desk.EventTypeDeskShuffled,
 		desk.EventTypeCardsPeeked,
 		desk.EventTypeCardDrawn,
+		desk.EventTypeCardInserted,
 	)
 
 	deskSubject := nats2.CreateConsumerSubject(constants.DeskStream, deskMatcher)
@@ -234,6 +235,19 @@ func (w *DeskStateProcessor) HandleCardsPeeked(ctx context.Context, event common
 	return nil
 }
 
+func (w *DeskStateProcessor) HandleCardInserted(ctx context.Context, event common.Event, data *desk.CardInserted) error {
+	log.Global().InfoContext(ctx, "card inserted", zap.String("desk_id", data.GetDeskID().String()), zap.String("card_id", data.GetCardID().String()))
+
+	// Emit desk state update event
+	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
 func (w *DeskStateProcessor) HandleCardDrawn(ctx context.Context, event common.Event, data *desk.CardDrawn) error {
 	cardIDs := w.deskCardIDs[data.GetDeskID()]
 
@@ -257,16 +271,16 @@ func (w *DeskStateProcessor) HandleCardDrawn(ctx context.Context, event common.E
 	}
 
 	if cardInformation.GetCode() == cards.ExplodingKitten {
-		log.Global().InfoContext(ctx, "exploding kitten drawn", zap.String("desk_id", data.GetDeskID().String()), zap.String("player_id", data.GetPlayerID().String()))
-
 		if err := domains.CommandBus.HandleCommand(ctx, &game.DrawExplodingKitten{
 			GameID:   data.GetGameID(),
 			PlayerID: data.GetPlayerID(),
+			CardID:   drawnCardID,
 		}); err != nil {
 			log.Global().ErrorContext(ctx, "failed to create action", zap.Error(err))
 		}
 
-		w.deskActiveExplodingKittenCardID[data.GetDeskID()] = drawnCardID
+		log.Global().InfoContext(ctx, "exploding kitten drawn", zap.String("desk_id", data.GetDeskID().String()), zap.String("player_id", data.GetPlayerID().String()))
+
 	} else {
 		handID := hand.NewPlayerHandID(data.GetGameID(), data.GetPlayerID())
 		if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{

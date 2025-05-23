@@ -28,6 +28,7 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[ExplodingDrawn](EventTypeExplodingDrawn, args...)
 	eventing.RegisterEventData[ExplodingDefused](EventTypeExplodingDefused, args...)
 	eventing.RegisterEventData[PlayerEliminated](EventTypePlayerEliminated, args...)
+	eventing.RegisterEventData[KittenPlanted](EventTypeKittenPlanted, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -69,6 +70,9 @@ var EventTypeExplodingDefused = (&ExplodingDefused{}).EventType()
 // EventTypePlayerEliminated is the event type for when a player is eliminated
 var EventTypePlayerEliminated = (&PlayerEliminated{}).EventType()
 
+// EventTypeKittenPlanted is the event type for when a kitten is planted
+var EventTypeKittenPlanted = (&KittenPlanted{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
@@ -83,6 +87,7 @@ var AllEventTypes = []common.EventType{
 	EventTypeExplodingDrawn,
 	EventTypeExplodingDefused,
 	EventTypePlayerEliminated,
+	EventTypeKittenPlanted,
 }
 
 type GameCreated struct {
@@ -216,6 +221,7 @@ func (p *CardDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
 type ExplodingDrawn struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
 }
 
 func (p *ExplodingDrawn) EventType() common.EventType { return "GAME_EXPLODING_DRAWN" }
@@ -224,9 +230,12 @@ func (p *ExplodingDrawn) GetGameID() uuid.UUID { return p.GameID }
 
 func (p *ExplodingDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
 
+func (p *ExplodingDrawn) GetCardID() uuid.UUID { return p.CardID }
+
 type ExplodingDefused struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
 }
 
 func (p *ExplodingDefused) EventType() common.EventType { return "GAME_EXPLODING_DEFUSED" }
@@ -234,6 +243,8 @@ func (p *ExplodingDefused) EventType() common.EventType { return "GAME_EXPLODING
 func (p *ExplodingDefused) GetGameID() uuid.UUID { return p.GameID }
 
 func (p *ExplodingDefused) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *ExplodingDefused) GetCardID() uuid.UUID { return p.CardID }
 
 type PlayerEliminated struct {
 	GameID   uuid.UUID `json:"game_id"`
@@ -245,3 +256,17 @@ func (p *PlayerEliminated) EventType() common.EventType { return "GAME_PLAYER_EL
 func (p *PlayerEliminated) GetGameID() uuid.UUID { return p.GameID }
 
 func (p *PlayerEliminated) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type KittenPlanted struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Index    int       `json:"index"`
+}
+
+func (p *KittenPlanted) EventType() common.EventType { return "GAME_KITTEN_PLANTED" }
+
+func (p *KittenPlanted) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *KittenPlanted) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *KittenPlanted) GetIndex() int { return p.Index }

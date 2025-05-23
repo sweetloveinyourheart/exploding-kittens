@@ -137,5 +137,20 @@ func (p *Projector) HandlePlayerEliminated(ctx context.Context, event common.Eve
 	entity.GamePhase = GAME_PHASE_PLAYER_ELIMINATED
 	entity.PlayerTurn = uuid.Nil
 
+	players := entity.Players
+	for i, player := range players {
+		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
+			players[i].Active = false
+			break
+		}
+	}
+	entity.Players = players
+
+	return entity, nil
+}
+
+func (p *Projector) HandleKittenPlanted(ctx context.Context, event common.Event, data *KittenPlanted, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+
 	return entity, nil
 }

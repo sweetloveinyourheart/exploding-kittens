@@ -3,12 +3,14 @@ package game
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -41,6 +43,7 @@ type GamePlayExecutor struct {
 	ctx context.Context
 	*game.GameProjector
 
+	bus          *nats.Conn
 	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	dataProvider dataProviderGrpc.DataProviderClient
 
@@ -55,6 +58,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 	gpe := &GamePlayExecutor{
 		ctx:          ctx,
 		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 
 		gameDeskID:            make(map[string]uuid.UUID),
@@ -310,11 +314,19 @@ func (w *GamePlayExecutor) HandleActionCreated(ctx context.Context, event common
 		}
 	}
 
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit game state update event", zap.Error(err))
+	}
+
 	return nil
 }
 
 func (w *GamePlayExecutor) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *game.AffectedPlayerSelected) error {
 	w.gameAffectingPlayerID[data.GameID.String()] = data.GetPlayerID()
+
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit game state update event", zap.Error(err))
+	}
 
 	return nil
 }
@@ -537,6 +549,24 @@ func (w *GamePlayExecutor) HandleCardDrawn(ctx context.Context, event common.Eve
 	}
 
 	log.Global().InfoContext(ctx, "Cards drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GamePlayExecutor) emitGameStateUpdateEvent(gameID uuid.UUID) error {
+	msg := &game.Game{
+		GameID: gameID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.GameStream, msg.GetGameID().String()), msgBytes)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

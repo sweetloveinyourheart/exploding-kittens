@@ -59,16 +59,20 @@ type GameInteractionProcessor struct {
 	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus   *nats.Conn
 
-	gamePlayers map[string][]*game.Player
+	gamePlayers               map[string][]*game.Player
+	gameDeskID                map[string]uuid.UUID
+	gameActiveExplodingCardID map[string]uuid.UUID
 }
 
 func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor, error) {
 	gip := &GameInteractionProcessor{
-		ctx:          ctx,
-		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
-		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
-		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
-		gamePlayers:  make(map[string][]*game.Player),
+		ctx:                       ctx,
+		dataProvider:              do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		queue:                     make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		bus:                       do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		gamePlayers:               make(map[string][]*game.Player),
+		gameActiveExplodingCardID: make(map[string]uuid.UUID),
+		gameDeskID:                make(map[string]uuid.UUID),
 	}
 
 	gip.GameProjector = game.NewGameProjection(gip)
@@ -77,10 +81,12 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		game.EventTypeGameCreated,
 		game.EventTypeGameInitialized,
 		game.EventTypeTurnStarted,
-		game.EventTypeActionCreated,
-		game.EventTypeAffectedPlayerSelected,
 		game.EventTypeTurnFinished,
 		game.EventTypeTurnReversed,
+		game.EventTypeExplodingDrawn,
+		game.EventTypeExplodingDefused,
+		game.EventTypeKittenPlanted,
+		game.EventTypePlayerEliminated,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -339,28 +345,6 @@ func (w *GameInteractionProcessor) HandleTurnStarted(ctx context.Context, event 
 	return nil
 }
 
-func (w *GameInteractionProcessor) HandleActionCreated(ctx context.Context, event common.Event, data *game.ActionCreated) error {
-	// Emit game state update event
-	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
-		return err
-	}
-
-	log.Global().InfoContext(ctx, "Action created", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
-
-	return nil
-}
-
-func (w *GameInteractionProcessor) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *game.AffectedPlayerSelected) error {
-	// Emit game state update event
-	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
-		return err
-	}
-
-	log.Global().InfoContext(ctx, "Affected player selected", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
-
-	return nil
-}
-
 func (w *GameInteractionProcessor) HandleTurnFinished(ctx context.Context, event common.Event, data *game.TurnFinished) error {
 	var nextTurn uuid.UUID
 	players := w.gamePlayers[data.GetGameID().String()]
@@ -416,28 +400,6 @@ func (w *GameInteractionProcessor) HandleTurnReversed(ctx context.Context, event
 	return nil
 }
 
-func (w *GameInteractionProcessor) HandleExplodingDrawn(ctx context.Context, event common.Event, data *game.ExplodingDrawn) error {
-	// Emit game state update event
-	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
-		return err
-	}
-
-	log.Global().InfoContext(ctx, "Exploding drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
-
-	return nil
-}
-
-func (w *GameInteractionProcessor) HandleExplodingDefused(ctx context.Context, event common.Event, data *game.ExplodingDefused) error {
-	// Emit game state update event
-	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
-		return err
-	}
-
-	log.Global().InfoContext(ctx, "Exploding defused", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
-
-	return nil
-}
-
 func (w *GameInteractionProcessor) HandlePlayerEliminated(ctx context.Context, event common.Event, data *game.PlayerEliminated) error {
 	var nextTurn uuid.UUID
 	players := w.gamePlayers[data.GetGameID().String()]
@@ -474,11 +436,6 @@ func (w *GameInteractionProcessor) HandlePlayerEliminated(ctx context.Context, e
 			log.Global().ErrorContext(ctx, "failed to start new turn", zap.Error(err))
 			return err
 		}
-	}
-
-	// Emit game state update event
-	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
-		return err
 	}
 
 	log.Global().InfoContext(ctx, "Player eliminated", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))

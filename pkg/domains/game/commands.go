@@ -26,6 +26,7 @@ func init() {
 	eventing.RegisterCommand[DrawExplodingKitten, *DrawExplodingKitten]()
 	eventing.RegisterCommand[DefuseExplodingKitten, *DefuseExplodingKitten]()
 	eventing.RegisterCommand[EliminatePlayer, *EliminatePlayer]()
+	eventing.RegisterCommand[PlantTheKitten, *PlantTheKitten]()
 }
 
 const (
@@ -44,6 +45,7 @@ const (
 	DrawExplodingCommand   = common.CommandType("game:action:draw-exploding")
 	DefuseExplodingCommand = common.CommandType("game:action:defuse-exploding")
 	EliminatePlayerCommand = common.CommandType("game:action:eliminate-player")
+	PlantTheKittenCommand  = common.CommandType("game:action:plant-the-kitten")
 )
 
 var AllCommands = []common.CommandType{
@@ -62,6 +64,7 @@ var AllCommands = []common.CommandType{
 	DrawExplodingCommand,
 	DefuseExplodingCommand,
 	EliminatePlayerCommand,
+	PlantTheKittenCommand,
 }
 
 var _ = eventing.Command(&CreateGame{})
@@ -77,6 +80,7 @@ var _ = eventing.Command(&ExecuteAction{})
 var _ = eventing.Command(&DrawExplodingKitten{})
 var _ = eventing.Command(&DefuseExplodingKitten{})
 var _ = eventing.Command(&EliminatePlayer{})
+var _ = eventing.Command(&PlantTheKitten{})
 
 type CreateGame struct {
 	GameID    uuid.UUID   `json:"game_id"`
@@ -322,6 +326,7 @@ func (c *DrawCard) Validate() error {
 type DrawExplodingKitten struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
 }
 
 func (c *DrawExplodingKitten) AggregateType() common.AggregateType { return AggregateType }
@@ -339,12 +344,17 @@ func (c *DrawExplodingKitten) Validate() error {
 		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
 	}
 
+	if c.CardID == uuid.Nil {
+		return &common.CommandFieldError{Field: "card_id", Details: "empty field"}
+	}
+
 	return nil
 }
 
 type DefuseExplodingKitten struct {
 	GameID   uuid.UUID `json:"game_id"`
 	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
 }
 
 func (c *DefuseExplodingKitten) AggregateType() common.AggregateType { return AggregateType }
@@ -360,6 +370,10 @@ func (c *DefuseExplodingKitten) Validate() error {
 
 	if c.PlayerID == uuid.Nil {
 		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	if c.CardID == uuid.Nil {
+		return &common.CommandFieldError{Field: "card_id", Details: "empty field"}
 	}
 
 	return nil
@@ -383,6 +397,34 @@ func (c *EliminatePlayer) Validate() error {
 
 	if c.PlayerID == uuid.Nil {
 		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type PlantTheKitten struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Index    int       `json:"index"`
+}
+
+func (c *PlantTheKitten) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *PlantTheKitten) AggregateID() string { return c.GameID.String() }
+
+func (c *PlantTheKitten) CommandType() common.CommandType { return PlantTheKittenCommand }
+
+func (c *PlantTheKitten) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.PlayerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "player_id", Details: "empty field"}
+	}
+
+	if c.Index < 0 {
+		return &common.CommandFieldError{Field: "index", Details: "invalid index"}
 	}
 
 	return nil
