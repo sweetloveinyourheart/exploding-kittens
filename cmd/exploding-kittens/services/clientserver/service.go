@@ -22,7 +22,7 @@ import (
 	auth_interceptors "github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors/auth"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
-	gameEngineServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go/grpcconnect"
+	gameEngineServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go/grpcconnect"
 	userServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client"
@@ -150,7 +150,7 @@ func setupDependencies() error {
 		)...),
 	)
 
-	gameEngineServerClient := gameEngineServerConnect.NewGameServerClient(
+	gameEngineServerClient := gameEngineServerConnect.NewGameEngineServerClient(
 		http.DefaultClient,
 		config.Instance().GetString("clientserver.gameengineserver.url"),
 		connect.WithInterceptors(interceptors.CommonConnectClientInterceptors(
@@ -167,7 +167,7 @@ func setupDependencies() error {
 		return dataProviderClient, nil
 	})
 
-	do.Provide[gameEngineServerConnect.GameServerClient](nil, func(i *do.Injector) (gameEngineServerConnect.GameServerClient, error) {
+	do.Provide[gameEngineServerConnect.GameEngineServerClient](nil, func(i *do.Injector) (gameEngineServerConnect.GameEngineServerClient, error) {
 		return gameEngineServerClient, nil
 	})
 

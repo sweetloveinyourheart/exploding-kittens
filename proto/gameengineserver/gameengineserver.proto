@@ -2,11 +2,11 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go;grpc";
+option go_package = "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go;grpc";
 
-package com.sweetloveinyourheart.kittens.games;
+package com.sweetloveinyourheart.kittens.gameengines;
 
-service GameServer {
+service GameEngineServer {
     rpc PlayCards(PlayCardsRequest) returns (google.protobuf.Empty);
     rpc DefuseExplodingKitten(DefuseExplodingKittenRequest) returns (google.protobuf.Empty);
 }

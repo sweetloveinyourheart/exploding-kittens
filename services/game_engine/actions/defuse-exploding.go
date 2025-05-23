@@ -5,13 +5,14 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	cardsConst "github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
-	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (a *actions) DefuseExplodingKitten(ctx context.Context, request *connect.Request[proto.DefuseExplodingKittenRequest]) (response *connect.Response[emptypb.Empty], err error) {

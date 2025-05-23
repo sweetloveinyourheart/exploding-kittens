@@ -48,8 +48,7 @@ type DeskStateProcessor struct {
 	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	bus          *nats.Conn
 
-	deskCardIDs                     map[uuid.UUID][]uuid.UUID
-	deskActiveExplodingKittenCardID map[uuid.UUID]uuid.UUID
+	deskCardIDs map[uuid.UUID][]uuid.UUID
 }
 
 func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {

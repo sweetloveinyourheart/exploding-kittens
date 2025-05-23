@@ -21,7 +21,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
-	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go/grpcconnect"
 	gameengine "github.com/sweetloveinyourheart/exploding-kittens/services/game_engine"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/actions"
 )
@@ -59,7 +59,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 					interceptors.ConnectServerAuthHandler(signingKey),
 				)...,
 			)
-			path, handler := grpcconnect.NewGameServerHandler(
+			path, handler := grpcconnect.NewGameEngineServerHandler(
 				actions,
 				opt,
 			)

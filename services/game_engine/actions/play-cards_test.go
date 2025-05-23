@@ -7,7 +7,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
-	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/actions"
 )
 

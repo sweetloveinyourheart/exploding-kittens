@@ -14,7 +14,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go"
-	gameProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	gameProto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/helpers"
 )
