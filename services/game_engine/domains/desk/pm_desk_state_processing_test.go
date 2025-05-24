@@ -140,7 +140,7 @@ func (hs *DeskSuite) TestDeskStateProcessing_DeskDrawn_Successfully() {
 		runtime.Gosched()
 
 		gameState, gameStateErr := gameRepo.Find(ctx, gameID.String())
-		deskID = gameState.Desk
+		deskID = gameState.DeskID
 
 		deskState, deskStateErr := deskRepo.Find(ctx, deskID.String())
 		deskCards = len(deskState.GetCardIDs())

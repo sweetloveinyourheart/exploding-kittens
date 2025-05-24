@@ -31,6 +31,7 @@
     - [Lobby](#com-sweetloveinyourheart-kittens-clients-Lobby)
     - [PeekCardsRequest](#com-sweetloveinyourheart-kittens-clients-PeekCardsRequest)
     - [PeekCardsResponse](#com-sweetloveinyourheart-kittens-clients-PeekCardsResponse)
+    - [PlantExplodingKittenRequest](#com-sweetloveinyourheart-kittens-clients-PlantExplodingKittenRequest)
     - [PlayCardsRequest](#com-sweetloveinyourheart-kittens-clients-PlayCardsRequest)
     - [PlayersProfileRequest](#com-sweetloveinyourheart-kittens-clients-PlayersProfileRequest)
     - [PlayersProfileResponse](#com-sweetloveinyourheart-kittens-clients-PlayersProfileResponse)
@@ -185,6 +186,7 @@ This message is used to draw cards from the deck
 | desk | [Game.Desk](#com-sweetloveinyourheart-kittens-clients-Game-Desk) |  |  |
 | executing_action | [string](#string) |  |  |
 | affected_player | [string](#string) |  |  |
+| winner_id | [string](#string) |  |  |
 
 
 
@@ -492,6 +494,22 @@ This message is used to peek at the top card of the deck
 
 
 
+<a name="com-sweetloveinyourheart-kittens-clients-PlantExplodingKittenRequest"></a>
+
+### PlantExplodingKittenRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| game_id | [string](#string) |  |  |
+| card_index | [int32](#int32) |  | Index of the card to be planted |
+
+
+
+
+
+
 <a name="com-sweetloveinyourheart-kittens-clients-PlayCardsRequest"></a>
 
 ### PlayCardsRequest
@@ -681,7 +699,10 @@ This message is used to steal a card from another player
 | ACTION_PHASE | 2 | Player can play as many action cards as they want |
 | CARD_DRAWING | 3 | Player draws one card from the deck (mandatory if they didn&#39;t Skip/Attack) |
 | TURN_END | 4 | Finalize the turn, next player becomes active |
-| GAME_OVER | 5 | When only one player remains |
+| GAME_FINISH | 5 | When only one player remains |
+| EXPLODING_DRAWN | 6 | When a player draws an Exploding Kitten card |
+| EXPLODING_DEFUSED | 7 | When a player defuses an Exploding Kitten card |
+| PLAYER_ELIMINATED | 8 | When a player is eliminated from the game |
 
 
  
@@ -716,6 +737,7 @@ This message is used to steal a card from another player
 | StealCard | [StealCardRequest](#com-sweetloveinyourheart-kittens-clients-StealCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | GiveCard | [GiveCardRequest](#com-sweetloveinyourheart-kittens-clients-GiveCardRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | DefuseExplodingKitten | [DefuseExplodingKittenRequest](#com-sweetloveinyourheart-kittens-clients-DefuseExplodingKittenRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| PlantExplodingKitten | [PlantExplodingKittenRequest](#com-sweetloveinyourheart-kittens-clients-PlantExplodingKittenRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
  
 

@@ -40,6 +40,7 @@ const (
 	ClientServer_StealCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
 	ClientServer_GiveCard_FullMethodName              = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
 	ClientServer_DefuseExplodingKitten_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DefuseExplodingKitten"
+	ClientServer_PlantExplodingKitten_FullMethodName  = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlantExplodingKitten"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -66,6 +67,7 @@ type ClientServerClient interface {
 	StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DefuseExplodingKitten(ctx context.Context, in *DefuseExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PlantExplodingKitten(ctx context.Context, in *PlantExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type clientServerClient struct {
@@ -294,6 +296,16 @@ func (c *clientServerClient) DefuseExplodingKitten(ctx context.Context, in *Defu
 	return out, nil
 }
 
+func (c *clientServerClient) PlantExplodingKitten(ctx context.Context, in *PlantExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_PlantExplodingKitten_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -318,6 +330,7 @@ type ClientServerServer interface {
 	StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error)
 	GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error)
 	DefuseExplodingKitten(context.Context, *DefuseExplodingKittenRequest) (*emptypb.Empty, error)
+	PlantExplodingKitten(context.Context, *PlantExplodingKittenRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -386,6 +399,9 @@ func (UnimplementedClientServerServer) GiveCard(context.Context, *GiveCardReques
 }
 func (UnimplementedClientServerServer) DefuseExplodingKitten(context.Context, *DefuseExplodingKittenRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DefuseExplodingKitten not implemented")
+}
+func (UnimplementedClientServerServer) PlantExplodingKitten(context.Context, *PlantExplodingKittenRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlantExplodingKitten not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -753,6 +769,24 @@ func _ClientServer_DefuseExplodingKitten_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_PlantExplodingKitten_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlantExplodingKittenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PlantExplodingKitten(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PlantExplodingKitten_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PlantExplodingKitten(ctx, req.(*PlantExplodingKittenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientServer_ServiceDesc is the grpc.ServiceDesc for ClientServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -831,6 +865,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DefuseExplodingKitten",
 			Handler:    _ClientServer_DefuseExplodingKitten_Handler,
+		},
+		{
+			MethodName: "PlantExplodingKitten",
+			Handler:    _ClientServer_PlantExplodingKitten_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -204,7 +204,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 
 func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
 	w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
-	w.gameDeskID[data.GameID.String()] = data.GetDesk()
+	w.gameDeskID[data.GameID.String()] = data.GetDeskID()
 	w.gamePlayerHands[data.GameID.String()] = data.GetPlayerHands()
 	w.gameAffectingPlayerID[data.GameID.String()] = uuid.Nil
 	w.gamePlayerTurnID[data.GameID.String()] = uuid.Nil

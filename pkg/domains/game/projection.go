@@ -27,6 +27,7 @@ type AllEventsProjector interface {
 	HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused, entity *Game) (*Game, error)
 	HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated, entity *Game) (*Game, error)
 	HandleKittenPlanted(ctx context.Context, event common.Event, data *KittenPlanted, entity *Game) (*Game, error)
+	HandleGameFinished(ctx context.Context, event common.Event, data *GameFinished, entity *Game) (*Game, error)
 }
 
 type eventsProjector interface {
@@ -44,6 +45,7 @@ type eventsProjector interface {
 	handleExplodingDefused(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handlePlayerEliminated(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 	handleKittenPlanted(ctx context.Context, event common.Event, entity *Game) (*Game, error)
+	handleGameFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error)
 }
 
 // GameProjector is an event handler for Projections in the Game domain.
@@ -183,6 +185,8 @@ func (p *GameProjector) handleGameEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handlePlayerEliminated
 	case EventTypeKittenPlanted:
 		eventHandler = p.handleKittenPlanted
+	case EventTypeGameFinished:
+		eventHandler = p.handleGameFinished
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -499,6 +503,28 @@ func (p *GameProjector) handleKittenPlanted(ctx context.Context, event common.Ev
 		HandleKittenPlanted(ctx context.Context, event common.Event, data *KittenPlanted) error
 	}); ok {
 		return entity, handler.HandleKittenPlanted(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleGameFinished handles game finished events.
+func (p *GameProjector) handleGameFinished(ctx context.Context, event common.Event, entity *Game) (*Game, error) {
+	data, ok := event.Data().(*GameFinished)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleGameFinished"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleGameFinished(ctx context.Context, event common.Event, data *GameFinished, entity *Game) (*Game, error)
+	}); ok {
+		return handler.HandleGameFinished(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleGameFinished(ctx context.Context, event common.Event, data *GameFinished) error
+	}); ok {
+		return entity, handler.HandleGameFinished(ctx, event, data)
 	}
 
 	return entity, nil

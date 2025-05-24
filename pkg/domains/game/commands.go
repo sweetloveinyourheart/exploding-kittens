@@ -16,6 +16,7 @@ func init() {
 	eventing.RegisterCommand[StartTurn, *StartTurn]()
 	eventing.RegisterCommand[FinishTurn, *FinishTurn]()
 	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
+	eventing.RegisterCommand[FinishGame, *FinishGame]()
 
 	eventing.RegisterCommand[PlayCards, *PlayCards]()
 	eventing.RegisterCommand[DrawCard, *DrawCard]()
@@ -35,6 +36,7 @@ const (
 	StartTurnCommand      = common.CommandType("game:turn:start")
 	FinishTurnCommand     = common.CommandType("game:turn:finish")
 	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
+	FinishGameCommand     = common.CommandType("game:finish")
 
 	PlayCardsCommand            = common.CommandType("game:cards:play")
 	DrawCardCommand             = common.CommandType("game:cards:draw")
@@ -54,6 +56,7 @@ var AllCommands = []common.CommandType{
 	StartTurnCommand,
 	FinishTurnCommand,
 	ReverseTurnCommand,
+	FinishGameCommand,
 
 	PlayCardsCommand,
 	DrawCardCommand,
@@ -81,6 +84,7 @@ var _ = eventing.Command(&DrawExplodingKitten{})
 var _ = eventing.Command(&DefuseExplodingKitten{})
 var _ = eventing.Command(&EliminatePlayer{})
 var _ = eventing.Command(&PlantTheKitten{})
+var _ = eventing.Command(&FinishGame{})
 
 type CreateGame struct {
 	GameID    uuid.UUID   `json:"game_id"`
@@ -107,7 +111,7 @@ func (c *CreateGame) Validate() error {
 
 type InitializeGame struct {
 	GameID      uuid.UUID               `json:"game_id"`
-	Desk        uuid.UUID               `json:"desk_id"`
+	DeskID      uuid.UUID               `json:"desk_id"`
 	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
 }
 
@@ -122,7 +126,7 @@ func (c *InitializeGame) Validate() error {
 		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}
 
-	if c.Desk == uuid.Nil {
+	if c.DeskID == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
 	}
 
@@ -425,6 +429,29 @@ func (c *PlantTheKitten) Validate() error {
 
 	if c.Index < 0 {
 		return &common.CommandFieldError{Field: "index", Details: "invalid index"}
+	}
+
+	return nil
+}
+
+type FinishGame struct {
+	GameID   uuid.UUID `json:"game_id"`
+	WinnerID uuid.UUID `json:"winner_id"`
+}
+
+func (c *FinishGame) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *FinishGame) AggregateID() string { return c.GameID.String() }
+
+func (c *FinishGame) CommandType() common.CommandType { return FinishGameCommand }
+
+func (c *FinishGame) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
+	}
+
+	if c.WinnerID == uuid.Nil {
+		return &common.CommandFieldError{Field: "winner_id", Details: "empty field"}
 	}
 
 	return nil

@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, DrawCardRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, DefuseExplodingKittenRequest, DrawCardRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlantExplodingKittenRequest, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -150,7 +150,7 @@ export const ClientServer = {
     /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard
      */
-    DrawCard: {
+    drawCard: {
       name: "DrawCard",
       I: DrawCardRequest,
       O: Empty,
@@ -180,6 +180,24 @@ export const ClientServer = {
     giveCard: {
       name: "GiveCard",
       I: GiveCardRequest,
+      O: Empty,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DefuseExplodingKitten
+     */
+    defuseExplodingKitten: {
+      name: "DefuseExplodingKitten",
+      I: DefuseExplodingKittenRequest,
+      O: Empty,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PlantExplodingKitten
+     */
+    plantExplodingKitten: {
+      name: "PlantExplodingKitten",
+      I: PlantExplodingKittenRequest,
       O: Empty,
       kind: MethodKind.Unary,
     },

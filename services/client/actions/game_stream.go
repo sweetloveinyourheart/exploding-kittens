@@ -77,17 +77,17 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 	}()
 
 	deskChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
-	if gameState.GetDesk() != uuid.Nil {
+	if gameState.GetDeskID() != uuid.Nil {
 		// Subscribe to desk updates if the game has a desk
-		deskUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.DeskStream, gameState.GetDesk()), deskChan)
+		deskUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.DeskStream, gameState.GetDeskID()), deskChan)
 		if err != nil {
-			log.Global().ErrorContext(ctx, "Error subscribing to desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDesk().String()))
+			log.Global().ErrorContext(ctx, "Error subscribing to desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDeskID().String()))
 			return grpc.InternalError(err)
 		}
 		defer func() {
 			err := deskUpdateStream.Unsubscribe()
 			if err != nil {
-				log.Global().ErrorContext(ctx, "Error unsubscribing from desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDesk().String()))
+				log.Global().ErrorContext(ctx, "Error unsubscribing from desk update stream", zap.Error(err), zap.String("desk_id", gameState.GetDeskID().String()))
 			}
 		}()
 	}
@@ -126,7 +126,7 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 			return
 		}
 
-		deskState, err := domains.DeskRepo.Find(ctx, gameState.Desk.String())
+		deskState, err := domains.DeskRepo.Find(ctx, gameState.DeskID.String())
 		if err != nil {
 			streamError = err
 			cancel()
@@ -194,7 +194,7 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 	})
 	defer unsubscribeGame()
 
-	unsubscribeDesk := domains.DeskSubscriber.SubscribeMatch(match.MatchDeskID(gameState.GetDesk()), func(_ string, _ any) {
+	unsubscribeDesk := domains.DeskSubscriber.SubscribeMatch(match.MatchDeskID(gameState.GetDeskID()), func(_ string, _ any) {
 		debounced()
 		keepAlive.Reset(KeepAliveTimeout)
 	})

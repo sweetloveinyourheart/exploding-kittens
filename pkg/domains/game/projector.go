@@ -51,7 +51,7 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_INITIALIZING
-	entity.Desk = data.GetDesk()
+	entity.DeskID = data.GetDeskID()
 	entity.PlayerHands = data.GetPlayerHands()
 
 	return entity, nil
@@ -77,6 +77,15 @@ func (p *Projector) HandleTurnReversed(ctx context.Context, event common.Event, 
 	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_FINISH
 	entity.PlayerTurn = data.GetPlayerID()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleGameFinished(ctx context.Context, event common.Event, data *GameFinished, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_GAME_FINISH
+	entity.PlayerTurn = uuid.Nil
+	entity.WinnerID = data.GetWinnerID()
 
 	return entity, nil
 }

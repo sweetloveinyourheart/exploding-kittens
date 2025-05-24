@@ -31,6 +31,7 @@ service ClientServer {
     rpc StealCard(StealCardRequest) returns (google.protobuf.Empty);
     rpc GiveCard(GiveCardRequest) returns (google.protobuf.Empty);
     rpc DefuseExplodingKitten(DefuseExplodingKittenRequest) returns (google.protobuf.Empty);
+    rpc PlantExplodingKitten(PlantExplodingKittenRequest) returns (google.protobuf.Empty);
 }
 
 // ========= Data Provider =============
@@ -149,7 +150,10 @@ message Game {
 	    ACTION_PHASE = 2;    // Player can play as many action cards as they want
 	    CARD_DRAWING = 3;    // Player draws one card from the deck (mandatory if they didn't Skip/Attack)
 	    TURN_END     = 4;    // Finalize the turn, next player becomes active
-	    GAME_OVER    = 5;    // When only one player remains
+	    GAME_FINISH  = 5;    // When only one player remains
+        EXPLODING_DRAWN = 6; // When a player draws an Exploding Kitten card
+        EXPLODING_DEFUSED = 7; // When a player defuses an Exploding Kitten card
+        PLAYER_ELIMINATED = 8; // When a player is eliminated from the game
     }
 
     message Player {
@@ -176,6 +180,7 @@ message Game {
     Desk desk = 6;
     string executing_action = 7;
     string affected_player = 8;
+    string winner_id = 9;
 }
 
 message GameMetaData {
@@ -250,4 +255,9 @@ message DrawCardRequest {
 message DefuseExplodingKittenRequest {
     string game_id = 1;
     optional string card_id = 2;
+}
+
+message PlantExplodingKittenRequest {
+    string game_id = 1;
+    int32 card_index = 2; // Index of the card to be planted
 }

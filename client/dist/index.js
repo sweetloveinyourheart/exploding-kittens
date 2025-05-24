@@ -3426,6 +3426,10 @@ var Game = class _Game extends Message {
    * @generated from field: string affected_player = 8;
    */
   affectedPlayer = "";
+  /**
+   * @generated from field: string winner_id = 9;
+   */
+  winnerId = "";
   constructor(data) {
     super();
     proto3.util.initPartial(data, this);
@@ -3464,6 +3468,13 @@ var Game = class _Game extends Message {
       kind: "scalar",
       T: 9
       /* ScalarType.STRING */
+    },
+    {
+      no: 9,
+      name: "winner_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
     }
   ]);
   static fromBinary(bytes, options) {
@@ -3485,7 +3496,10 @@ var Game_Phase = /* @__PURE__ */ ((Game_Phase2) => {
   Game_Phase2[Game_Phase2["ACTION_PHASE"] = 2] = "ACTION_PHASE";
   Game_Phase2[Game_Phase2["CARD_DRAWING"] = 3] = "CARD_DRAWING";
   Game_Phase2[Game_Phase2["TURN_END"] = 4] = "TURN_END";
-  Game_Phase2[Game_Phase2["GAME_OVER"] = 5] = "GAME_OVER";
+  Game_Phase2[Game_Phase2["GAME_FINISH"] = 5] = "GAME_FINISH";
+  Game_Phase2[Game_Phase2["EXPLODING_DRAWN"] = 6] = "EXPLODING_DRAWN";
+  Game_Phase2[Game_Phase2["EXPLODING_DEFUSED"] = 7] = "EXPLODING_DEFUSED";
+  Game_Phase2[Game_Phase2["PLAYER_ELIMINATED"] = 8] = "PLAYER_ELIMINATED";
   return Game_Phase2;
 })(Game_Phase || {});
 proto3.util.setEnumType(Game_Phase, "com.sweetloveinyourheart.kittens.clients.Game.Phase", [
@@ -3494,7 +3508,10 @@ proto3.util.setEnumType(Game_Phase, "com.sweetloveinyourheart.kittens.clients.Ga
   { no: 2, name: "ACTION_PHASE" },
   { no: 3, name: "CARD_DRAWING" },
   { no: 4, name: "TURN_END" },
-  { no: 5, name: "GAME_OVER" }
+  { no: 5, name: "GAME_FINISH" },
+  { no: 6, name: "EXPLODING_DRAWN" },
+  { no: 7, name: "EXPLODING_DEFUSED" },
+  { no: 8, name: "PLAYER_ELIMINATED" }
 ]);
 var Game_Player = class _Game_Player extends Message {
   /**
@@ -4058,6 +4075,90 @@ var DrawCardRequest = class _DrawCardRequest extends Message {
     return proto3.util.equals(_DrawCardRequest, a, b);
   }
 };
+var DefuseExplodingKittenRequest = class _DefuseExplodingKittenRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * @generated from field: optional string card_id = 2;
+   */
+  cardId;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.DefuseExplodingKittenRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "card_id", kind: "scalar", T: 9, opt: true }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _DefuseExplodingKittenRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _DefuseExplodingKittenRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _DefuseExplodingKittenRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_DefuseExplodingKittenRequest, a, b);
+  }
+};
+var PlantExplodingKittenRequest = class _PlantExplodingKittenRequest extends Message {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+  /**
+   * Index of the card to be planted
+   *
+   * @generated from field: int32 card_index = 2;
+   */
+  cardIndex = 0;
+  constructor(data) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+  static runtime = proto3;
+  static typeName = "com.sweetloveinyourheart.kittens.clients.PlantExplodingKittenRequest";
+  static fields = proto3.util.newFieldList(() => [
+    {
+      no: 1,
+      name: "game_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "card_index",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    }
+  ]);
+  static fromBinary(bytes, options) {
+    return new _PlantExplodingKittenRequest().fromBinary(bytes, options);
+  }
+  static fromJson(jsonValue, options) {
+    return new _PlantExplodingKittenRequest().fromJson(jsonValue, options);
+  }
+  static fromJsonString(jsonString, options) {
+    return new _PlantExplodingKittenRequest().fromJsonString(jsonString, options);
+  }
+  static equals(a, b) {
+    return proto3.util.equals(_PlantExplodingKittenRequest, a, b);
+  }
+};
 
 // src/gen/clientserver_connect.ts
 var ClientServer = {
@@ -4201,7 +4302,7 @@ var ClientServer = {
     /**
      * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard
      */
-    DrawCard: {
+    drawCard: {
       name: "DrawCard",
       I: DrawCardRequest,
       O: Empty,
@@ -4233,6 +4334,24 @@ var ClientServer = {
       I: GiveCardRequest,
       O: Empty,
       kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DefuseExplodingKitten
+     */
+    defuseExplodingKitten: {
+      name: "DefuseExplodingKitten",
+      I: DefuseExplodingKittenRequest,
+      O: Empty,
+      kind: MethodKind.Unary
+    },
+    /**
+     * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PlantExplodingKitten
+     */
+    plantExplodingKitten: {
+      name: "PlantExplodingKitten",
+      I: PlantExplodingKittenRequest,
+      O: Empty,
+      kind: MethodKind.Unary
     }
   }
 };
@@ -4243,6 +4362,7 @@ export {
   CreateLobbyResponse,
   CreateNewGuestUserRequest,
   CreateNewGuestUserResponse,
+  DefuseExplodingKittenRequest,
   DrawCardRequest,
   Game,
   GameMetaData,
@@ -4264,6 +4384,7 @@ export {
   Lobby,
   PeekCardsRequest,
   PeekCardsResponse,
+  PlantExplodingKittenRequest,
   PlayCardsRequest,
   PlayersProfileRequest,
   PlayersProfileResponse,

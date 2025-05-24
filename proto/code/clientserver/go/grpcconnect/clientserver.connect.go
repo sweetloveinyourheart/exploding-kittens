@@ -83,6 +83,9 @@ const (
 	// ClientServerDefuseExplodingKittenProcedure is the fully-qualified name of the ClientServer's
 	// DefuseExplodingKitten RPC.
 	ClientServerDefuseExplodingKittenProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DefuseExplodingKitten"
+	// ClientServerPlantExplodingKittenProcedure is the fully-qualified name of the ClientServer's
+	// PlantExplodingKitten RPC.
+	ClientServerPlantExplodingKittenProcedure = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlantExplodingKitten"
 )
 
 // ClientServerClient is a client for the com.sweetloveinyourheart.kittens.clients.ClientServer
@@ -108,6 +111,7 @@ type ClientServerClient interface {
 	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
 	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
 	DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
+	PlantExplodingKitten(context.Context, *connect.Request[_go.PlantExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerClient constructs a client for the
@@ -242,6 +246,12 @@ func NewClientServerClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(clientServerMethods.ByName("DefuseExplodingKitten")),
 			connect.WithClientOptions(opts...),
 		),
+		plantExplodingKitten: connect.NewClient[_go.PlantExplodingKittenRequest, emptypb.Empty](
+			httpClient,
+			baseURL+ClientServerPlantExplodingKittenProcedure,
+			connect.WithSchema(clientServerMethods.ByName("PlantExplodingKitten")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -267,6 +277,7 @@ type clientServerClient struct {
 	stealCard             *connect.Client[_go.StealCardRequest, emptypb.Empty]
 	giveCard              *connect.Client[_go.GiveCardRequest, emptypb.Empty]
 	defuseExplodingKitten *connect.Client[_go.DefuseExplodingKittenRequest, emptypb.Empty]
+	plantExplodingKitten  *connect.Client[_go.PlantExplodingKittenRequest, emptypb.Empty]
 }
 
 // RetrieveCardsData calls com.sweetloveinyourheart.kittens.clients.ClientServer.RetrieveCardsData.
@@ -372,6 +383,12 @@ func (c *clientServerClient) DefuseExplodingKitten(ctx context.Context, req *con
 	return c.defuseExplodingKitten.CallUnary(ctx, req)
 }
 
+// PlantExplodingKitten calls
+// com.sweetloveinyourheart.kittens.clients.ClientServer.PlantExplodingKitten.
+func (c *clientServerClient) PlantExplodingKitten(ctx context.Context, req *connect.Request[_go.PlantExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error) {
+	return c.plantExplodingKitten.CallUnary(ctx, req)
+}
+
 // ClientServerHandler is an implementation of the
 // com.sweetloveinyourheart.kittens.clients.ClientServer service.
 type ClientServerHandler interface {
@@ -395,6 +412,7 @@ type ClientServerHandler interface {
 	StealCard(context.Context, *connect.Request[_go.StealCardRequest]) (*connect.Response[emptypb.Empty], error)
 	GiveCard(context.Context, *connect.Request[_go.GiveCardRequest]) (*connect.Response[emptypb.Empty], error)
 	DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
+	PlantExplodingKitten(context.Context, *connect.Request[_go.PlantExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error)
 }
 
 // NewClientServerHandler builds an HTTP handler from the service implementation. It returns the
@@ -524,6 +542,12 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(clientServerMethods.ByName("DefuseExplodingKitten")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clientServerPlantExplodingKittenHandler := connect.NewUnaryHandler(
+		ClientServerPlantExplodingKittenProcedure,
+		svc.PlantExplodingKitten,
+		connect.WithSchema(clientServerMethods.ByName("PlantExplodingKitten")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/com.sweetloveinyourheart.kittens.clients.ClientServer/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClientServerRetrieveCardsDataProcedure:
@@ -566,6 +590,8 @@ func NewClientServerHandler(svc ClientServerHandler, opts ...connect.HandlerOpti
 			clientServerGiveCardHandler.ServeHTTP(w, r)
 		case ClientServerDefuseExplodingKittenProcedure:
 			clientServerDefuseExplodingKittenHandler.ServeHTTP(w, r)
+		case ClientServerPlantExplodingKittenProcedure:
+			clientServerPlantExplodingKittenHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -653,4 +679,8 @@ func (UnimplementedClientServerHandler) GiveCard(context.Context, *connect.Reque
 
 func (UnimplementedClientServerHandler) DefuseExplodingKitten(context.Context, *connect.Request[_go.DefuseExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.DefuseExplodingKitten is not implemented"))
+}
+
+func (UnimplementedClientServerHandler) PlantExplodingKitten(context.Context, *connect.Request[_go.PlantExplodingKittenRequest]) (*connect.Response[emptypb.Empty], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("com.sweetloveinyourheart.kittens.clients.ClientServer.PlantExplodingKitten is not implemented"))
 }

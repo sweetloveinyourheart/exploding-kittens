@@ -206,7 +206,7 @@ func (w *GameExplodingProcessManager) HandleEvent(ctx context.Context, event com
 }
 
 func (w *GameExplodingProcessManager) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
-	w.gameDeskID[data.GameID.String()] = data.GetDesk()
+	w.gameDeskID[data.GameID.String()] = data.GetDeskID()
 
 	return nil
 }

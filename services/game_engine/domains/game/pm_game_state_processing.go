@@ -87,6 +87,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 		game.EventTypeExplodingDefused,
 		game.EventTypeKittenPlanted,
 		game.EventTypePlayerEliminated,
+		game.EventTypeGameFinished,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -297,7 +298,7 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 	// Init game args
 	if err := domains.CommandBus.HandleCommand(ctx, &game.InitializeGame{
 		GameID:      data.GetGameID(),
-		Desk:        deskID,
+		DeskID:      deskID,
 		PlayerHands: playerHands,
 	}); err != nil {
 		return err
@@ -426,7 +427,13 @@ func (w *GameInteractionProcessor) HandlePlayerEliminated(ctx context.Context, e
 
 	if len(remainingPlayers) == 1 {
 		// If only one player is left, they win the game
-		// TODO: Handle game win logic
+		if err := domains.CommandBus.HandleCommand(ctx, &game.FinishGame{
+			GameID:   data.GetGameID(),
+			WinnerID: nextTurn,
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to finish game", zap.Error(err))
+			return err
+		}
 	} else {
 		// If there are still players left, start the next turn
 		if err := domains.CommandBus.HandleCommand(ctx, &game.StartTurn{
@@ -439,6 +446,22 @@ func (w *GameInteractionProcessor) HandlePlayerEliminated(ctx context.Context, e
 	}
 
 	log.Global().InfoContext(ctx, "Player eliminated", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleGameFinished(ctx context.Context, event common.Event, data *game.GameFinished) error {
+	// Delete game data
+	delete(w.gamePlayers, data.GetGameID().String())
+	delete(w.gameDeskID, data.GetGameID().String())
+	delete(w.gameActiveExplodingCardID, data.GetGameID().String())
+
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Game finished", zap.String("gameID", data.GetGameID().String()), zap.String("winnerID", data.GetWinnerID().String()))
 
 	return nil
 }
