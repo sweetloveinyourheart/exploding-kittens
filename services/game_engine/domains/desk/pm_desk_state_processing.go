@@ -237,6 +237,12 @@ func (w *DeskStateProcessor) HandleCardsPeeked(ctx context.Context, event common
 func (w *DeskStateProcessor) HandleCardInserted(ctx context.Context, event common.Event, data *desk.CardInserted) error {
 	log.Global().InfoContext(ctx, "card inserted", zap.String("desk_id", data.GetDeskID().String()), zap.String("card_id", data.GetCardID().String()))
 
+	cardIDs := w.deskCardIDs[data.GetDeskID()]
+	cardIndex := data.GetIndex()
+	cardIDs = append(cardIDs[:cardIndex], append([]uuid.UUID{data.GetCardID()}, cardIDs[cardIndex:]...)...)
+
+	w.deskCardIDs[data.GetDeskID()] = cardIDs
+
 	// Emit desk state update event
 	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
 	if err != nil {
