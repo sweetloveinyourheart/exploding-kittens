@@ -19,6 +19,8 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[DeskShuffled](EventTypeDeskShuffled, args...)
 	eventing.RegisterEventData[CardsDiscarded](EventTypeCardsDiscarded, args...)
 	eventing.RegisterEventData[CardsPeeked](EventTypeCardsPeeked, args...)
+	eventing.RegisterEventData[CardDrawn](EventTypeCardDrawn, args...)
+	eventing.RegisterEventData[CardInserted](EventTypeCardInserted, args...)
 }
 
 // EventTypeDeskCreated is the event type for when a desk is created
@@ -33,11 +35,19 @@ var EventTypeCardsDiscarded = (&CardsDiscarded{}).EventType()
 // EventTypeCardsPeeked is the event type for when cards are peeked
 var EventTypeCardsPeeked = (&CardsPeeked{}).EventType()
 
+// EventTypeCardDrawn is the event type for when a card is drawn
+var EventTypeCardDrawn = (&CardDrawn{}).EventType()
+
+// EventTypeCardInserted is the event type for when a card is inserted
+var EventTypeCardInserted = (&CardInserted{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeDeskCreated,
 	EventTypeDeskShuffled,
 	EventTypeCardsDiscarded,
 	EventTypeCardsPeeked,
+	EventTypeCardDrawn,
+	EventTypeCardInserted,
 }
 
 type DeskCreated struct {
@@ -80,3 +90,34 @@ func (p *CardsPeeked) EventType() common.EventType { return "DESK_CARDS_PEEKED" 
 func (p *CardsPeeked) GetDeskID() uuid.UUID { return p.DeskID }
 
 func (p *CardsPeeked) GetCount() int { return p.Count }
+
+type CardDrawn struct {
+	DeskID        uuid.UUID `json:"desk_id"`
+	GameID        uuid.UUID `json:"game_id"`
+	PlayerID      uuid.UUID `json:"player_id"`
+	CanFinishTurn bool      `json:"can_finish_turn"` // Indicates if the player can finish their turn after drawing a card
+}
+
+func (p *CardDrawn) EventType() common.EventType { return "DESK_CARD_DRAWN" }
+
+func (p *CardDrawn) GetDeskID() uuid.UUID { return p.DeskID }
+
+func (p *CardDrawn) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *CardDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *CardDrawn) GetCanFinishTurn() bool { return p.CanFinishTurn }
+
+type CardInserted struct {
+	DeskID uuid.UUID `json:"desk_id"`
+	CardID uuid.UUID `json:"card_id"`
+	Index  int       `json:"index"`
+}
+
+func (p *CardInserted) EventType() common.EventType { return "DESK_CARD_INSERTED" }
+
+func (p *CardInserted) GetDeskID() uuid.UUID { return p.DeskID }
+
+func (p *CardInserted) GetCardID() uuid.UUID { return p.CardID }
+
+func (p *CardInserted) GetIndex() int { return p.Index }

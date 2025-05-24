@@ -458,6 +458,10 @@ export declare class Game extends Message<Game> {
      * @generated from field: string affected_player = 8;
      */
     affectedPlayer: string;
+    /**
+     * @generated from field: string winner_id = 9;
+     */
+    winnerId: string;
     constructor(data?: PartialMessage<Game>);
     static readonly runtime: typeof proto3;
     static readonly typeName = "com.sweetloveinyourheart.kittens.clients.Game";
@@ -504,9 +508,27 @@ export declare enum Game_Phase {
     /**
      * When only one player remains
      *
-     * @generated from enum value: GAME_OVER = 5;
+     * @generated from enum value: GAME_FINISH = 5;
      */
-    GAME_OVER = 5
+    GAME_FINISH = 5,
+    /**
+     * When a player draws an Exploding Kitten card
+     *
+     * @generated from enum value: EXPLODING_DRAWN = 6;
+     */
+    EXPLODING_DRAWN = 6,
+    /**
+     * When a player defuses an Exploding Kitten card
+     *
+     * @generated from enum value: EXPLODING_DEFUSED = 7;
+     */
+    EXPLODING_DEFUSED = 7,
+    /**
+     * When a player is eliminated from the game
+     *
+     * @generated from enum value: PLAYER_ELIMINATED = 8;
+     */
+    PLAYER_ELIMINATED = 8
 }
 /**
  * @generated from message com.sweetloveinyourheart.kittens.clients.Game.Player
@@ -804,4 +826,68 @@ export declare class GiveCardRequest extends Message<GiveCardRequest> {
     static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GiveCardRequest;
     static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GiveCardRequest;
     static equals(a: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined, b: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined): boolean;
+}
+/**
+ * Message for drawing cards
+ * This message is used to draw cards from the deck
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardRequest
+ */
+export declare class DrawCardRequest extends Message<DrawCardRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    constructor(data?: PartialMessage<DrawCardRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardRequest;
+    static equals(a: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined, b: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DefuseExplodingKittenRequest
+ */
+export declare class DefuseExplodingKittenRequest extends Message<DefuseExplodingKittenRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * @generated from field: optional string card_id = 2;
+     */
+    cardId?: string;
+    constructor(data?: PartialMessage<DefuseExplodingKittenRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DefuseExplodingKittenRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DefuseExplodingKittenRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DefuseExplodingKittenRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DefuseExplodingKittenRequest;
+    static equals(a: DefuseExplodingKittenRequest | PlainMessage<DefuseExplodingKittenRequest> | undefined, b: DefuseExplodingKittenRequest | PlainMessage<DefuseExplodingKittenRequest> | undefined): boolean;
+}
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlantExplodingKittenRequest
+ */
+export declare class PlantExplodingKittenRequest extends Message<PlantExplodingKittenRequest> {
+    /**
+     * @generated from field: string game_id = 1;
+     */
+    gameId: string;
+    /**
+     * Index of the card to be planted
+     *
+     * @generated from field: int32 card_index = 2;
+     */
+    cardIndex: number;
+    constructor(data?: PartialMessage<PlantExplodingKittenRequest>);
+    static readonly runtime: typeof proto3;
+    static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlantExplodingKittenRequest";
+    static readonly fields: FieldList;
+    static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlantExplodingKittenRequest;
+    static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlantExplodingKittenRequest;
+    static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlantExplodingKittenRequest;
+    static equals(a: PlantExplodingKittenRequest | PlainMessage<PlantExplodingKittenRequest> | undefined, b: PlantExplodingKittenRequest | PlainMessage<PlantExplodingKittenRequest> | undefined): boolean;
 }

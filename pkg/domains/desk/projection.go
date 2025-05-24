@@ -17,6 +17,8 @@ type AllEventsProjector interface {
 	HandleDeskShuffled(ctx context.Context, event common.Event, data *DeskShuffled, entity *Desk) (*Desk, error)
 	HandleCardsDiscarded(ctx context.Context, event common.Event, data *CardsDiscarded, entity *Desk) (*Desk, error)
 	HandleCardsPeeked(ctx context.Context, event common.Event, data *CardsPeeked, entity *Desk) (*Desk, error)
+	HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Desk) (*Desk, error)
+	HandleCardInserted(ctx context.Context, event common.Event, data *CardInserted, entity *Desk) (*Desk, error)
 }
 
 type eventsProjector interface {
@@ -24,6 +26,8 @@ type eventsProjector interface {
 	handleDeskShuffled(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 	handleCardsDiscarded(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 	handleCardsPeeked(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
+	handleCardDrawn(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
+	handleCardInserted(ctx context.Context, event common.Event, entity *Desk) (*Desk, error)
 }
 
 // DeskProjector is an event handler for Projections in the Desk domain.
@@ -143,6 +147,10 @@ func (p *DeskProjector) handleDeskEvent(ctx context.Context, event common.Event,
 		eventHandler = p.handleCardsDiscarded
 	case EventTypeCardsPeeked:
 		eventHandler = p.handleCardsPeeked
+	case EventTypeCardDrawn:
+		eventHandler = p.handleCardDrawn
+	case EventTypeCardInserted:
+		eventHandler = p.handleCardInserted
 	default:
 		if unregistered, ok := event.(common.UnregisteredEvent); !ok || !unregistered.Unregistered() {
 			return nil, fmt.Errorf("unknown event type: %s", event.EventType())
@@ -239,6 +247,50 @@ func (p *DeskProjector) handleCardsPeeked(ctx context.Context, event common.Even
 		HandleCardsPeeked(ctx context.Context, event common.Event, data *CardsPeeked) error
 	}); ok {
 		return entity, handler.HandleCardsPeeked(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardDrawn handles cards drawn events.
+func (p *DeskProjector) handleCardDrawn(ctx context.Context, event common.Event, entity *Desk) (*Desk, error) {
+	data, ok := event.Data().(*CardDrawn)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardDrawn"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Desk) (*Desk, error)
+	}); ok {
+		return handler.HandleCardDrawn(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn) error
+	}); ok {
+		return entity, handler.HandleCardDrawn(ctx, event, data)
+	}
+
+	return entity, nil
+}
+
+// handleCardInserted handles cards inserted events.
+func (p *DeskProjector) handleCardInserted(ctx context.Context, event common.Event, entity *Desk) (*Desk, error) {
+	data, ok := event.Data().(*CardInserted)
+	if !ok {
+		return nil, errors.WithStack(errors.Wrap(ErrEventDataTypeMismatch, "handleCardInserted"))
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardInserted(ctx context.Context, event common.Event, data *CardInserted, entity *Desk) (*Desk, error)
+	}); ok {
+		return handler.HandleCardInserted(ctx, event, data, entity)
+	}
+
+	if handler, ok := p.handler.(interface {
+		HandleCardInserted(ctx context.Context, event common.Event, data *CardInserted) error
+	}); ok {
+		return entity, handler.HandleCardInserted(ctx, event, data)
 	}
 
 	return entity, nil

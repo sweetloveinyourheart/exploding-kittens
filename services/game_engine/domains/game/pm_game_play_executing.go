@@ -3,12 +3,14 @@ package game
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
 	"github.com/samber/do"
@@ -41,6 +43,7 @@ type GamePlayExecutor struct {
 	ctx context.Context
 	*game.GameProjector
 
+	bus          *nats.Conn
 	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
 	dataProvider dataProviderGrpc.DataProviderClient
 
@@ -55,6 +58,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 	gpe := &GamePlayExecutor{
 		ctx:          ctx,
 		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 
 		gameDeskID:            make(map[string]uuid.UUID),
@@ -73,6 +77,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 		game.EventTypeActionCreated,
 		game.EventTypeAffectedPlayerSelected,
 		game.EventTypeActionExecuted,
+		game.EventTypeCardDrawn,
 	)
 
 	gameSubject := nats2.CreateConsumerSubject(constants.GameStream, gameMatcher)
@@ -199,7 +204,7 @@ func NewGamePlayExecutor(ctx context.Context) (*GamePlayExecutor, error) {
 
 func (w *GamePlayExecutor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
 	w.gameCardsToDraw[data.GameID.String()] = card_effects.AttackBonusCount
-	w.gameDeskID[data.GameID.String()] = data.GetDesk()
+	w.gameDeskID[data.GameID.String()] = data.GetDeskID()
 	w.gamePlayerHands[data.GameID.String()] = data.GetPlayerHands()
 	w.gameAffectingPlayerID[data.GameID.String()] = uuid.Nil
 	w.gamePlayerTurnID[data.GameID.String()] = uuid.Nil
@@ -214,6 +219,11 @@ func (w *GamePlayExecutor) HandleTurnStarted(ctx context.Context, event common.E
 }
 
 func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.Event, data *game.CardsPlayed) error {
+	cards := data.GetCardIDs()
+	if len(cards) == 0 {
+		return errors.Errorf("failed to play: no card to play")
+	}
+
 	if err := domains.CommandBus.HandleCommand(ctx, &hand.PlayCards{
 		HandID:  w.gamePlayerHands[data.GameID.String()][data.PlayerID],
 		CardIDs: data.GetCardIDs(),
@@ -228,11 +238,6 @@ func (w *GamePlayExecutor) HandleCardsPlayed(ctx context.Context, event common.E
 	}); err != nil {
 		log.Global().ErrorContext(ctx, "failed to discard cards", zap.Error(err))
 		return err
-	}
-
-	cards := data.GetCardIDs()
-	if len(cards) == 0 {
-		return errors.Errorf("failed to play: no card to play")
 	}
 
 	cardDataRes, err := w.dataProvider.GetMapCards(ctx, &connect.Request[emptypb.Empty]{})
@@ -309,11 +314,19 @@ func (w *GamePlayExecutor) HandleActionCreated(ctx context.Context, event common
 		}
 	}
 
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit game state update event", zap.Error(err))
+	}
+
 	return nil
 }
 
 func (w *GamePlayExecutor) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *game.AffectedPlayerSelected) error {
 	w.gameAffectingPlayerID[data.GameID.String()] = data.GetPlayerID()
+
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit game state update event", zap.Error(err))
+	}
 
 	return nil
 }
@@ -514,6 +527,46 @@ func (w *GamePlayExecutor) HandleActionExecuted(ctx context.Context, event commo
 	}
 
 	log.Global().InfoContext(ctx, "Action executed", zap.String("gameID", data.GetGameID().String()), zap.String("effect", data.GetEffect()))
+
+	return nil
+}
+
+func (w *GamePlayExecutor) HandleCardDrawn(ctx context.Context, event common.Event, data *game.CardDrawn) error {
+	cardToDraw := w.gameCardsToDraw[data.GameID.String()]
+
+	if err := domains.CommandBus.HandleCommand(ctx, &desk.DrawCard{
+		DeskID:        w.gameDeskID[data.GameID.String()],
+		GameID:        data.GetGameID(),
+		PlayerID:      data.GetPlayerID(),
+		CanFinishTurn: cardToDraw == card_effects.AttackBonusCount,
+	}); err != nil {
+		log.Global().ErrorContext(ctx, "failed to draw cards", zap.Error(err))
+		return err
+	}
+
+	if cardToDraw > card_effects.AttackBonusCount {
+		w.gameCardsToDraw[data.GameID.String()] = cardToDraw - 1
+	}
+
+	log.Global().InfoContext(ctx, "Cards drawn", zap.String("gameID", data.GetGameID().String()), zap.String("playerID", data.GetPlayerID().String()))
+
+	return nil
+}
+
+func (w *GamePlayExecutor) emitGameStateUpdateEvent(gameID uuid.UUID) error {
+	msg := &game.Game{
+		GameID: gameID,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.bus.Publish(fmt.Sprintf("%s.%s", constants.GameStream, msg.GetGameID().String()), msgBytes)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -20,24 +20,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ClientServer_RetrieveCardsData_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
-	ClientServer_CreateNewGuestUser_FullMethodName   = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
-	ClientServer_GuestLogin_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
-	ClientServer_GetUserProfile_FullMethodName       = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
-	ClientServer_GetPlayersProfile_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
-	ClientServer_CreateLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
-	ClientServer_GetLobby_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
-	ClientServer_StreamLobby_FullMethodName          = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
-	ClientServer_JoinLobby_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
-	ClientServer_LeaveLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
-	ClientServer_StartMatch_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
-	ClientServer_GetGameMetaData_FullMethodName      = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
-	ClientServer_StreamGame_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
-	ClientServer_PlayCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
-	ClientServer_PeekCards_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
-	ClientServer_SelectAffectedPlayer_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
-	ClientServer_StealCard_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
-	ClientServer_GiveCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
+	ClientServer_RetrieveCardsData_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/RetrieveCardsData"
+	ClientServer_CreateNewGuestUser_FullMethodName    = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateNewGuestUser"
+	ClientServer_GuestLogin_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GuestLogin"
+	ClientServer_GetUserProfile_FullMethodName        = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetUserProfile"
+	ClientServer_GetPlayersProfile_FullMethodName     = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetPlayersProfile"
+	ClientServer_CreateLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/CreateLobby"
+	ClientServer_GetLobby_FullMethodName              = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetLobby"
+	ClientServer_StreamLobby_FullMethodName           = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamLobby"
+	ClientServer_JoinLobby_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/JoinLobby"
+	ClientServer_LeaveLobby_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/LeaveLobby"
+	ClientServer_StartMatch_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StartMatch"
+	ClientServer_GetGameMetaData_FullMethodName       = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GetGameMetaData"
+	ClientServer_StreamGame_FullMethodName            = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StreamGame"
+	ClientServer_PlayCards_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlayCards"
+	ClientServer_PeekCards_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PeekCards"
+	ClientServer_DrawCard_FullMethodName              = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DrawCard"
+	ClientServer_SelectAffectedPlayer_FullMethodName  = "/com.sweetloveinyourheart.kittens.clients.ClientServer/SelectAffectedPlayer"
+	ClientServer_StealCard_FullMethodName             = "/com.sweetloveinyourheart.kittens.clients.ClientServer/StealCard"
+	ClientServer_GiveCard_FullMethodName              = "/com.sweetloveinyourheart.kittens.clients.ClientServer/GiveCard"
+	ClientServer_DefuseExplodingKitten_FullMethodName = "/com.sweetloveinyourheart.kittens.clients.ClientServer/DefuseExplodingKitten"
+	ClientServer_PlantExplodingKitten_FullMethodName  = "/com.sweetloveinyourheart.kittens.clients.ClientServer/PlantExplodingKitten"
 )
 
 // ClientServerClient is the client API for ClientServer service.
@@ -59,9 +62,12 @@ type ClientServerClient interface {
 	StreamGame(ctx context.Context, in *StreamGameRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamGameReply], error)
 	PlayCards(ctx context.Context, in *PlayCardsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*PeekCardsResponse, error)
+	DrawCard(ctx context.Context, in *DrawCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StealCard(ctx context.Context, in *StealCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GiveCard(ctx context.Context, in *GiveCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DefuseExplodingKitten(ctx context.Context, in *DefuseExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PlantExplodingKitten(ctx context.Context, in *PlantExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type clientServerClient struct {
@@ -240,6 +246,16 @@ func (c *clientServerClient) PeekCards(ctx context.Context, in *PeekCardsRequest
 	return out, nil
 }
 
+func (c *clientServerClient) DrawCard(ctx context.Context, in *DrawCardRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_DrawCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *clientServerClient) SelectAffectedPlayer(ctx context.Context, in *SelectAffectedPlayerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -270,6 +286,26 @@ func (c *clientServerClient) GiveCard(ctx context.Context, in *GiveCardRequest, 
 	return out, nil
 }
 
+func (c *clientServerClient) DefuseExplodingKitten(ctx context.Context, in *DefuseExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_DefuseExplodingKitten_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientServerClient) PlantExplodingKitten(ctx context.Context, in *PlantExplodingKittenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ClientServer_PlantExplodingKitten_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientServerServer is the server API for ClientServer service.
 // All implementations should embed UnimplementedClientServerServer
 // for forward compatibility.
@@ -289,9 +325,12 @@ type ClientServerServer interface {
 	StreamGame(*StreamGameRequest, grpc.ServerStreamingServer[StreamGameReply]) error
 	PlayCards(context.Context, *PlayCardsRequest) (*emptypb.Empty, error)
 	PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error)
+	DrawCard(context.Context, *DrawCardRequest) (*emptypb.Empty, error)
 	SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error)
 	StealCard(context.Context, *StealCardRequest) (*emptypb.Empty, error)
 	GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error)
+	DefuseExplodingKitten(context.Context, *DefuseExplodingKittenRequest) (*emptypb.Empty, error)
+	PlantExplodingKitten(context.Context, *PlantExplodingKittenRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedClientServerServer should be embedded to have
@@ -346,6 +385,9 @@ func (UnimplementedClientServerServer) PlayCards(context.Context, *PlayCardsRequ
 func (UnimplementedClientServerServer) PeekCards(context.Context, *PeekCardsRequest) (*PeekCardsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PeekCards not implemented")
 }
+func (UnimplementedClientServerServer) DrawCard(context.Context, *DrawCardRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DrawCard not implemented")
+}
 func (UnimplementedClientServerServer) SelectAffectedPlayer(context.Context, *SelectAffectedPlayerRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelectAffectedPlayer not implemented")
 }
@@ -354,6 +396,12 @@ func (UnimplementedClientServerServer) StealCard(context.Context, *StealCardRequ
 }
 func (UnimplementedClientServerServer) GiveCard(context.Context, *GiveCardRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GiveCard not implemented")
+}
+func (UnimplementedClientServerServer) DefuseExplodingKitten(context.Context, *DefuseExplodingKittenRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DefuseExplodingKitten not implemented")
+}
+func (UnimplementedClientServerServer) PlantExplodingKitten(context.Context, *PlantExplodingKittenRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlantExplodingKitten not implemented")
 }
 func (UnimplementedClientServerServer) testEmbeddedByValue() {}
 
@@ -631,6 +679,24 @@ func _ClientServer_PeekCards_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientServer_DrawCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DrawCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).DrawCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_DrawCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).DrawCard(ctx, req.(*DrawCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ClientServer_SelectAffectedPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SelectAffectedPlayerRequest)
 	if err := dec(in); err != nil {
@@ -681,6 +747,42 @@ func _ClientServer_GiveCard_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClientServerServer).GiveCard(ctx, req.(*GiveCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_DefuseExplodingKitten_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DefuseExplodingKittenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).DefuseExplodingKitten(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_DefuseExplodingKitten_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).DefuseExplodingKitten(ctx, req.(*DefuseExplodingKittenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientServer_PlantExplodingKitten_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlantExplodingKittenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientServerServer).PlantExplodingKitten(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientServer_PlantExplodingKitten_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientServerServer).PlantExplodingKitten(ctx, req.(*PlantExplodingKittenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -745,6 +847,10 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ClientServer_PeekCards_Handler,
 		},
 		{
+			MethodName: "DrawCard",
+			Handler:    _ClientServer_DrawCard_Handler,
+		},
+		{
 			MethodName: "SelectAffectedPlayer",
 			Handler:    _ClientServer_SelectAffectedPlayer_Handler,
 		},
@@ -755,6 +861,14 @@ var ClientServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GiveCard",
 			Handler:    _ClientServer_GiveCard_Handler,
+		},
+		{
+			MethodName: "DefuseExplodingKitten",
+			Handler:    _ClientServer_DefuseExplodingKitten_Handler,
+		},
+		{
+			MethodName: "PlantExplodingKitten",
+			Handler:    _ClientServer_PlantExplodingKitten_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

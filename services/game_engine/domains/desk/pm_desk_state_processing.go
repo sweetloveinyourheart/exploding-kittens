@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go"
@@ -15,15 +16,21 @@ import (
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants/cards"
 	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/common"
 	nats2 "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
+	dataProviderGrpc "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 )
 
 var (
@@ -37,22 +44,31 @@ type DeskStateProcessor struct {
 	ctx context.Context
 	*desk.DeskProjector
 
-	queue chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
-	bus   *nats.Conn
+	dataProvider dataProviderGrpc.DataProviderClient
+	queue        chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
+	bus          *nats.Conn
+
+	deskCardIDs map[uuid.UUID][]uuid.UUID
 }
 
 func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 	dsp := &DeskStateProcessor{
-		ctx:   ctx,
-		queue: make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
-		bus:   do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+		ctx:          ctx,
+		dataProvider: do.MustInvoke[dataProviderGrpc.DataProviderClient](nil),
+		queue:        make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		bus:          do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
+
+		deskCardIDs: make(map[uuid.UUID][]uuid.UUID),
 	}
 
 	dsp.DeskProjector = desk.NewDeskProjection(dsp)
 
 	deskMatcher := eventing.NewMatchEventSubject(desk.SubjectFactory, desk.AggregateType,
+		desk.EventTypeDeskCreated,
 		desk.EventTypeDeskShuffled,
 		desk.EventTypeCardsPeeked,
+		desk.EventTypeCardDrawn,
+		desk.EventTypeCardInserted,
 	)
 
 	deskSubject := nats2.CreateConsumerSubject(constants.DeskStream, deskMatcher)
@@ -177,6 +193,21 @@ func NewDeskStateProcessor(ctx context.Context) (*DeskStateProcessor, error) {
 	return dsp, nil
 }
 
+func (w *DeskStateProcessor) HandleDeskCreated(ctx context.Context, event common.Event, data *desk.DeskCreated) error {
+	w.deskCardIDs[data.GetDeskID()] = data.GetCardIDs()
+
+	log.Global().InfoContext(ctx, "desk created", zap.String("desk_id", data.GetDeskID().String()))
+
+	// Emit desk state update event
+	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
 func (w *DeskStateProcessor) HandleDeskShuffled(ctx context.Context, event common.Event, data *desk.DeskShuffled) error {
 	log.Global().InfoContext(ctx, "desk shuffled", zap.String("desk_id", data.GetDeskID().String()))
 
@@ -195,6 +226,94 @@ func (w *DeskStateProcessor) HandleCardsPeeked(ctx context.Context, event common
 
 	// Emit desk state update event
 	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *DeskStateProcessor) HandleCardInserted(ctx context.Context, event common.Event, data *desk.CardInserted) error {
+	log.Global().InfoContext(ctx, "card inserted", zap.String("desk_id", data.GetDeskID().String()), zap.String("card_id", data.GetCardID().String()))
+
+	cardIDs := w.deskCardIDs[data.GetDeskID()]
+	cardIndex := data.GetIndex()
+	cardIDs = append(cardIDs[:cardIndex], append([]uuid.UUID{data.GetCardID()}, cardIDs[cardIndex:]...)...)
+
+	w.deskCardIDs[data.GetDeskID()] = cardIDs
+
+	// Emit desk state update event
+	err := w.emitDeskStateUpdateEvent(data.GetDeskID())
+	if err != nil {
+		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (w *DeskStateProcessor) HandleCardDrawn(ctx context.Context, event common.Event, data *desk.CardDrawn) error {
+	cardIDs := w.deskCardIDs[data.GetDeskID()]
+
+	if len(cardIDs) == 0 {
+		return errors.Errorf("cannot draw card, desk is empty")
+	}
+
+	drawnCardID := cardIDs[len(cardIDs)-1]
+
+	cardDataRes, err := w.dataProvider.GetMapCards(ctx, &connect.Request[emptypb.Empty]{})
+	if err != nil {
+		log.Global().Error("error retrieving cards map", zap.String("game_id", data.GameID.String()))
+		return errors.Errorf("error retrieving cards map: %w", err)
+	}
+
+	cardsMap := cardDataRes.Msg.GetCards()
+
+	cardInformation, ok := cardsMap[drawnCardID.String()]
+	if !ok || cardInformation == nil {
+		return errors.Errorf("cannot recognize card information")
+	}
+
+	if cardInformation.GetCode() == cards.ExplodingKitten {
+		if err := domains.CommandBus.HandleCommand(ctx, &game.DrawExplodingKitten{
+			GameID:   data.GetGameID(),
+			PlayerID: data.GetPlayerID(),
+			CardID:   drawnCardID,
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to create action", zap.Error(err))
+		}
+
+		log.Global().InfoContext(ctx, "exploding kitten drawn", zap.String("desk_id", data.GetDeskID().String()), zap.String("player_id", data.GetPlayerID().String()))
+
+	} else {
+		handID := hand.NewPlayerHandID(data.GetGameID(), data.GetPlayerID())
+		if err := domains.CommandBus.HandleCommand(ctx, &hand.ReceiveCards{
+			HandID:  handID,
+			CardIDs: []uuid.UUID{drawnCardID},
+		}); err != nil {
+			log.Global().ErrorContext(ctx, "failed to receive cards", zap.Error(err))
+			return err
+		}
+
+		// Check if the player can finish their turn after drawing a card
+		if data.GetCanFinishTurn() {
+			if err := domains.CommandBus.HandleCommand(ctx, &game.FinishTurn{
+				GameID:   data.GetGameID(),
+				PlayerID: data.GetPlayerID(),
+			}); err != nil {
+				log.Global().ErrorContext(ctx, "failed to finish turn", zap.Error(err))
+				return err
+			}
+		}
+
+		log.Global().InfoContext(ctx, "card drawn", zap.String("desk_id", data.GetDeskID().String()))
+	}
+
+	w.deskCardIDs[data.GetDeskID()] = cardIDs[:len(cardIDs)-1]
+
+	// Emit desk state update event
+	err = w.emitDeskStateUpdateEvent(data.GetDeskID())
 	if err != nil {
 		log.Global().ErrorContext(ctx, "failed to emit desk state update event", zap.Error(err))
 		return err

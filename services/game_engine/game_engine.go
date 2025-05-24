@@ -50,6 +50,11 @@ func InitializeRepos(ctx context.Context) error {
 		return err
 	}
 
+	_, err = gameDomain.NewGameExplodingProcessManager(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

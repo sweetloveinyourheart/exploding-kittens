@@ -20,10 +20,16 @@ func registerEvents(subjFunc eventing.SubjectFunc, subjRootFunc eventing.Subject
 	eventing.RegisterEventData[TurnStarted](EventTypeTurnStarted, args...)
 	eventing.RegisterEventData[TurnFinished](EventTypeTurnFinished, args...)
 	eventing.RegisterEventData[TurnReversed](EventTypeTurnReversed, args...)
+	eventing.RegisterEventData[GameFinished](EventTypeGameFinished, args...)
 	eventing.RegisterEventData[CardsPlayed](EventTypeCardsPlayed, args...)
 	eventing.RegisterEventData[ActionCreated](EventTypeActionCreated, args...)
 	eventing.RegisterEventData[ActionExecuted](EventTypeActionExecuted, args...)
 	eventing.RegisterEventData[AffectedPlayerSelected](EventTypeAffectedPlayerSelected, args...)
+	eventing.RegisterEventData[CardDrawn](EventTypeCardDrawn, args...)
+	eventing.RegisterEventData[ExplodingDrawn](EventTypeExplodingDrawn, args...)
+	eventing.RegisterEventData[ExplodingDefused](EventTypeExplodingDefused, args...)
+	eventing.RegisterEventData[PlayerEliminated](EventTypePlayerEliminated, args...)
+	eventing.RegisterEventData[KittenPlanted](EventTypeKittenPlanted, args...)
 }
 
 // EventTypeGameCreated is the event type for when a game is created
@@ -44,6 +50,9 @@ var EventTypeTurnFinished = (&TurnFinished{}).EventType()
 // EventTypeTurnReversed is the event type for when a turn is reversed
 var EventTypeTurnReversed = (&TurnReversed{}).EventType()
 
+// EventTypeGameFinished is the event type for when a game is finished
+var EventTypeGameFinished = (&GameFinished{}).EventType()
+
 // EventTypeActionCreated is the event type for when an action is created
 var EventTypeActionCreated = (&ActionCreated{}).EventType()
 
@@ -53,16 +62,37 @@ var EventTypeActionExecuted = (&ActionExecuted{}).EventType()
 // EventTypeAffectedPlayerSelected is the event type for when an affected player is selected
 var EventTypeAffectedPlayerSelected = (&AffectedPlayerSelected{}).EventType()
 
+// EventTypeCardDrawn is the event type for when cards are drawn
+var EventTypeCardDrawn = (&CardDrawn{}).EventType()
+
+// EventTypeExplodingDrawn is the event type for when an exploding kitten is drawn
+var EventTypeExplodingDrawn = (&ExplodingDrawn{}).EventType()
+
+// EventTypeExplodingDefused is the event type for when an exploding
+var EventTypeExplodingDefused = (&ExplodingDefused{}).EventType()
+
+// EventTypePlayerEliminated is the event type for when a player is eliminated
+var EventTypePlayerEliminated = (&PlayerEliminated{}).EventType()
+
+// EventTypeKittenPlanted is the event type for when a kitten is planted
+var EventTypeKittenPlanted = (&KittenPlanted{}).EventType()
+
 var AllEventTypes = []common.EventType{
 	EventTypeGameCreated,
 	EventTypeGameInitialized,
 	EventTypeTurnStarted,
 	EventTypeTurnFinished,
 	EventTypeTurnReversed,
+	EventTypeGameFinished,
 	EventTypeCardsPlayed,
 	EventTypeActionCreated,
 	EventTypeActionExecuted,
 	EventTypeAffectedPlayerSelected,
+	EventTypeCardDrawn,
+	EventTypeExplodingDrawn,
+	EventTypeExplodingDefused,
+	EventTypePlayerEliminated,
+	EventTypeKittenPlanted,
 }
 
 type GameCreated struct {
@@ -78,7 +108,7 @@ func (p *GameCreated) GetPlayerIDs() []uuid.UUID { return p.PlayerIDs }
 
 type GameInitialized struct {
 	GameID      uuid.UUID               `json:"game_id"`
-	Desk        uuid.UUID               `json:"desk"`
+	DeskID      uuid.UUID               `json:"desk_id"`
 	PlayerHands map[uuid.UUID]uuid.UUID `json:"player_hands"`
 }
 
@@ -86,7 +116,7 @@ func (p *GameInitialized) EventType() common.EventType { return "GAME_INITIALIZE
 
 func (p *GameInitialized) GetGameID() uuid.UUID { return p.GameID }
 
-func (p *GameInitialized) GetDesk() uuid.UUID { return p.Desk }
+func (p *GameInitialized) GetDeskID() uuid.UUID { return p.DeskID }
 
 func (p *GameInitialized) GetPlayerHands() map[uuid.UUID]uuid.UUID { return p.PlayerHands }
 
@@ -181,3 +211,78 @@ type ActionArguments struct {
 func (p *ActionArguments) GetCardIDs() []uuid.UUID { return p.CardIDs }
 
 func (p *ActionArguments) GetCardIndexes() []int { return p.CardIndexes }
+
+type CardDrawn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *CardDrawn) EventType() common.EventType { return "GAME_CARDS_DRAWN" }
+
+func (p *CardDrawn) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *CardDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type ExplodingDrawn struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
+}
+
+func (p *ExplodingDrawn) EventType() common.EventType { return "GAME_EXPLODING_DRAWN" }
+
+func (p *ExplodingDrawn) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ExplodingDrawn) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *ExplodingDrawn) GetCardID() uuid.UUID { return p.CardID }
+
+type ExplodingDefused struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	CardID   uuid.UUID `json:"card_id"`
+}
+
+func (p *ExplodingDefused) EventType() common.EventType { return "GAME_EXPLODING_DEFUSED" }
+
+func (p *ExplodingDefused) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *ExplodingDefused) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *ExplodingDefused) GetCardID() uuid.UUID { return p.CardID }
+
+type PlayerEliminated struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+}
+
+func (p *PlayerEliminated) EventType() common.EventType { return "GAME_PLAYER_ELIMINATED" }
+
+func (p *PlayerEliminated) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *PlayerEliminated) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+type KittenPlanted struct {
+	GameID   uuid.UUID `json:"game_id"`
+	PlayerID uuid.UUID `json:"player_id"`
+	Index    int       `json:"index"`
+}
+
+func (p *KittenPlanted) EventType() common.EventType { return "GAME_KITTEN_PLANTED" }
+
+func (p *KittenPlanted) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *KittenPlanted) GetPlayerID() uuid.UUID { return p.PlayerID }
+
+func (p *KittenPlanted) GetIndex() int { return p.Index }
+
+type GameFinished struct {
+	GameID   uuid.UUID `json:"game_id"`
+	WinnerID uuid.UUID `json:"winner_id"`
+}
+
+func (p *GameFinished) EventType() common.EventType { return "GAME_FINISHED" }
+
+func (p *GameFinished) GetGameID() uuid.UUID { return p.GameID }
+
+func (p *GameFinished) GetWinnerID() uuid.UUID { return p.WinnerID }

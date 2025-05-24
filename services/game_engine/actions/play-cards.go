@@ -12,7 +12,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
-	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameserver/go"
+	proto "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/game_engine/domains"
 )
 

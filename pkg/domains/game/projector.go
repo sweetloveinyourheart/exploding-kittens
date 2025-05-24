@@ -49,14 +49,16 @@ func (p *Projector) HandleGameCreated(ctx context.Context, event common.Event, d
 }
 
 func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Event, data *GameInitialized, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_INITIALIZING
-	entity.Desk = data.GetDesk()
+	entity.DeskID = data.GetDeskID()
 	entity.PlayerHands = data.GetPlayerHands()
 
 	return entity, nil
 }
 
 func (p *Projector) HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_START
 	entity.PlayerTurn = data.GetPlayerID()
 
@@ -64,6 +66,7 @@ func (p *Projector) HandleTurnStarted(ctx context.Context, event common.Event, d
 }
 
 func (p *Projector) HandleTurnFinished(ctx context.Context, event common.Event, data *TurnFinished, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_FINISH
 	entity.PlayerTurn = uuid.Nil
 
@@ -71,18 +74,30 @@ func (p *Projector) HandleTurnFinished(ctx context.Context, event common.Event, 
 }
 
 func (p *Projector) HandleTurnReversed(ctx context.Context, event common.Event, data *TurnReversed, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_FINISH
 	entity.PlayerTurn = data.GetPlayerID()
 
 	return entity, nil
 }
 
+func (p *Projector) HandleGameFinished(ctx context.Context, event common.Event, data *GameFinished, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_GAME_FINISH
+	entity.PlayerTurn = uuid.Nil
+	entity.WinnerID = data.GetWinnerID()
+
+	return entity, nil
+}
+
 func (p *Projector) HandleCardsPlayed(ctx context.Context, event common.Event, data *CardsPlayed, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	return entity, nil
 }
 
 func (p *Projector) HandleActionCreated(ctx context.Context, event common.Event, data *ActionCreated, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	entity.ExecutingAction = data.GetEffect()
 
@@ -90,6 +105,7 @@ func (p *Projector) HandleActionCreated(ctx context.Context, event common.Event,
 }
 
 func (p *Projector) HandleAffectedPlayerSelected(ctx context.Context, event common.Event, data *AffectedPlayerSelected, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_ACTION_PHASE
 	entity.AffectedPlayer = data.GetPlayerID()
 
@@ -97,9 +113,53 @@ func (p *Projector) HandleAffectedPlayerSelected(ctx context.Context, event comm
 }
 
 func (p *Projector) HandleActionExecuted(ctx context.Context, event common.Event, data *ActionExecuted, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_START
 	entity.ExecutingAction = ""
 	entity.AffectedPlayer = uuid.Nil
+
+	return entity, nil
+}
+
+func (p *Projector) HandleCardDrawn(ctx context.Context, event common.Event, data *CardDrawn, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+
+	return entity, nil
+}
+
+func (p *Projector) HandleExplodingDrawn(ctx context.Context, event common.Event, data *ExplodingDrawn, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_EXPLODING_DRAWN
+
+	return entity, nil
+}
+
+func (p *Projector) HandleExplodingDefused(ctx context.Context, event common.Event, data *ExplodingDefused, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_EXPLODING_DEFUSED
+
+	return entity, nil
+}
+
+func (p *Projector) HandlePlayerEliminated(ctx context.Context, event common.Event, data *PlayerEliminated, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	entity.GamePhase = GAME_PHASE_PLAYER_ELIMINATED
+	entity.PlayerTurn = uuid.Nil
+
+	players := entity.Players
+	for i, player := range players {
+		if player.GetPlayerID() == data.GetPlayerID() && player.Active {
+			players[i].Active = false
+			break
+		}
+	}
+	entity.Players = players
+
+	return entity, nil
+}
+
+func (p *Projector) HandleKittenPlanted(ctx context.Context, event common.Event, data *KittenPlanted, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
 
 	return entity, nil
 }

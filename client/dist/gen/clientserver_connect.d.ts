@@ -1,5 +1,5 @@
 import { Empty, MethodKind } from "@bufbuild/protobuf";
-import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
+import { CreateLobbyRequest, CreateLobbyResponse, CreateNewGuestUserRequest, CreateNewGuestUserResponse, DefuseExplodingKittenRequest, DrawCardRequest, GetGameMetaDataRequest, GetGameMetaDataResponse, GetLobbyReply, GetLobbyRequest, GiveCardRequest, GuestLoginRequest, GuestLoginResponse, JoinLobbyRequest, JoinLobbyResponse, LeaveLobbyRequest, LeaveLobbyResponse, PeekCardsRequest, PeekCardsResponse, PlantExplodingKittenRequest, PlayCardsRequest, PlayersProfileRequest, PlayersProfileResponse, RetrieveCardsDataResponse, SelectAffectedPlayerRequest, StartMatchRequest, StealCardRequest, StreamGameReply, StreamGameRequest, UserProfileResponse } from "./clientserver_pb.js";
 /**
  * @generated from service com.sweetloveinyourheart.kittens.clients.ClientServer
  */
@@ -142,6 +142,15 @@ export declare const ClientServer: {
             readonly kind: MethodKind.Unary;
         };
         /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DrawCard
+         */
+        readonly drawCard: {
+            readonly name: "DrawCard";
+            readonly I: typeof DrawCardRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
          * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.SelectAffectedPlayer
          */
         readonly selectAffectedPlayer: {
@@ -165,6 +174,24 @@ export declare const ClientServer: {
         readonly giveCard: {
             readonly name: "GiveCard";
             readonly I: typeof GiveCardRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.DefuseExplodingKitten
+         */
+        readonly defuseExplodingKitten: {
+            readonly name: "DefuseExplodingKitten";
+            readonly I: typeof DefuseExplodingKittenRequest;
+            readonly O: typeof Empty;
+            readonly kind: MethodKind.Unary;
+        };
+        /**
+         * @generated from rpc com.sweetloveinyourheart.kittens.clients.ClientServer.PlantExplodingKitten
+         */
+        readonly plantExplodingKitten: {
+            readonly name: "PlantExplodingKitten";
+            readonly I: typeof PlantExplodingKittenRequest;
             readonly O: typeof Empty;
             readonly kind: MethodKind.Unary;
         };

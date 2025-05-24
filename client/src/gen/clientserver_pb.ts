@@ -896,6 +896,11 @@ export class Game extends Message<Game> {
    */
   affectedPlayer = "";
 
+  /**
+   * @generated from field: string winner_id = 9;
+   */
+  winnerId = "";
+
   constructor(data?: PartialMessage<Game>) {
     super();
     proto3.util.initPartial(data, this);
@@ -912,6 +917,7 @@ export class Game extends Message<Game> {
     { no: 6, name: "desk", kind: "message", T: Game_Desk },
     { no: 7, name: "executing_action", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 8, name: "affected_player", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "winner_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Game {
@@ -973,9 +979,30 @@ export enum Game_Phase {
   /**
    * When only one player remains
    *
-   * @generated from enum value: GAME_OVER = 5;
+   * @generated from enum value: GAME_FINISH = 5;
    */
-  GAME_OVER = 5,
+  GAME_FINISH = 5,
+
+  /**
+   * When a player draws an Exploding Kitten card
+   *
+   * @generated from enum value: EXPLODING_DRAWN = 6;
+   */
+  EXPLODING_DRAWN = 6,
+
+  /**
+   * When a player defuses an Exploding Kitten card
+   *
+   * @generated from enum value: EXPLODING_DEFUSED = 7;
+   */
+  EXPLODING_DEFUSED = 7,
+
+  /**
+   * When a player is eliminated from the game
+   *
+   * @generated from enum value: PLAYER_ELIMINATED = 8;
+   */
+  PLAYER_ELIMINATED = 8,
 }
 // Retrieve enum metadata with: proto3.getEnumType(Game_Phase)
 proto3.util.setEnumType(Game_Phase, "com.sweetloveinyourheart.kittens.clients.Game.Phase", [
@@ -984,7 +1011,10 @@ proto3.util.setEnumType(Game_Phase, "com.sweetloveinyourheart.kittens.clients.Ga
   { no: 2, name: "ACTION_PHASE" },
   { no: 3, name: "CARD_DRAWING" },
   { no: 4, name: "TURN_END" },
-  { no: 5, name: "GAME_OVER" },
+  { no: 5, name: "GAME_FINISH" },
+  { no: 6, name: "EXPLODING_DRAWN" },
+  { no: 7, name: "EXPLODING_DEFUSED" },
+  { no: 8, name: "PLAYER_ELIMINATED" },
 ]);
 
 /**
@@ -1583,6 +1613,134 @@ export class GiveCardRequest extends Message<GiveCardRequest> {
 
   static equals(a: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined, b: GiveCardRequest | PlainMessage<GiveCardRequest> | undefined): boolean {
     return proto3.util.equals(GiveCardRequest, a, b);
+  }
+}
+
+/**
+ * Message for drawing cards
+ * This message is used to draw cards from the deck
+ *
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DrawCardRequest
+ */
+export class DrawCardRequest extends Message<DrawCardRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  constructor(data?: PartialMessage<DrawCardRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DrawCardRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DrawCardRequest {
+    return new DrawCardRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined, b: DrawCardRequest | PlainMessage<DrawCardRequest> | undefined): boolean {
+    return proto3.util.equals(DrawCardRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.DefuseExplodingKittenRequest
+ */
+export class DefuseExplodingKittenRequest extends Message<DefuseExplodingKittenRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  /**
+   * @generated from field: optional string card_id = 2;
+   */
+  cardId?: string;
+
+  constructor(data?: PartialMessage<DefuseExplodingKittenRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.DefuseExplodingKittenRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "card_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DefuseExplodingKittenRequest {
+    return new DefuseExplodingKittenRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DefuseExplodingKittenRequest {
+    return new DefuseExplodingKittenRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DefuseExplodingKittenRequest {
+    return new DefuseExplodingKittenRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DefuseExplodingKittenRequest | PlainMessage<DefuseExplodingKittenRequest> | undefined, b: DefuseExplodingKittenRequest | PlainMessage<DefuseExplodingKittenRequest> | undefined): boolean {
+    return proto3.util.equals(DefuseExplodingKittenRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message com.sweetloveinyourheart.kittens.clients.PlantExplodingKittenRequest
+ */
+export class PlantExplodingKittenRequest extends Message<PlantExplodingKittenRequest> {
+  /**
+   * @generated from field: string game_id = 1;
+   */
+  gameId = "";
+
+  /**
+   * Index of the card to be planted
+   *
+   * @generated from field: int32 card_index = 2;
+   */
+  cardIndex = 0;
+
+  constructor(data?: PartialMessage<PlantExplodingKittenRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "com.sweetloveinyourheart.kittens.clients.PlantExplodingKittenRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "game_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "card_index", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PlantExplodingKittenRequest {
+    return new PlantExplodingKittenRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PlantExplodingKittenRequest {
+    return new PlantExplodingKittenRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PlantExplodingKittenRequest {
+    return new PlantExplodingKittenRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PlantExplodingKittenRequest | PlainMessage<PlantExplodingKittenRequest> | undefined, b: PlantExplodingKittenRequest | PlainMessage<PlantExplodingKittenRequest> | undefined): boolean {
+    return proto3.util.equals(PlantExplodingKittenRequest, a, b);
   }
 }
 

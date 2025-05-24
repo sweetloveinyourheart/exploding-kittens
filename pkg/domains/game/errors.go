@@ -14,4 +14,5 @@ var (
 	ErrActionEffectNotProvided    = errors.New("action effect is not provided")
 	ErrGameNotInActionPhase       = errors.New("game is not in action phase")
 	ErrGameNotInPlayPhase         = errors.New("game is not in play phase")
+	ErrInvalidIndexToPlant        = errors.New("invalid index to plant")
 )
