@@ -42,9 +42,9 @@ type LobbyInteractionProcessor struct {
 	ctx context.Context
 	*lobby.LobbyProjector
 
-	playerIDs []uuid.UUID
-	queue     chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
-	bus       *nats.Conn
+	lobbyPlayerIDs map[uuid.UUID][]uuid.UUID
+	queue          chan lo.Tuple3[context.Context, common.Event, jetstream.Msg]
+	bus            *nats.Conn
 }
 
 func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcessor, error) {
@@ -52,8 +52,8 @@ func NewLobbyInteractionProcessor(ctx context.Context) (*LobbyInteractionProcess
 		ctx: ctx,
 		bus: do.MustInvokeNamed[*nats.Conn](nil, fmt.Sprintf("%s-conn", constants.Bus)),
 
-		playerIDs: make([]uuid.UUID, 0),
-		queue:     make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
+		lobbyPlayerIDs: make(map[uuid.UUID][]uuid.UUID),
+		queue:          make(chan lo.Tuple3[context.Context, common.Event, jetstream.Msg], BatchSize*2),
 	}
 
 	lip.LobbyProjector = lobby.NewLobbyProjection(lip)
@@ -205,7 +205,7 @@ func (w *LobbyInteractionProcessor) HandleEvent(ctx context.Context, event commo
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, event common.Event, data *lobby.LobbyCreated) error {
-	w.playerIDs = append(w.playerIDs, data.HostUserID)
+	w.lobbyPlayerIDs[data.GetLobbyID()] = append(w.lobbyPlayerIDs[data.GetLobbyID()], data.HostUserID)
 
 	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
 	if err != nil {
@@ -216,7 +216,11 @@ func (w *LobbyInteractionProcessor) HandleLobbyCreated(ctx context.Context, even
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyJoined(ctx context.Context, event common.Event, data *lobby.LobbyJoined) error {
-	w.playerIDs = append(w.playerIDs, data.GetUserID())
+	if _, ok := w.lobbyPlayerIDs[data.GetLobbyID()]; !ok {
+		return errors.WithStack(fmt.Errorf("lobby %s not found", data.GetLobbyID()))
+	}
+
+	w.lobbyPlayerIDs[data.GetLobbyID()] = append(w.lobbyPlayerIDs[data.GetLobbyID()], data.GetUserID())
 
 	err := w.emitLobbyUpdateEvent(data.GetLobbyID())
 	if err != nil {
@@ -227,9 +231,13 @@ func (w *LobbyInteractionProcessor) HandleLobbyJoined(ctx context.Context, event
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event common.Event, data *lobby.LobbyLeft) error {
-	for i, id := range w.playerIDs {
+	if _, ok := w.lobbyPlayerIDs[data.GetLobbyID()]; !ok {
+		return errors.WithStack(fmt.Errorf("lobby %s not found", data.GetLobbyID()))
+	}
+
+	for i, id := range w.lobbyPlayerIDs[data.GetLobbyID()] {
 		if id == data.GetUserID() {
-			w.playerIDs = slices.Delete(w.playerIDs, i, i+1)
+			w.lobbyPlayerIDs[data.GetLobbyID()] = slices.Delete(w.lobbyPlayerIDs[data.GetLobbyID()], i, i+1)
 			break
 		}
 	}
@@ -243,11 +251,15 @@ func (w *LobbyInteractionProcessor) HandleLobbyLeft(ctx context.Context, event c
 }
 
 func (w *LobbyInteractionProcessor) HandleLobbyMatchCreated(ctx context.Context, event common.Event, data *lobby.LobbyMatchCreated) error {
+	if _, ok := w.lobbyPlayerIDs[data.GetLobbyID()]; !ok {
+		return errors.WithStack(fmt.Errorf("lobby %s not found", data.GetLobbyID()))
+	}
+
 	log.Global().Info("Create new game", zap.String("game_id", data.GetMatchID().String()), zap.String("lobby_id", data.GetLobbyID().String()))
 
 	if err := domains.CommandBus.HandleCommand(ctx, &game.CreateGame{
 		GameID:    data.MatchID,
-		PlayerIDs: w.playerIDs,
+		PlayerIDs: w.lobbyPlayerIDs[data.GetLobbyID()],
 	}); err != nil {
 		return err
 	}
