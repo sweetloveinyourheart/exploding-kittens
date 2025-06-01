@@ -29,8 +29,8 @@ template-cov:
 	@rm -rf tests/logs/cov-$(packageName)*
 	@mkdir -p tests/logs/cov-$(packageName)
 	@(make template-ut package=$(package) packageName=$(packageName) verbose=$(verbose) optionalArg="-coverprofile=tests/logs/cov-$(packageName)/cov.tmp") || exit 1
-	@exclusions=$$(grep --include=\*.go -Ril "DO NOT EDIT" . | cut -c 3- | xargs | tr -s '[:blank:]' ',' | sed -E 's!,!|github.com/SandsB2B/ldx/!g'); \
-	cat tests/logs/cov-$(packageName)/cov.tmp | grep -vE "github.com/SandsB2B/ldx/$${exclusions}" > tests/logs/cov-$(packageName)/cov;
+	@exclusions=$$(grep --include=\*.go -Ril "DO NOT EDIT" . | cut -c 3- | xargs | tr -s '[:blank:]' ',' | sed -E 's!,!|github.com/sweetloveinyourheart/exploding-kittens/!g'); \
+	cat tests/logs/cov-$(packageName)/cov.tmp | grep -vE "github.com/sweetloveinyourheart/exploding-kittens/$${exclusions}" > tests/logs/cov-$(packageName)/cov;
 	@rm -f tests/logs/cov-$(packageName)/cov.tmp
 	@go tool cover -func tests/logs/cov-$(packageName)/cov                                                  >> tests/logs/cov-$(packageName)/low-level.txt  || exit 1
 	@go tool cover -func tests/logs/cov-$(packageName)/cov | grep total: | awk '{print $$3}' | sed 's/.$$//' > tests/logs/cov-$(packageName)/percentage.txt || exit 1
