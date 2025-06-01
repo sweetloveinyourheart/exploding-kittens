@@ -8,6 +8,8 @@ NATS_CONTAINER_IMAGE=nats:2.10.25-alpine3.21
 
 COMPOSE_PROJECT_NAME=kittens
 
+GO_ENV=test
+
 include $(PWD)/scripts/_makefiles/build.mk
 include $(PWD)/scripts/_makefiles/develop.mk
 include $(PWD)/scripts/_makefiles/generate.mk
