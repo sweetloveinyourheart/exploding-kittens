@@ -42,13 +42,13 @@ template-cov:
 ###
 
 ut-userserver:
-	@make template-ut package=services/user
+	@make template-ut package=services/user packageName=userserver
 
 cov-userserver:
-	@make template-cov package=services/user
+	@make template-cov package=services/user packageName=userserver
 
 ut-gameengineserver:
-	@make template-ut package=services/game_engine
+	@make template-ut package=services/game_engine packageName=gameengineserver
 
 cov-gameengineserver:
-	@make template-cov package=services/game_engine
+	@make template-cov package=services/game_engine packageName=gameengineserver
