@@ -80,6 +80,7 @@ func NewGameInteractionProcessor(ctx context.Context) (*GameInteractionProcessor
 	gameMatcher := eventing.NewMatchEventSubject(game.SubjectFactory, game.AggregateType,
 		game.EventTypeGameCreated,
 		game.EventTypeGameInitialized,
+		game.EventTypeGameStarted,
 		game.EventTypeTurnStarted,
 		game.EventTypeTurnFinished,
 		game.EventTypeTurnReversed,
@@ -308,6 +309,23 @@ func (w *GameInteractionProcessor) HandleGameCreated(ctx context.Context, event 
 }
 
 func (w *GameInteractionProcessor) HandleGameInitialized(ctx context.Context, event common.Event, data *game.GameInitialized) error {
+	if err := domains.CommandBus.HandleCommand(ctx, &game.StartGame{
+		GameID: data.GetGameID(),
+	}); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Game initialized", zap.String("gameID", data.GameID.String()))
+
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *GameInteractionProcessor) HandleGameStarted(ctx context.Context, event common.Event, data *game.GameStarted) error {
 	gamePlayers, ok := w.gamePlayers[data.GetGameID().String()]
 	if !ok || len(gamePlayers) == 0 {
 		return errors.Errorf("failed to get game player IDs")
@@ -324,7 +342,12 @@ func (w *GameInteractionProcessor) HandleGameInitialized(ctx context.Context, ev
 		return err
 	}
 
-	log.Global().InfoContext(ctx, "Game initialized", zap.String("gameID", data.GameID.String()))
+	// Emit game state update event
+	if err := w.emitGameStateUpdateEvent(data.GetGameID()); err != nil {
+		return err
+	}
+
+	log.Global().InfoContext(ctx, "Game started", zap.String("gameID", data.GetGameID().String()))
 
 	return nil
 }

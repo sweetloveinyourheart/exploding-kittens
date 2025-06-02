@@ -57,6 +57,11 @@ func (p *Projector) HandleGameInitialized(ctx context.Context, event common.Even
 	return entity, nil
 }
 
+func (p *Projector) HandleGameStarted(ctx context.Context, event common.Event, data *GameStarted, entity *Game) (*Game, error) {
+	entity.GameID = data.GetGameID()
+	return entity, nil
+}
+
 func (p *Projector) HandleTurnStarted(ctx context.Context, event common.Event, data *TurnStarted, entity *Game) (*Game, error) {
 	entity.GameID = data.GetGameID()
 	entity.GamePhase = GAME_PHASE_TURN_START
