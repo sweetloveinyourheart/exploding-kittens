@@ -13,6 +13,8 @@ import (
 func init() {
 	eventing.RegisterCommand[CreateGame, *CreateGame]()
 	eventing.RegisterCommand[InitializeGame, *InitializeGame]()
+	eventing.RegisterCommand[StartGame, *StartGame]()
+
 	eventing.RegisterCommand[StartTurn, *StartTurn]()
 	eventing.RegisterCommand[FinishTurn, *FinishTurn]()
 	eventing.RegisterCommand[ReverseTurn, *ReverseTurn]()
@@ -33,10 +35,12 @@ func init() {
 const (
 	CreateGameCommand     = common.CommandType("game:create")
 	InitializeGameCommand = common.CommandType("game:init")
-	StartTurnCommand      = common.CommandType("game:turn:start")
-	FinishTurnCommand     = common.CommandType("game:turn:finish")
-	ReverseTurnCommand    = common.CommandType("game:turn:reverse")
+	StartGameCommand      = common.CommandType("game:start")
 	FinishGameCommand     = common.CommandType("game:finish")
+
+	StartTurnCommand   = common.CommandType("game:turn:start")
+	FinishTurnCommand  = common.CommandType("game:turn:finish")
+	ReverseTurnCommand = common.CommandType("game:turn:reverse")
 
 	PlayCardsCommand            = common.CommandType("game:cards:play")
 	DrawCardCommand             = common.CommandType("game:cards:draw")
@@ -53,10 +57,12 @@ const (
 var AllCommands = []common.CommandType{
 	CreateGameCommand,
 	InitializeGameCommand,
+	StartGameCommand,
+	FinishGameCommand,
+
 	StartTurnCommand,
 	FinishTurnCommand,
 	ReverseTurnCommand,
-	FinishGameCommand,
 
 	PlayCardsCommand,
 	DrawCardCommand,
@@ -72,6 +78,9 @@ var AllCommands = []common.CommandType{
 
 var _ = eventing.Command(&CreateGame{})
 var _ = eventing.Command(&InitializeGame{})
+var _ = eventing.Command(&StartGame{})
+var _ = eventing.Command(&FinishGame{})
+
 var _ = eventing.Command(&StartTurn{})
 var _ = eventing.Command(&FinishTurn{})
 var _ = eventing.Command(&ReverseTurn{})
@@ -84,7 +93,6 @@ var _ = eventing.Command(&DrawExplodingKitten{})
 var _ = eventing.Command(&DefuseExplodingKitten{})
 var _ = eventing.Command(&EliminatePlayer{})
 var _ = eventing.Command(&PlantTheKitten{})
-var _ = eventing.Command(&FinishGame{})
 
 type CreateGame struct {
 	GameID    uuid.UUID   `json:"game_id"`
@@ -128,6 +136,24 @@ func (c *InitializeGame) Validate() error {
 
 	if c.DeskID == uuid.Nil {
 		return &common.CommandFieldError{Field: "desk_id", Details: "empty field"}
+	}
+
+	return nil
+}
+
+type StartGame struct {
+	GameID uuid.UUID `json:"game_id"`
+}
+
+func (c *StartGame) AggregateType() common.AggregateType { return AggregateType }
+
+func (c *StartGame) AggregateID() string { return c.GameID.String() }
+
+func (c *StartGame) CommandType() common.CommandType { return StartGameCommand }
+
+func (c *StartGame) Validate() error {
+	if c.GameID == uuid.Nil {
+		return &common.CommandFieldError{Field: "game_id", Details: "empty field"}
 	}
 
 	return nil

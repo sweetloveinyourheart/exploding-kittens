@@ -109,9 +109,14 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 			return ErrGameAlreadyInitialized
 		}
 
+	case *StartGame:
+		if a.currentGameID != typed.GameID {
+			return ErrGameNotFound
+		}
+
 	case *StartTurn:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -124,7 +129,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *FinishTurn:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -137,7 +142,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *ReverseTurn:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -150,7 +155,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *FinishGame:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -159,7 +164,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *PlayCards:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -172,7 +177,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *CreateAction:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -181,7 +186,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *ExecuteAction:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -190,7 +195,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *SelectAffectedPlayer:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -199,7 +204,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *DrawCard:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -212,7 +217,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *DrawExplodingKitten:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -238,7 +243,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *EliminatePlayer:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -251,7 +256,7 @@ func (a *Aggregate) validateCommand(cmd eventing.Command) error {
 
 	case *PlantTheKitten:
 		if !a.actived {
-			return ErrGameNotFound
+			return ErrGameNotAvailable
 		}
 
 		if a.currentGameID != typed.GameID {
@@ -283,6 +288,11 @@ func (a *Aggregate) createEvent(cmd eventing.Command) error {
 			GameID:      cmd.GameID,
 			DeskID:      cmd.DeskID,
 			PlayerHands: cmd.PlayerHands,
+		}, TimeNow())
+
+	case *StartGame:
+		a.AppendEvent(EventTypeGameStarted, &GameStarted{
+			GameID: cmd.GameID,
 		}, TimeNow())
 
 	case *StartTurn:
@@ -400,10 +410,9 @@ func (a *Aggregate) ApplyEvent(ctx context.Context, event common.Event) error {
 		}
 
 		a.currentGameID = data.GetGameID()
-
 	case EventTypeGameInitialized:
 		a.actived = true
-
+	case EventTypeGameStarted:
 	case EventTypeTurnStarted:
 		data, ok := event.Data().(*TurnStarted)
 		if !ok {
