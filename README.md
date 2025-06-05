@@ -2,6 +2,8 @@
 
 Exploding Kittens is a distributed, service-oriented implementation of the popular card game. This repository contains the backend services, client SDK, protocol definitions, and documentation for running and developing the game.
 
+---
+## Table Of Contents
 - [Getting Started](#getting-started)
 - [Testing](#testing)
 
