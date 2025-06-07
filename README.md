@@ -7,10 +7,10 @@ Exploding Kittens is a distributed, service-oriented implementation of the popul
 
 This section provides an overview of how the game is structured and how its core components interact. It’s a good place to begin if you're new to the project or planning to contribute.
 
-- [Game Play](./docs/gameplay.md)
 - [Architecture Overview](./docs/architecture_overview.md)
-- [Services](./docs/services.md)
-- [Data Flow](./docs/data_flow.md)
+- [Recommended Tooling](#recommended-tooling)
+- [Running Locally](#running-locally)
+- [Testing](#testing)
 
 ---
 ## Recommended Tooling
