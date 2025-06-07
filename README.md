@@ -79,7 +79,7 @@ Here you'll find information on setting up your environment, auto-generating fil
 
 Run the following command to setup all necessary packages and tools
 ```shell
-make go-deps (optional setup)
+make go-deps #(optional setup)
 ```
 
 When new features are coming, don't forget to run the following command to auto-generate necessary files (proto code, API docs, and service config schema)
