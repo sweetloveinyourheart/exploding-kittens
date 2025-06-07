@@ -10,6 +10,7 @@ This section provides an overview of how the game is structured and how its core
 - [Architecture Overview](./docs/architecture_overview.md)
 - [Recommended Tooling](#recommended-tooling)
 - [Running Locally](#running-locally)
+- [Development](#development)
 - [Testing](#testing)
 
 ---
