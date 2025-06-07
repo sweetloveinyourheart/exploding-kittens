@@ -73,7 +73,7 @@ make compose-up
 
 ---
 ## Development
-The development section covers guidelines, best practices, and tips for contributing to the Exploding Kittens project. Here you'll find information on setting up your environment, code style conventions, and how to submit changes.
+Here you'll find information on setting up your environment, auto-generating files for contributing to the project.
 
 ### Local Development
 
