@@ -1,17 +1,17 @@
 # Targets for running unit and integration tests under `go test`
 
 test: # Run all unit tests (see more options in Makefile)
-	@./scripts/unit_test/runAllUnitTests.sh
+	@./scripts/unit_test/run_all_unit_tests.sh
 test-verbose:
-	@./scripts/unit_test/runAllUnitTests.sh verbose
+	@./scripts/unit_test/run_all_unit_tests.sh verbose
 test-coverage:
-	@./scripts/unit_test/runAllUnitTests.sh cov
-	@./scripts/unit_test/printCoverageStats.sh
+	@./scripts/unit_test/run_all_unit_tests.sh cov
+	@./scripts/unit_test/print_coverage_stats.sh
 test-coverage-verbose:
-	@./scripts/unit_test/runAllUnitTests.sh cov verbose
-	@./scripts/unit_test/printCoverageStats.sh
+	@./scripts/unit_test/run_all_unit_tests.sh cov verbose
+	@./scripts/unit_test/print_coverage_stats.sh
 print-coverage:
-	@./scripts/unit_test/printCoverageStats.sh
+	@./scripts/unit_test/print_coverage_stats.sh
 
 
 # CI Automation Conventions:
@@ -23,7 +23,7 @@ print-coverage:
 
 template-ut:
 	@go clean -testcache
-	@./scripts/unit_test/ciTestWrapper.sh "$(optionalArg)" "$(package)" "$(verbose)" || exit 1
+	@./scripts/unit_test/ci_test_wrapper.sh "$(optionalArg)" "$(package)" "$(verbose)" || exit 1
 
 template-cov:
 	@rm -rf tests/logs/cov-$(packageName)*

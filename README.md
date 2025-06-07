@@ -72,6 +72,22 @@ make compose-up
 ```
 
 ---
+## Development
+The development section covers guidelines, best practices, and tips for contributing to the Exploding Kittens project. Here you'll find information on setting up your environment, code style conventions, and how to submit changes.
+
+### Local Development
+
+Run the following command to setup all necessary packages and tools
+```shell
+make go-deps (optional setup)
+```
+
+When new features are coming, don't forget to run the following command to auto-generate necessary files (proto code, API docs, and service config schema)
+```shell
+make gen
+```
+
+---
 ## Testing
 
 Any change to the to the repository should be validated in CI before
