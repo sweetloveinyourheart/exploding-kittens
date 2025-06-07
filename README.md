@@ -60,14 +60,13 @@ cp .env.sample .env
 Build the Docker image if any changes have been made, or if it has never been built, in order to make it available for container creation. Build all of the images using the following command: 
 
 ```shell
-# MAKE SURE SSH-AGENT IS SETUP or face various errors
 make build
 ```
 
 This will build all of the game services.
 
 ### Running all services locally with docker compose
-Be sure to have successfully built the `ldx:latest` Docker image in the previous section before running Compose. If building for the first time, run the following to build all of the containers:
+Be sure to have successfully built the `exploding-kittens:latest` Docker image in the previous section before running Compose. If building for the first time, run the following to build all of the containers:
 ```shell
 make compose-up
 ```
@@ -94,4 +93,4 @@ make ut-[service_name] # eg. ut-userserver, ut-gameengineserver
 
 This repository contains the following GitHub CI workflows:
 - The [env.yaml](./.github/workflows/env.yaml) is a reusable workflow used to setup an environment for running builds or tests.  Specific test workflows inject their work into the `commands-to-execute` variable.
-- The [tests.yaml](./.github/workflows/tests.yaml) defines all lower-level tests that will be run in CI, as well as an action to generate a code-coverage report.
+- The [unit-tests.yaml](./.github/workflows/unit-tests.yaml) defines all lower-level tests that will be run in CI, as well as an action to generate a code-coverage report.
