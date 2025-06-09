@@ -1,5 +1,4 @@
-ARG ALPINE_CONTAINER_IMAGE
-ARG GO_CONTAINER_IMAGE
+ARG ALPINE_CONTAINER_IMAGE=alpine:3.20.3
 
 #=========================
 # Build the app container.
