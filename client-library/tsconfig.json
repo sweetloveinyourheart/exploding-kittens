@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "outDir": "dist",
+        "target": "esnext",
+        "lib": ["esnext", "dom","DOM.Iterable"],
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "declaration": true
+    },
+    "include": [
+      "src/**/*"
+    ]
+}
