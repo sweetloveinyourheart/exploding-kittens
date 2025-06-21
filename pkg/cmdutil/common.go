@@ -8,11 +8,20 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"sync/atomic"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel"
+	otelPrometheus "go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.uber.org/zap"
 
 	_ "golang.org/x/tools/go/packages"
@@ -21,7 +30,9 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/version"
 )
 
 const HealthCheckPortGRPC = 5051
@@ -235,4 +246,84 @@ func prettyJSON(b []byte) []byte {
 	var out bytes.Buffer
 	_ = json.Indent(&out, b, "", "  ")
 	return out.Bytes()
+}
+
+type Initializer interface {
+	Initialize()
+}
+
+func StartMetricServer(ctx context.Context, serviceName string, serviceID string, port int, metricsProvider ...Initializer) {
+	SetAppInfoMetrics(metricsProvider...)
+
+	exporter, err := otelPrometheus.New()
+	if err != nil {
+		log.Global().FatalContext(ctx, "failed to create the Prometheus exporter", zap.Error(err))
+	}
+	hostName, err := os.Hostname()
+	if err != nil {
+		hostName = fmt.Sprintf("unknown-%s", uuid.Must(uuid.NewV7()))
+	}
+	res, err := resource.New(ctx,
+		resource.WithAttributes(
+			// the service name used to display traces in backends
+			semconv.HostName(hostName),
+			semconv.ServiceName(serviceName),
+			semconv.ServiceNamespace(config.Instance().GetString(config.ServerNamespace)),
+			semconv.ServiceInstanceID(fmt.Sprintf("%s-%s", serviceID, hostName)),
+			semconv.ServiceVersion(version.GetVersion()),
+		),
+		resource.WithContainerID(),
+		resource.WithFromEnv(),   // pull attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
+		resource.WithProcess(),   // This option configures a set of Detectors that discover process information
+		resource.WithOS(),        // This option configures a set of Detectors that discover OS information
+		resource.WithContainer(), // This option configures a set of Detectors that discover container information
+		resource.WithHost(),      // This option configures a set of Detectors that discover host information
+	)
+	if err != nil {
+		log.Global().FatalContext(ctx, "failed to create the Prometheus exporter", zap.Error(err))
+	}
+	provider := metric.NewMeterProvider(
+		metric.WithResource(res),
+		metric.WithReader(exporter))
+	otel.SetMeterProvider(provider)
+
+	startHttpServer := func(port int) *http.Server {
+		srv := &http.Server{
+			Addr:              fmt.Sprintf(":%v", port),
+			ReadHeaderTimeout: 5 * time.Second,
+		}
+		serveMux := http.NewServeMux()
+		serveMux.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{
+			EnableOpenMetrics: true,
+		}))
+		srv.Handler = serveMux
+
+		go func() {
+			// always returns error. ErrServerClosed on graceful close
+			log.Global().InfoContext(ctx, "starting HTTP metric server", zap.String("addr", fmt.Sprintf(":%v", port)))
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				log.Global().FatalContext(ctx, "HTTP metric server stopped", zap.Error(err))
+			}
+		}()
+
+		// returning reference so caller can call Shutdown()
+		return srv
+	}
+
+	srv := startHttpServer(port)
+	go func() {
+		<-ctx.Done()
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		err := srv.Shutdown(ctx) // gracefully shutdown the server, waiting max 30 seconds for current operations to complete
+		if err != nil {
+			log.Global().Error("HTTP metric server shutdown failed", zap.Error(err))
+		}
+	}()
+}
+
+func SetAppInfoMetrics(metricsProvider ...Initializer) {
+	for _, provider := range metricsProvider {
+		provider.Initialize()
+	}
 }

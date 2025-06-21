@@ -114,6 +114,13 @@
     path: healthcheck.web.port
     env:
     - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT
+  - name: jaeger-url
+    usage: URL to send Jaeger data to
+    default: ""
+    valueType: string
+    path: jaeger.url
+    env:
+    - LIVE_DEALER_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -121,6 +128,13 @@
     path: log.level
     env:
     - LOG_LEVEL
+  - name: otel-url
+    usage: URL to send OpenTelemetry data to
+    default: localhost:30080
+    valueType: string
+    path: otel.url
+    env:
+    - LIVE_DEALER_OTEL_URL
   - name: service
     usage: which service to run
     default: ""

@@ -14,7 +14,9 @@ app [flags]
       --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
   -h, --help                       help for app
+      --jaeger-url string          URL to send Jaeger data to
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -23,7 +25,9 @@ app [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
+- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
+- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -52,7 +56,9 @@ Commands for running health checks
       --healthcheck-host string    Host to listen on for services that support a health check (default "localhost")
       --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
+      --jaeger-url string          URL to send Jaeger data to
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -61,7 +67,9 @@ Commands for running health checks
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
+- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
+- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -108,7 +116,9 @@ app gameengineserver [flags]
       --healthcheck-host string    Host to listen on for services that support a health check (default "localhost")
       --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
+      --jaeger-url string          URL to send Jaeger data to
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -117,7 +127,9 @@ app gameengineserver [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
+- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
+- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
