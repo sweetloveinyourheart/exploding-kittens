@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/samber/do"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
@@ -17,6 +19,8 @@ type actions struct {
 	userRepo           repos.IUserRepository
 	userCredentialRepo repos.IUserCredentialRepository
 	userSessionRepo    repos.IUserSessionRepository
+
+	tracer trace.Tracer
 }
 
 // AuthFuncOverride is a callback function that overrides the default authorization middleware in the GRPC layer. This is
@@ -38,11 +42,14 @@ func NewActions(ctx context.Context, signingToken string) *actions {
 	userCredentialRepo := do.MustInvoke[repos.IUserCredentialRepository](nil)
 	userSessionRepo := do.MustInvoke[repos.IUserSessionRepository](nil)
 
+	tracer := otel.Tracer("com.sweetloveinyourheart.kittens.userserver.actions")
+
 	return &actions{
 		context:            ctx,
 		defaultAuth:        interceptors.ConnectServerAuthHandler(signingToken),
 		userRepo:           userRepo,
 		userCredentialRepo: userCredentialRepo,
 		userSessionRepo:    userSessionRepo,
+		tracer:             tracer,
 	}
 }

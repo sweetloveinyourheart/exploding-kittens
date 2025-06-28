@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"connectrpc.com/connect"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
@@ -16,6 +17,13 @@ import (
 )
 
 func (a *actions) GetUser(ctx context.Context, request *connect.Request[proto.GetUserRequest]) (response *connect.Response[proto.GetUserResponse], err error) {
+	opName := "userserver.GetUser()"
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindServer),
+	}
+	ctx, span := a.tracer.Start(ctx, opName, opts...)
+	defer span.End()
+
 	userID, err := uuid.FromString(request.Msg.GetUserId())
 	if err != nil {
 		return nil, grpc.InvalidArgumentErrorWithField(grpc.FieldViolation("user_id", fmt.Errorf("user_id is invalid")))
