@@ -190,6 +190,16 @@
         ]
       },
       {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
+        ]
+      },
+      {
         "name": "service",
         "usage": "which service to run",
         "default": "",

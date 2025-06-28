@@ -205,6 +205,16 @@
         ]
       },
       {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
+        ]
+      },
+      {
         "name": "service",
         "usage": "which service to run",
         "default": "",
@@ -407,6 +417,16 @@
         ]
       },
       {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
+        ]
+      },
+      {
         "name": "service",
         "usage": "which service to run",
         "default": "",
@@ -589,6 +609,16 @@
         ]
       },
       {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
+        ]
+      },
+      {
         "name": "service",
         "usage": "which service to run",
         "default": "",
@@ -758,6 +788,16 @@
         "path": "log.level",
         "env": [
           "LOG_LEVEL"
+        ]
+      },
+      {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
         ]
       },
       {
@@ -960,6 +1000,16 @@
         "path": "log.level",
         "env": [
           "LOG_LEVEL"
+        ]
+      },
+      {
+        "name": "otel-url",
+        "usage": "URL to send OpenTelemetry data to",
+        "default": "localhost:30080",
+        "valueType": "string",
+        "path": "otel.url",
+        "env": [
+          "EXPLODING_KITTENS_OTEL_URL"
         ]
       },
       {

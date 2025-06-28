@@ -13,6 +13,7 @@ const (
 	ServerId             = "server.id"
 	ServerReplicaNumber  = "server.replica_number"
 	ServerReplicaCount   = "server.replica_count"
+	ServerNamespace      = "server.namespace"
 	NatsStreamReplicas   = "nats.stream.replicas"
 	NatsStreamStorage    = "nats.stream.storage"
 	NatsConsumerReplicas = "nats.consumer.replicas"

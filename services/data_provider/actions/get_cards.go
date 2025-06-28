@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
@@ -15,6 +16,13 @@ import (
 )
 
 func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb.Empty]) (response *connect.Response[proto.GetCardsResponse], err error) {
+	opName := "dataprovider.GetCards()"
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindInternal),
+	}
+	ctx, span := a.tracer.Start(ctx, opName, opts...)
+	defer span.End()
+
 	cards, err := a.cardRepo.GetCards(ctx)
 	if err != nil {
 		log.Global().Error("error getting card list", zap.Error(err))

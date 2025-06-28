@@ -83,6 +83,10 @@ func InitializeService(command ...*cobra.Command) {
 	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-web-port"), "healthcheck.web.port", HealthCheckPortHTTP, "EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT")
 	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("healthcheck-host"), "healthcheck.host", "localhost", "EXPLODING_KITTENS_HEALTHCHECK_HOST")
 
+	// Monitoring, Logging and Tracing
+	ServiceRootCmd.PersistentFlags().String("otel-url", "localhost:30080", "URL to send OpenTelemetry data to")
+	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("otel-url"), "otel.url", "localhost:30080", "EXPLODING_KITTENS_OTEL_URL")
+
 	for _, c := range command {
 		ServiceRootCmd.AddCommand(c)
 	}

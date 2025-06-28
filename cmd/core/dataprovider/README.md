@@ -15,6 +15,7 @@ app [flags]
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
   -h, --help                       help for app
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -24,6 +25,7 @@ app [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
 - LOG_LEVEL :: `log.level` log level to use
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -53,6 +55,7 @@ Commands for running health checks
       --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -62,6 +65,7 @@ Commands for running health checks
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
 - LOG_LEVEL :: `log.level` log level to use
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -113,6 +117,7 @@ app dataprovider [flags]
       --healthcheck-port int       Port to listen on for services that support a health check (default 5051)
       --healthcheck-web-port int   Port to listen on for services that support a health check (default 5052)
       --log-level string           log level to use (default "info")
+      --otel-url string            URL to send OpenTelemetry data to (default "localhost:30080")
   -s, --service string             which service to run
 ```
 
@@ -122,6 +127,7 @@ app dataprovider [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
 - LOG_LEVEL :: `log.level` log level to use
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 

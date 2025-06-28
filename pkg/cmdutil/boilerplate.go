@@ -17,6 +17,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/db"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/telemetry/otel"
 )
 
 type AppRun struct {
@@ -35,7 +36,7 @@ func st(s string) (serviceType string, serviceKey string) {
 	return
 }
 
-func BoilerplateRun(serviceType string) (*AppRun, error) {
+func BoilerplateRun(serviceType string, metricsProvider ...Initializer) (*AppRun, error) {
 	serviceType, serviceKey := st(serviceType)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -55,6 +56,13 @@ func BoilerplateRun(serviceType string) (*AppRun, error) {
 	)
 
 	readyChan := StartHealthServices(ctx, serviceName, config.Instance().GetInt("healthcheck.port"), config.Instance().GetInt("healthcheck.web.port"))
+
+	err := otel.StartTracer(ctx, serviceName, config.Instance().GetString("jaeger.url"), config.Instance().GetString("otel.url"))
+	if err != nil {
+		log.GlobalSugared().Error(err)
+	}
+
+	StartMetricServer(ctx, serviceName, config.Instance().GetString(fmt.Sprintf("%s.id", serviceKey)), config.Instance().GetInt("metrics.port"), metricsProvider...)
 
 	return &AppRun{
 		serviceType: serviceType,
@@ -80,6 +88,7 @@ func BoilerplateFlagsCore(command *cobra.Command, serviceType string, envPrefix 
 func BoilerplateMetaConfig(serviceType string) {
 	_, serviceKey := st(serviceType)
 
+	config.Instance().Set(config.ServerNamespace, "kittens")
 	config.Instance().Set(config.ServerId, config.Instance().GetString(fmt.Sprintf("%s.id", serviceKey)))
 	config.Instance().Set(config.ServerReplicaCount, config.Instance().GetInt64(fmt.Sprintf("%s.replicas", serviceKey)))
 	config.Instance().Set(config.ServerReplicaNumber, config.Instance().GetInt64(fmt.Sprintf("%s.replica_num", serviceKey)))

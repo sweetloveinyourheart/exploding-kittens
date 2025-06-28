@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
@@ -16,6 +17,13 @@ import (
 )
 
 func (a *actions) CreateNewUser(ctx context.Context, request *connect.Request[proto.CreateUserRequest]) (response *connect.Response[proto.CreateUserResponse], err error) {
+	opName := "userserver.CreateNewUser()"
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindServer),
+	}
+	ctx, span := a.tracer.Start(ctx, opName, opts...)
+	defer span.End()
+
 	newUser := models.User{
 		UserID:    uuid.Must(uuid.NewV7()),
 		Username:  request.Msg.GetUsername(),

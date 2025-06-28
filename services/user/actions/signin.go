@@ -6,6 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/golang-jwt/jwt/v4"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/cockroachdb/errors"
 	"github.com/gofrs/uuid"
@@ -18,6 +19,13 @@ import (
 )
 
 func (a *actions) SignIn(ctx context.Context, request *connect.Request[proto.SignInRequest]) (response *connect.Response[proto.SignInResponse], err error) {
+	opName := "userserver.SignIn()"
+	opts := []trace.SpanStartOption{
+		trace.WithSpanKind(trace.SpanKindServer),
+	}
+	ctx, span := a.tracer.Start(ctx, opName, opts...)
+	defer span.End()
+
 	userID, err := uuid.FromString(request.Msg.GetUserId())
 	if err != nil {
 		return nil, grpc.InvalidArgumentErrorWithField(grpc.FieldViolation("user_id", err))
