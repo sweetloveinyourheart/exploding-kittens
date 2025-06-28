@@ -15,10 +15,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
-	otelPrometheus "go.opentelemetry.io/otel/exporters/prometheus"
+	otelMetric "go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
@@ -252,13 +250,9 @@ type Initializer interface {
 	Initialize()
 }
 
-func StartMetricServer(ctx context.Context, serviceName string, serviceID string, port int, metricsProvider ...Initializer) {
+func StartMetricServer(ctx context.Context, serviceName string, serviceID string, otelURL string, metricsProvider ...Initializer) {
 	SetAppInfoMetrics(metricsProvider...)
 
-	exporter, err := otelPrometheus.New()
-	if err != nil {
-		log.Global().FatalContext(ctx, "failed to create the Prometheus exporter", zap.Error(err))
-	}
 	hostName, err := os.Hostname()
 	if err != nil {
 		hostName = fmt.Sprintf("unknown-%s", uuid.Must(uuid.NewV7()))
@@ -280,46 +274,21 @@ func StartMetricServer(ctx context.Context, serviceName string, serviceID string
 		resource.WithHost(),      // This option configures a set of Detectors that discover host information
 	)
 	if err != nil {
-		log.Global().FatalContext(ctx, "failed to create the Prometheus exporter", zap.Error(err))
+		log.Global().FatalContext(ctx, "failed to create the Prometheus resource", zap.Error(err))
 	}
+
+	exporter, err := otelMetric.New(ctx,
+		otelMetric.WithInsecure(),
+		otelMetric.WithEndpoint(otelURL),
+	)
+	if err != nil {
+		log.Global().FatalContext(ctx, "failed to create the OTLP metric exporter", zap.Error(err))
+	}
+
 	provider := metric.NewMeterProvider(
 		metric.WithResource(res),
-		metric.WithReader(exporter))
+		metric.WithReader(metric.NewPeriodicReader(exporter)))
 	otel.SetMeterProvider(provider)
-
-	startHttpServer := func(port int) *http.Server {
-		srv := &http.Server{
-			Addr:              fmt.Sprintf(":%v", port),
-			ReadHeaderTimeout: 5 * time.Second,
-		}
-		serveMux := http.NewServeMux()
-		serveMux.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{
-			EnableOpenMetrics: true,
-		}))
-		srv.Handler = serveMux
-
-		go func() {
-			// always returns error. ErrServerClosed on graceful close
-			log.Global().InfoContext(ctx, "starting HTTP metric server", zap.String("addr", fmt.Sprintf(":%v", port)))
-			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-				log.Global().FatalContext(ctx, "HTTP metric server stopped", zap.Error(err))
-			}
-		}()
-
-		// returning reference so caller can call Shutdown()
-		return srv
-	}
-
-	srv := startHttpServer(port)
-	go func() {
-		<-ctx.Done()
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		err := srv.Shutdown(ctx) // gracefully shutdown the server, waiting max 30 seconds for current operations to complete
-		if err != nil {
-			log.Global().Error("HTTP metric server shutdown failed", zap.Error(err))
-		}
-	}()
 }
 
 func SetAppInfoMetrics(metricsProvider ...Initializer) {
