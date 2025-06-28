@@ -11,7 +11,7 @@ processors:
 
 exporters:
   # Data sources: traces
-  otlp:
+  otlp/jaeger:
     endpoint: ${JAEGER_ENDPOINT}
     tls:
       insecure: true
@@ -28,4 +28,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters: [otlp/jaeger]
