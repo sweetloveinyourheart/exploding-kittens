@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -35,6 +36,8 @@ func NewDbWithWait(connectionString string, dbOptions DBOptions) (*pgxpool.Pool,
 	if err != nil {
 		return nil, fmt.Errorf("create connection pool: %w", err)
 	}
+
+	cfg.ConnConfig.Tracer = otelpgx.NewTracer()
 
 	db, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
