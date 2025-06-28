@@ -2,15 +2,10 @@ services:
   phase_one_leader:
     image: ${ALPINE_CONTAINER_IMAGE}
     container_name: ${COMPOSE_PROJECT_NAME:-test}_phase_one_leader
-    entrypoint: echo "Phase One Leader Launch" && exit 0
+    entrypoint: echo "Phase One Leader Launch - Distributes Components" && exit 0
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.7"
-    depends_on:
-      kittens_database:
-        condition: service_healthy
-      kittens_nats:
-        condition: service_healthy
 
   kittens_nats:
     hostname: nats
@@ -23,6 +18,9 @@ services:
     networks:
       fs_test_net:
         ipv4_address: "172.16.244.41"
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully
     healthcheck:
       test: >-
         wget
@@ -53,12 +51,28 @@ services:
         ipv4_address: "172.16.244.31"
     volumes:
       - ./db/create_databases.sh:/docker-entrypoint-initdb.d/create_databases.sh
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       start_period: 90s
       interval: 5s
       timeout: 4s
-      retries: 30   
+      retries: 30
+
+  phase_two_leader:
+    image: ${ALPINE_CONTAINER_IMAGE}
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_phase_two_leader
+    entrypoint: echo "Phase Two Leader Launch - Core Services" && exit 0
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.7"
+    depends_on:
+      kittens_database:
+        condition: service_healthy
+      kittens_nats:
+        condition: service_healthy
 
   dataprovider:
     image: kittens:latest
@@ -66,6 +80,7 @@ services:
     hostname: dataprovider
     environment:
       "EXPLODING_KITTENS_SERVICE": "dataprovider"
+      "EXPLODING_KITTENS_OTEL_URL": "otel_collector:4317"
       "DATAPROVIDER_ID": "00000000-0000-0000-0000-000000000005"
       "DATAPROVIDER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "DATAPROVIDER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/dataprovider?sslmode=disable"
@@ -82,7 +97,7 @@ services:
       timeout: 4s
       retries: 30
     depends_on:
-      phase_one_leader:
+      phase_two_leader:
         condition: service_completed_successfully 
 
   clientserver:
@@ -91,6 +106,7 @@ services:
     hostname: clientserver
     environment:
       "EXPLODING_KITTENS_SERVICE": "clientserver"
+      "EXPLODING_KITTENS_OTEL_URL": "otel_collector:4317"
       "CLIENTSERVER_ID": "00000000-0000-0000-0000-000000000001"
       "CLIENTSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "CLIENTSERVER_GRPC_PORT": 50051
@@ -107,7 +123,7 @@ services:
       timeout: 4s
       retries: 30
     depends_on:
-      phase_one_leader:
+      phase_two_leader:
         condition: service_completed_successfully 
 
   userserver:
@@ -116,6 +132,7 @@ services:
     hostname: userserver
     environment:
       "EXPLODING_KITTENS_SERVICE": "userserver"
+      "EXPLODING_KITTENS_OTEL_URL": "otel_collector:4317"
       "USERSERVER_ID": "00000000-0000-0000-0000-000000000002"
       "USERSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "USERSERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/userserver?sslmode=disable"
@@ -132,7 +149,7 @@ services:
       timeout: 4s
       retries: 30
     depends_on:
-      phase_one_leader:
+      phase_two_leader:
         condition: service_completed_successfully
 
   lobbyserver:
@@ -141,6 +158,7 @@ services:
     hostname: lobbyserver
     environment:
       "EXPLODING_KITTENS_SERVICE": "lobbyserver"
+      "EXPLODING_KITTENS_OTEL_URL": "otel_collector:4317"
       "LOBBYSERVER_ID": "00000000-0000-0000-0000-000000000003"
       "LOBBYSERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "LOBBYSERVER_GRPC_PORT": 50053
@@ -157,7 +175,7 @@ services:
       timeout: 4s
       retries: 30
     depends_on:
-      phase_one_leader:
+      phase_two_leader:
         condition: service_completed_successfully  
 
   gameengineserver:
@@ -166,6 +184,7 @@ services:
     hostname: gameengineserver
     environment:
       "EXPLODING_KITTENS_SERVICE": "gameengineserver"
+      "EXPLODING_KITTENS_OTEL_URL": "otel_collector:4317"
       "GAMEENGINESERVER_ID": "00000000-0000-0000-0000-000000000004"
       "GAMEENGINESERVER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "GAMEENGINESERVER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/gameengineserver?sslmode=disable"
@@ -183,8 +202,69 @@ services:
       timeout: 4s
       retries: 30
     depends_on:
-      phase_one_leader:
+      phase_two_leader:
         condition: service_completed_successfully 
+
+  phase_three_leader:
+    image: ${ALPINE_CONTAINER_IMAGE}
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_phase_three_leader
+    entrypoint: echo "Phase Three Leader Launch - Monitoring, Tracing and Logging" && exit 0
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.7"
+    depends_on:
+      dataprovider:
+        condition: service_healthy
+      clientserver:
+        condition: service_healthy
+      userserver:
+        condition: service_healthy
+      gameengineserver:
+        condition: service_healthy
+      lobbyserver:
+        condition: service_healthy
+
+  kittens_otel_collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_otel_collector
+    hostname: otel_collector
+    ports:
+      - 1888:1888 # pprof extension
+      - 8888:8888 # Prometheus metrics exposed by the Collector
+      - 8889:8889 # Prometheus exporter metrics
+      - 13133:13133 # health_check extension
+      - 4317:4317 # OTLP gRPC receiver
+      - 4318:4318 # OTLP http receiver
+      - 55679:55679 # zpages extension
+    environment:
+      - JAEGER_ENDPOINT=jaeger:4317
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.50"
+    volumes:
+      - ./monitoring/otel/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    depends_on:
+      phase_three_leader:
+        condition: service_completed_successfully
+
+  kittens_jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_jaeger
+    hostname: jaeger
+    ports:
+      - 16686:16686   # Jaeger UI
+      - 14269:14269   # Health check
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.60"
+    depends_on:
+      phase_three_leader:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:14269" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   fs_test_net:

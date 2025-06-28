@@ -108,9 +108,7 @@ func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL str
 			tracesdk.WithResource(res),
 		}
 
-		if otelExp != nil {
-			opts = append(opts, tracesdk.WithSpanProcessor(otelExp))
-		}
+		opts = append(opts, tracesdk.WithSpanProcessor(otelExp))
 
 		tracerProvider := tracesdk.NewTracerProvider(
 			opts...,
