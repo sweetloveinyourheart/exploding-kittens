@@ -87,9 +87,6 @@ func InitializeService(command ...*cobra.Command) {
 	ServiceRootCmd.PersistentFlags().String("otel-url", "localhost:30080", "URL to send OpenTelemetry data to")
 	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("otel-url"), "otel.url", "localhost:30080", "EXPLODING_KITTENS_OTEL_URL")
 
-	ServiceRootCmd.PersistentFlags().String("jaeger-url", "", "URL to send Jaeger data to")
-	fields.BindWithDefault(ServiceRootCmd.PersistentFlags().Lookup("jaeger-url"), "jaeger.url", "", "EXPLODING_KITTENS_JAEGER_URL")
-
 	for _, c := range command {
 		ServiceRootCmd.AddCommand(c)
 	}

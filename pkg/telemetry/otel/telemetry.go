@@ -11,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
@@ -24,31 +23,6 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/version"
 )
-
-func jaegerTracerProcessor(url string) (tracesdk.SpanProcessor, error) {
-	// If the OpenTelemetry Collector is running on a local cluster (minikube or
-	// microk8s), it should be accessible through the NodePort service at the
-	// `localhost:30080` endpoint. Otherwise, replace `localhost` with the
-	// endpoint of your cluster. If you run the app inside k8s, then you can
-	// probably connect directly to the service through dns.
-	timeout := time.Second * 15
-	if strings.Contains(url, "localhost") {
-		timeout = time.Second * 2
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	// Set up a trace exporter
-	traceExporter, err := otlptracehttp.New(ctx, otlptracehttp.WithInsecure(), otlptracehttp.WithEndpoint(url))
-	if err != nil {
-		return nil, errors.WithStack(fmt.Errorf("failed to create trace exporter: %w", err))
-	}
-
-	// Register the trace exporter with a TracerProvider, using a batch
-	// span processor to aggregate spans before export.
-	bsp := tracesdk.NewBatchSpanProcessor(traceExporter)
-	return bsp, nil
-}
 
 func otelTracerProcessor(url string) (tracesdk.SpanProcessor, error) {
 	// If the OpenTelemetry Collector is running on a local cluster (minikube or
@@ -115,15 +89,7 @@ func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL str
 	}
 
 	go func() {
-		var jaegerExp tracesdk.SpanProcessor
 		var otelExp tracesdk.SpanProcessor
-		if !stringsutil.IsBlank(jaegerURL) {
-			jaegerExp, err = jaegerTracerProcessor(jaegerURL)
-			if err != nil {
-				log.Global().ErrorContext(ctx, "failed to create jaeger exporter", zap.Error(err))
-				jaegerExp = nil
-			}
-		}
 
 		if !stringsutil.IsBlank(otelURL) {
 			otelExp, err = otelTracerProcessor(otelURL)
@@ -133,7 +99,7 @@ func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL str
 			}
 		}
 
-		if jaegerExp == nil && otelExp == nil {
+		if otelExp == nil {
 			return
 		}
 
@@ -141,9 +107,7 @@ func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL str
 			tracesdk.WithSampler(tracesdk.AlwaysSample()),
 			tracesdk.WithResource(res),
 		}
-		if jaegerExp != nil {
-			opts = append(opts, tracesdk.WithSpanProcessor(jaegerExp))
-		}
+
 		if otelExp != nil {
 			opts = append(opts, tracesdk.WithSpanProcessor(otelExp))
 		}

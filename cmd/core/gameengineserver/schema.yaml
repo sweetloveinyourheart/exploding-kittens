@@ -114,13 +114,6 @@
     path: healthcheck.web.port
     env:
     - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT
-  - name: jaeger-url
-    usage: URL to send Jaeger data to
-    default: ""
-    valueType: string
-    path: jaeger.url
-    env:
-    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
