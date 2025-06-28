@@ -186,7 +186,7 @@
         "valueType": "string",
         "path": "jaeger.url",
         "env": [
-          "LIVE_DEALER_JAEGER_URL"
+          "EXPLODING_KITTENS_JAEGER_URL"
         ]
       },
       {
@@ -206,7 +206,7 @@
         "valueType": "string",
         "path": "otel.url",
         "env": [
-          "LIVE_DEALER_OTEL_URL"
+          "EXPLODING_KITTENS_OTEL_URL"
         ]
       },
       {

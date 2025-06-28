@@ -25,9 +25,9 @@ app [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
-- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
+- EXPLODING_KITTENS_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
-- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -67,9 +67,9 @@ Commands for running health checks
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
-- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
+- EXPLODING_KITTENS_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
-- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 
@@ -131,9 +131,9 @@ app clientserver [flags]
 - EXPLODING_KITTENS_HEALTHCHECK_HOST :: `healthcheck.host` Host to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_PORT :: `healthcheck.port` Port to listen on for services that support a health check
 - EXPLODING_KITTENS_HEALTHCHECK_WEB_PORT :: `healthcheck.web.port` Port to listen on for services that support a health check
-- LIVE_DEALER_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
+- EXPLODING_KITTENS_JAEGER_URL :: `jaeger.url` URL to send Jaeger data to
 - LOG_LEVEL :: `log.level` log level to use
-- LIVE_DEALER_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
+- EXPLODING_KITTENS_OTEL_URL :: `otel.url` URL to send OpenTelemetry data to
 - EXPLODING_KITTENS_SERVICE :: `service` which service to run
 ```
 

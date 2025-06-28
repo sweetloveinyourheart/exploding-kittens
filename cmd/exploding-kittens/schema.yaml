@@ -145,7 +145,7 @@
     valueType: string
     path: jaeger.url
     env:
-    - LIVE_DEALER_JAEGER_URL
+    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -159,7 +159,7 @@
     valueType: string
     path: otel.url
     env:
-    - LIVE_DEALER_OTEL_URL
+    - EXPLODING_KITTENS_OTEL_URL
   - name: service
     usage: which service to run
     default: ""
@@ -303,7 +303,7 @@
     valueType: string
     path: jaeger.url
     env:
-    - LIVE_DEALER_JAEGER_URL
+    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -317,7 +317,7 @@
     valueType: string
     path: otel.url
     env:
-    - LIVE_DEALER_OTEL_URL
+    - EXPLODING_KITTENS_OTEL_URL
   - name: service
     usage: which service to run
     default: ""
@@ -447,7 +447,7 @@
     valueType: string
     path: jaeger.url
     env:
-    - LIVE_DEALER_JAEGER_URL
+    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -461,7 +461,7 @@
     valueType: string
     path: otel.url
     env:
-    - LIVE_DEALER_OTEL_URL
+    - EXPLODING_KITTENS_OTEL_URL
   - name: service
     usage: which service to run
     default: ""
@@ -584,7 +584,7 @@
     valueType: string
     path: jaeger.url
     env:
-    - LIVE_DEALER_JAEGER_URL
+    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -598,7 +598,7 @@
     valueType: string
     path: otel.url
     env:
-    - LIVE_DEALER_OTEL_URL
+    - EXPLODING_KITTENS_OTEL_URL
   - name: service
     usage: which service to run
     default: ""
@@ -742,7 +742,7 @@
     valueType: string
     path: jaeger.url
     env:
-    - LIVE_DEALER_JAEGER_URL
+    - EXPLODING_KITTENS_JAEGER_URL
   - name: log-level
     usage: log level to use
     default: info
@@ -756,7 +756,7 @@
     valueType: string
     path: otel.url
     env:
-    - LIVE_DEALER_OTEL_URL
+    - EXPLODING_KITTENS_OTEL_URL
   - name: service
     usage: which service to run
     default: ""
