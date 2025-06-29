@@ -10,6 +10,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"golang.org/x/sync/singleflight"
 
@@ -19,10 +21,13 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	suppressedloader "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats/suppressed_loader"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/oplock"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/tracing"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
 )
+
+const TracerName = "com.sweetloveinyourheart.kittens.eventing.eventstore.natsjs"
 
 // EventStore is an eventing.EventStore where all events are stored in
 // memory and not persisted. Useful for testing and experimenting.
@@ -41,6 +46,8 @@ type EventStore struct {
 	codec          eventing.EventCodec
 
 	noDefaultFallback bool
+
+	tracer trace.Tracer
 }
 
 // NewEventStore creates a new EventStore using memory as storage.
@@ -69,6 +76,7 @@ func NewEventStore(ctx context.Context, streamName string, subject common.EventS
 		subject:    subject,
 		group:      new(singleflight.Group),
 		codec:      &codecJson.EventCodec{},
+		tracer:     otel.Tracer(TracerName),
 	}
 
 	for _, option := range options {
@@ -159,6 +167,16 @@ func (s *EventStore) HandleEvent(ctx context.Context, event common.Event) error 
 		loader := suppressedloader.NewSuppressedLoader[string, *aggregateRecord](ttlcache.LoaderFunc[string, *aggregateRecord](
 			func(cache *ttlcache.Cache[string, *aggregateRecord], key string) *ttlcache.Item[string, *aggregateRecord] {
 				ctx := context.WithoutCancel(ctx)
+				opName := "EventStore.Find.CacheMiss"
+				opts := []trace.SpanStartOption{
+					trace.WithAttributes(
+						tracing.AggregateID(key),
+						tracing.EntityType(string(event.AggregateType()))),
+					trace.WithSpanKind(trace.SpanKindInternal),
+				}
+
+				ctx, span := s.tracer.Start(ctx, opName, opts...)
+				defer span.End()
 
 				cacheMiss = true
 				var ar *aggregateRecord
@@ -385,6 +403,17 @@ func (s *EventStore) LoadFrom(ctx context.Context, id string, version uint64) ([
 	loader := suppressedloader.NewSuppressedLoader[string, *aggregateRecord](ttlcache.LoaderFunc[string, *aggregateRecord](
 		func(cache *ttlcache.Cache[string, *aggregateRecord], key string) *ttlcache.Item[string, *aggregateRecord] {
 			ctx := context.WithoutCancel(ctx)
+			opName := "EventStore.LoadFrom.CacheMiss"
+
+			opts := []trace.SpanStartOption{
+				trace.WithAttributes(
+					tracing.AggregateID(key),
+				),
+				trace.WithSpanKind(trace.SpanKindInternal),
+			}
+
+			ctx, span := s.tracer.Start(ctx, opName, opts...)
+			defer span.End()
 
 			var ar *aggregateRecord
 			if s.jetstream != nil {

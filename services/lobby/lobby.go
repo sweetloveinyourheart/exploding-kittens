@@ -10,8 +10,10 @@ import (
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/tracing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/lobby"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
@@ -59,20 +61,26 @@ func InitializeCoreRepos(appID string, ctx context.Context) error {
 		return err
 	}
 
-	if err := initLobbyEventBus(appID, connPool); err != nil {
+	if err := initLobbyEventBus(ctx, appID, connPool); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func initLobbyEventBus(appID string, connPool *pool.ConnPool) error {
+func initLobbyEventBus(ctx context.Context, appID string, connPool *pool.ConnPool) error {
+	var lobbyEventBus eventing.EventBus
+
 	neb, err := nats.NewEventBus(connPool, fmt.Sprintf("%s-bus", appID), nats.WithStreamName(constants.LobbyStream))
 	if err != nil {
 		return err
 	}
 
-	domains.LobbyEventBus = neb
+	lobbyEventBus = tracing.NewEventBus(neb)
+
+	nats.BusErrors(ctx, neb)
+
+	domains.LobbyEventBus = lobbyEventBus
 
 	return nil
 }

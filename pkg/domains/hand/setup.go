@@ -19,10 +19,10 @@ import (
 	natsEventBus "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_handler/projector"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_store/natsjs"
-	contexthook "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/context_hook"
 	consumeroptions "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/consumer_options"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/middleware/event_handler/ephemeral"
 	natsRepo "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/repo/natsjs_eventsourced"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/tracing"
 )
 
 func CreateNATSRepoHand(ctx context.Context, appID string, mw ...eventing.EventHandlerMiddleware) (eventing.ReadRepo[Hand, *Hand], error) {
@@ -33,11 +33,13 @@ func CreateNATSRepoHand(ctx context.Context, appID string, mw ...eventing.EventH
 	rng := lo.RandomString(8, lo.LettersCharset)
 	appID = fmt.Sprintf("%s_hand_repo_%s", appID, rng)
 
+	var eventBus eventing.EventBus
 	neb, err := natsEventBus.NewEventBus(connPool, appID, natsEventBus.WithStreamName(constants.HandStream))
 	if err != nil {
 		return nil, err
 	}
 
+	eventBus = tracing.NewEventBus(neb)
 	natsEventBus.BusErrors(ctx, neb)
 
 	entityProjector := NewProjector()
@@ -52,6 +54,7 @@ func CreateNATSRepoHand(ctx context.Context, appID string, mw ...eventing.EventH
 	if err != nil {
 		return nil, err
 	}
+	domainRepo = tracing.NewRepo[Hand, *Hand](domainRepo)
 
 	// Create projector
 	var domainProjector eventing.EventHandler
@@ -63,7 +66,8 @@ func CreateNATSRepoHand(ctx context.Context, appID string, mw ...eventing.EventH
 		domainProjector = m(domainProjector)
 	}
 
-	err = neb.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), domainProjector)
+	domainProjector = tracing.NewEventHandlerMiddleware()(domainProjector)
+	err = eventBus.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), domainProjector)
 	if err != nil {
 		return nil, err
 	}
@@ -77,14 +81,16 @@ func AddNATSHandCommandHandlers(ctx context.Context, appID string, commandBus *b
 		return err
 	}
 
+	var eventBus eventing.EventBus
 	natsBus, err := natsEventBus.NewEventBus(connPool, fmt.Sprintf("%s-hand-command-read", appID), natsEventBus.WithStreamName(constants.HandStream), natsEventBus.WithCodec(customCodec{}))
 	if err != nil {
 		return err
 	}
+	eventBus = tracing.NewEventBus(natsBus)
 
 	// Create in memory store for aggregate
-	hookHandler := contexthook.NewMiddleware()(natsBus)
-	natsEventStore, err := natsjs.NewEventStore(ctx, constants.HandStream, SubjectFactory, natsjs.WithEventHandler(hookHandler), natsjs.WithEventBus(natsBus))
+	var eventStore eventing.EventStore
+	natsEventStore, err := natsjs.NewEventStore(ctx, constants.HandStream, SubjectFactory, natsjs.WithEventHandler(eventBus), natsjs.WithEventBus(natsBus))
 	if err != nil {
 		return err
 	}
@@ -93,10 +99,10 @@ func AddNATSHandCommandHandlers(ctx context.Context, appID string, commandBus *b
 		for {
 			select {
 			case <-ctx.Done():
-				_ = natsBus.Close()
+				_ = eventBus.Close()
 				_ = natsEventStore.Close()
 				return
-			case err, ok := <-natsBus.Errors():
+			case err, ok := <-eventBus.Errors():
 				natsEventBus.HandleError(ctx, err)
 				if !ok {
 					_ = natsEventStore.Close()
@@ -113,12 +119,15 @@ func AddNATSHandCommandHandlers(ctx context.Context, appID string, commandBus *b
 		MaxDeliver:        10,
 		InactiveThreshold: 60 * time.Minute,
 	})(natsEventStore)
-	err = natsBus.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), wrappedEventStore)
+	err = eventBus.AddHandler(context.Background(), eventing.NewMatchEventSubject(SubjectFactory, AggregateType), wrappedEventStore)
 	if err != nil {
 		return err
 	}
 
-	aggregateStore, err := aggregate.NewAggregateStore(natsEventStore, aggregate.WithSequencedStore())
+	eventStore = natsEventStore
+	eventStore = tracing.NewEventStore(eventStore)
+
+	aggregateStore, err := aggregate.NewAggregateStore(eventStore, aggregate.WithSequencedStore())
 	if err != nil {
 		return err
 	}
@@ -131,6 +140,8 @@ func AddNATSHandCommandHandlers(ctx context.Context, appID string, commandBus *b
 	for _, m := range mw {
 		domainCommandHandler = m(domainCommandHandler)
 	}
+
+	domainCommandHandler = tracing.NewCommandHandlerMiddleware()(domainCommandHandler)
 
 	domainCommands := AllCommands
 	for _, command := range domainCommands {

@@ -10,8 +10,10 @@ import (
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/config"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
+	eventing "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/command_handler/bus"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/tracing"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/desk"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/game"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domains/hand"
@@ -83,20 +85,26 @@ func InitializeCoreRepos(appID string, ctx context.Context) error {
 		return err
 	}
 
-	if err := initGameEventBus(appID, connPool); err != nil {
+	if err := initGameEventBus(ctx, appID, connPool); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func initGameEventBus(appID string, connPool *pool.ConnPool) error {
+func initGameEventBus(ctx context.Context, appID string, connPool *pool.ConnPool) error {
+	var gameEventBus eventing.EventBus
+
 	neb, err := nats.NewEventBus(connPool, fmt.Sprintf("%s-bus", appID), nats.WithStreamName(constants.GameStream))
 	if err != nil {
 		return err
 	}
 
-	domains.GameEventBus = neb
+	gameEventBus = tracing.NewEventBus(neb)
+
+	nats.BusErrors(ctx, neb)
+
+	domains.GameEventBus = gameEventBus
 
 	return nil
 }
