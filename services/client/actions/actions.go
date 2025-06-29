@@ -6,13 +6,16 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/samber/do"
+	"go.uber.org/zap"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/constants"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
+	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/clientserver/go/grpcconnect"
 	dataProviderConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	gameEngineServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/gameengineserver/go/grpcconnect"
 	userServerConnect "github.com/sweetloveinyourheart/exploding-kittens/proto/code/userserver/go/grpcconnect"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 )
 
 type actions struct {
@@ -23,6 +26,8 @@ type actions struct {
 	userServerClient       userServerConnect.UserServerClient
 	gameEngineServerClient gameEngineServerConnect.GameEngineServerClient
 	dataProviderClient     dataProviderConnect.DataProviderClient
+
+	metrics *domains.ClientMetrics
 }
 
 // AuthFuncOverride is a callback function that overrides the default authorization middleware in the GRPC layer. This is
@@ -40,6 +45,11 @@ func (a *actions) AuthFuncOverride(ctx context.Context, token string, fullMethod
 }
 
 func NewActions(ctx context.Context, signingToken string) *actions {
+	metrics, err := do.Invoke[*domains.ClientMetrics](nil)
+	if err != nil {
+		log.Global().WarnContext(ctx, "failed to find metrics object for client actions", zap.Error(err))
+	}
+
 	return &actions{
 		context:                ctx,
 		defaultAuth:            interceptors.ConnectAuthHandler(signingToken),
@@ -47,5 +57,6 @@ func NewActions(ctx context.Context, signingToken string) *actions {
 		userServerClient:       do.MustInvoke[userServerConnect.UserServerClient](nil),
 		gameEngineServerClient: do.MustInvoke[gameEngineServerConnect.GameEngineServerClient](nil),
 		dataProviderClient:     do.MustInvoke[dataProviderConnect.DataProviderClient](nil),
+		metrics:                metrics,
 	}
 }

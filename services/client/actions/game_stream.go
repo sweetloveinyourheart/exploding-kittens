@@ -63,6 +63,13 @@ func (a *actions) StreamGame(ctx context.Context, request *connect.Request[proto
 		return grpc.NotFoundError(errors.Errorf("Game not found"))
 	}
 
+	metrics := a.metrics
+	metrics.GameStreamCounterInc(ctx, gameState.GetGameID())
+	metrics.GameStreamGaugeAdd(ctx, gameState.GetGameID(), 1)
+	defer func() {
+		metrics.GameStreamGaugeAdd(ctx, gameState.GetGameID(), -1)
+	}()
+
 	gameChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
 	gameUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.GameStream, request.Msg.GetGameId()), gameChan)
 	if err != nil {

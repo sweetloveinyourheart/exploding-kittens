@@ -4,50 +4,88 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/samber/do"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/cmdutil"
 )
 
 type ClientMetrics struct {
-	TotalLobbies *prometheus.CounterVec
+	lobbyStreamCounter metric.Int64Counter
+	lobbyStreamGauge   metric.Int64UpDownCounter
+	gameStreamCounter  metric.Int64Counter
+	gameStreamGauge    metric.Int64UpDownCounter
 }
 
 var _ cmdutil.Initializer = (*ClientMetrics)(nil)
 
 func (m *ClientMetrics) Initialize() {
-	m.TotalLobbies = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "total_lobbies_started",
-			Help: "Total number of lobbies",
-		},
-		[]string{"lobby_id"},
-	)
+	meter := otel.GetMeterProvider().Meter("ClientMetrics")
 
-	prometheus.MustRegister(m.TotalLobbies)
+	var err error
+	m.lobbyStreamCounter, err = meter.Int64Counter(
+		"lobby_streams_total",
+		metric.WithDescription("How many lobby streams have been opened for this client"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	m.lobbyStreamGauge, err = meter.Int64UpDownCounter(
+		"lobby_streams_gauge",
+		metric.WithDescription("The current number of lobby streams open for this client"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	m.gameStreamCounter, err = meter.Int64Counter(
+		"game_streams_total",
+		metric.WithDescription("How many game streams have been opened for this client"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	m.gameStreamGauge, err = meter.Int64UpDownCounter(
+		"game_streams_gauge",
+		metric.WithDescription("The current number of game streams open for this client"),
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	do.Provide[*ClientMetrics](nil, func(i *do.Injector) (*ClientMetrics, error) {
 		return m, nil
 	})
 }
 
-func (m *ClientMetrics) TotalLobbiesInc(ctx context.Context, LobbyID uuid.UUID, amount int) {
+func (m *ClientMetrics) LobbyStreamCounterInc(ctx context.Context, lobbyID uuid.UUID) {
 	if m == nil {
 		return
 	}
+	m.lobbyStreamCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("lobby_id", lobbyID.String())))
+}
 
-	traceID := ""
-	span := trace.SpanFromContext(ctx)
-	if span != nil && span.SpanContext().IsValid() && span.SpanContext().HasTraceID() {
-		traceID = span.SpanContext().TraceID().String()
+func (m *ClientMetrics) LobbyStreamGaugeAdd(ctx context.Context, lobbyID uuid.UUID, delta int64) {
+	if m == nil {
+		return
 	}
+	m.lobbyStreamGauge.Add(ctx, delta, metric.WithAttributes(attribute.String("lobby_id", lobbyID.String())))
+}
 
-	counter := m.TotalLobbies.WithLabelValues(LobbyID.String())
-	if adder, ok := counter.(prometheus.ExemplarAdder); amount >= 0 && ok && traceID != "" {
-		adder.AddWithExemplar(float64(amount), prometheus.Labels{"traceID": traceID})
-	} else {
-		counter.Add(float64(amount))
+func (m *ClientMetrics) GameStreamCounterInc(ctx context.Context, gameID uuid.UUID) {
+	if m == nil {
+		return
 	}
+	m.gameStreamCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("game_id", gameID.String())))
+}
+
+func (m *ClientMetrics) GameStreamGaugeAdd(ctx context.Context, gameID uuid.UUID, delta int64) {
+	if m == nil {
+		return
+	}
+	m.gameStreamGauge.Add(ctx, delta, metric.WithAttributes(attribute.String("game_id", gameID.String())))
 }
