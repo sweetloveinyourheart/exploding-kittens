@@ -57,7 +57,7 @@ func otelTracerProcessor(url string) (tracesdk.SpanProcessor, error) {
 	return bsp, nil
 }
 
-func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL string) error {
+func StartTracer(ctx context.Context, serviceName, otelURL string) error {
 	hostName, err := os.Hostname()
 	if err != nil {
 		hostName = fmt.Sprintf("unknown-%s", uuid.Must(uuid.NewV7()))
@@ -83,7 +83,7 @@ func StartTracer(ctx context.Context, serviceName, jaegerURL string, otelURL str
 	// set global propagator to tracecontext (the default is no-op).
 	otel.SetTextMapPropagator(TraceContext{})
 
-	if stringsutil.IsBlank(jaegerURL) && stringsutil.IsBlank(otelURL) {
+	if stringsutil.IsBlank(otelURL) {
 		log.Global().WarnContext(ctx, "unable to start telemetry", zap.Error(errors.WithStack(fmt.Errorf("no telemetry url provided"))))
 		return nil
 	}

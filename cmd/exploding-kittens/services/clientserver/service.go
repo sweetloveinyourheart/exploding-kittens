@@ -27,6 +27,7 @@ import (
 
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/client/actions"
+	"github.com/sweetloveinyourheart/exploding-kittens/services/client/domains"
 )
 
 const DEFAULT_CLIENTSERVER_GRPC_PORT = 50051
@@ -39,7 +40,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 		Use:   fmt.Sprintf("%s [flags]", serviceType),
 		Short: fmt.Sprintf("Run as %s service", serviceType),
 		Run: func(cmd *cobra.Command, args []string) {
-			app, err := cmdutil.BoilerplateRun(serviceType)
+			app, err := cmdutil.BoilerplateRun(serviceType, &domains.ClientMetrics{})
 			if err != nil {
 				log.GlobalSugared().Fatal(err)
 			}

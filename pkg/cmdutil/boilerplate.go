@@ -57,12 +57,12 @@ func BoilerplateRun(serviceType string, metricsProvider ...Initializer) (*AppRun
 
 	readyChan := StartHealthServices(ctx, serviceName, config.Instance().GetInt("healthcheck.port"), config.Instance().GetInt("healthcheck.web.port"))
 
-	err := otel.StartTracer(ctx, serviceName, config.Instance().GetString("jaeger.url"), config.Instance().GetString("otel.url"))
+	err := otel.StartTracer(ctx, serviceName, config.Instance().GetString("otel.url"))
 	if err != nil {
 		log.GlobalSugared().Error(err)
 	}
 
-	StartMetricServer(ctx, serviceName, config.Instance().GetString(fmt.Sprintf("%s.id", serviceKey)), config.Instance().GetInt("metrics.port"), metricsProvider...)
+	StartMetricServer(ctx, serviceName, config.Instance().GetString(fmt.Sprintf("%s.id", serviceKey)), config.Instance().GetString("otel.url"), metricsProvider...)
 
 	return &AppRun{
 		serviceType: serviceType,

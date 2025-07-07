@@ -56,6 +56,13 @@ func (a *actions) StreamLobby(ctx context.Context, request *connect.Request[prot
 		return grpc.NotFoundError(errors.Errorf("Lobby not found"))
 	}
 
+	metrics := a.metrics
+	metrics.LobbyStreamCounterInc(ctx, lobbyState.GetLobbyID())
+	metrics.LobbyStreamGaugeAdd(ctx, lobbyState.GetLobbyID(), 1)
+	defer func() {
+		metrics.LobbyStreamGaugeAdd(ctx, lobbyState.GetLobbyID(), -1)
+	}()
+
 	lobbyChan := make(chan *nats.Msg, constants.NatsChannelBufferSize)
 	lobbyUpdateStream, err := a.bus.ChanSubscribe(fmt.Sprintf("%s.%s", constants.LobbyStream, request.Msg.GetLobbyId()), lobbyChan)
 	if err != nil {

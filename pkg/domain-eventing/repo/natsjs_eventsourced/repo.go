@@ -11,6 +11,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nats-io/nats.go/jetstream"
 	pool "github.com/octu0/nats-pool"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"golang.org/x/sync/singleflight"
 
@@ -20,6 +22,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats"
 	suppressedloader "github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_bus/nats/suppressed_loader"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/event_handler/projector"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/domain-eventing/tracing"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/timeutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/ttlcache"
@@ -27,6 +30,7 @@ import (
 
 const DefaultTTL = time.Minute * 60
 const DefaultEvictionTimeout = time.Minute * 3
+const TracerName = "com.sweetloveinyourheart.kittens.eventing.repo.natsjs_eventsourced"
 
 // ErrModelNotSet is when an model factory is not set on the Repo.
 var ErrModelNotSet = errors.New("model not set")
@@ -43,6 +47,8 @@ type Repo[T any, PT eventing.GenericEntity[T]] struct {
 	group      *singleflight.Group
 	codec      eventing.EventCodec
 	entityType string
+
+	tracer trace.Tracer
 }
 
 type repoOptions struct {
@@ -92,8 +98,9 @@ func NewRepo[T any, PT eventing.GenericEntity[T]](ctx context.Context, streamNam
 		projector:    projector,
 		repoOptions:  &repoOptions{},
 
-		group: new(singleflight.Group),
-		codec: &codecJson.EventCodec{},
+		group:  new(singleflight.Group),
+		codec:  &codecJson.EventCodec{},
+		tracer: otel.Tracer(TracerName),
 	}
 
 	r.entityType = fmt.Sprintf("%T", *new(T))
@@ -201,6 +208,18 @@ func (r *Repo[T, PT]) Find(ctx context.Context, id string) (*T, error) {
 
 	loader := suppressedloader.NewSuppressedLoader[string, []byte](ttlcache.LoaderFunc[string, []byte](
 		func(cache *ttlcache.Cache[string, []byte], key string) *ttlcache.Item[string, []byte] {
+			opName := "Repo.Find.CacheMiss"
+
+			opts := []trace.SpanStartOption{
+				trace.WithAttributes(
+					tracing.AggregateID(key),
+					tracing.EntityType(r.entityType)),
+				trace.WithSpanKind(trace.SpanKindInternal),
+			}
+
+			ctx, span := r.tracer.Start(ctx, opName, opts...)
+			defer span.End()
+
 			var ar any
 			if r.repoOptions.jetstream != nil {
 				events, err := nats.LoadJetStream(ctx, r.repoOptions.jetstream, r.streamName, subject, r.codec)
