@@ -138,6 +138,30 @@ services:
       timeout: 5s
       retries: 5
 
+  kittens_grafana:
+    image: grafana/grafana:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-test}_grafana
+    hostname: grafana
+    ports:
+      - 3001:3000
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.80"
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      phase_two_leader:
+        condition: service_completed_successfully
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   phase_three_leader:
     image: ${ALPINE_CONTAINER_IMAGE}
     container_name: ${COMPOSE_PROJECT_NAME:-test}_phase_three_leader
@@ -149,6 +173,8 @@ services:
       kittens_jaeger:
         condition: service_healthy
       kittens_prometheus:
+        condition: service_healthy
+      kittens_grafana:
         condition: service_healthy
 
   dataprovider:
