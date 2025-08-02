@@ -37,7 +37,7 @@ func (a *actions) GetCards(ctx context.Context, request *connect.Request[emptypb
 			return nil, grpc.InternalError(errors.WithStack(err))
 		}
 	} else {
-		err = json.Unmarshal([]byte(cachedCards), &cardList)
+		err = json.Unmarshal(cachedCards, &cardList)
 		if err != nil {
 			return nil, grpc.InternalError(errors.WithStack(err))
 		}
@@ -101,7 +101,7 @@ func (a *actions) GetMapCards(ctx context.Context, request *connect.Request[empt
 			return nil, grpc.InternalError(errors.WithStack(err))
 		}
 	} else {
-		err = json.Unmarshal([]byte(cachedCards), &cardMap)
+		err = json.Unmarshal(cachedCards, &cardMap)
 		if err != nil {
 			return nil, grpc.InternalError(errors.WithStack(err))
 		}

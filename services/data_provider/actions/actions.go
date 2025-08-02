@@ -24,7 +24,6 @@ type actions struct {
 	defaultAuth func(context.Context, string) (context.Context, error)
 
 	redisClient *redis.Client
-	cacheTTL    time.Duration
 
 	cardRepo repos.ICardRepository
 
