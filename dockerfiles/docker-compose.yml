@@ -61,6 +61,27 @@ services:
       timeout: 4s
       retries: 30
 
+  kittens_redis:
+    hostname: redis
+    image: ${REDIS_CONTAINER_IMAGE}
+    container_name: ${COMPOSE_PROJECT_NAME:-test}-redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6381:6379"
+    networks:
+      fs_test_net:
+        ipv4_address: "172.16.244.51"
+    depends_on:
+      phase_one_leader:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      start_period: 90s
+      interval: 5s
+      timeout: 4s
+      retries: 30
+
   phase_two_leader:
     image: ${ALPINE_CONTAINER_IMAGE}
     container_name: ${COMPOSE_PROJECT_NAME:-test}_phase_two_leader
@@ -72,6 +93,8 @@ services:
       kittens_database:
         condition: service_healthy
       kittens_nats:
+        condition: service_healthy
+      kittens_redis:
         condition: service_healthy
 
   kittens_otel_collector:
@@ -188,6 +211,7 @@ services:
       "DATAPROVIDER_SECRETS_TOKEN_SIGNING_KEY": "secr3t_p0ck3r"
       "DATAPROVIDER_DB_URL": "postgres://root_admin:admin@123@kittens_database:5432/dataprovider?sslmode=disable"
       "DATAPROVIDER_GRPC_PORT": 50055
+      "DATAPROVIDER_REDIS_URL": "redis://redis:6379"
     ports:
       - 50055:50055 # GRPC port
     networks:
