@@ -125,6 +125,12 @@ func boilerplateFlagsNatsCore(command *cobra.Command, serviceType string, envPre
 	config.StringDefault(command, fmt.Sprintf("%s.nats.consumer.storage", serviceKey), "nats-consumer-storage", "memory", "Storage type to use for consumers", fmt.Sprintf("%s_NATS_CONSUMER_STORAGE", envPrefix))
 }
 
+func BoilerplateFlagsRedisEdge(command *cobra.Command, serviceType string, envPrefix string) {
+	_, serviceKey := st(serviceType)
+
+	config.StringDefault(command, fmt.Sprintf("%s.redis.url", serviceKey), "redis-url", "redis-edge:6379", "Comma separated list of Redis endpoints", fmt.Sprintf("%s_REDIS_URL", envPrefix))
+}
+
 func BoilerplateSecureFlags(command *cobra.Command, serviceType string) {
 	_, serviceKey := st(serviceType)
 

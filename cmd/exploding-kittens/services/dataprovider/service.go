@@ -5,7 +5,10 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"github.com/spf13/cobra"
 
@@ -15,6 +18,7 @@ import (
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/grpc"
 	"github.com/sweetloveinyourheart/exploding-kittens/pkg/interceptors"
 	log "github.com/sweetloveinyourheart/exploding-kittens/pkg/logger"
+	"github.com/sweetloveinyourheart/exploding-kittens/pkg/stringsutil"
 	"github.com/sweetloveinyourheart/exploding-kittens/proto/code/dataprovider/go/grpcconnect"
 	dataprovider "github.com/sweetloveinyourheart/exploding-kittens/services/data_provider"
 	"github.com/sweetloveinyourheart/exploding-kittens/services/data_provider/actions"
@@ -48,8 +52,30 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 				log.GlobalSugared().Fatal(err)
 			}
 
+			redisURL := config.Instance().GetString("dataprovider.redis.url")
+			address, dbIndex, err := stringsutil.RedisOptionsFromURL(redisURL)
+			if err != nil {
+				log.Global().Fatal("Unable to parse redis url", zap.Error(err))
+			}
+			redisClient := redis.NewClient(
+				&redis.Options{
+					Addr: address,
+					DB:   dbIndex,
+				},
+			)
+
+			// Enable tracing instrumentation.
+			if err := redisotel.InstrumentTracing(redisClient); err != nil {
+				panic(err)
+			}
+
+			// Enable metrics instrumentation.
+			if err := redisotel.InstrumentMetrics(redisClient); err != nil {
+				panic(err)
+			}
+
 			signingKey := config.Instance().GetString("dataprovider.secrets.token_signing_key")
-			actions := actions.NewActions(app.Ctx(), signingKey)
+			actions := actions.NewActions(app.Ctx(), signingKey, redisClient)
 
 			opt := connect.WithInterceptors(
 				interceptors.CommonConnectInterceptors(
@@ -89,6 +115,7 @@ func Command(rootCmd *cobra.Command) *cobra.Command {
 	cmdutil.BoilerplateFlagsCore(dataProviderCommand, serviceType, envPrefix)
 	cmdutil.BoilerplateSecureFlags(dataProviderCommand, serviceType)
 	cmdutil.BoilerplateFlagsDB(dataProviderCommand, serviceType, envPrefix)
+	cmdutil.BoilerplateFlagsRedisEdge(dataProviderCommand, serviceType, envPrefix)
 
 	return dataProviderCommand
 }

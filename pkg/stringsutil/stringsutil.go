@@ -1,7 +1,10 @@
 package stringsutil
 
 import (
+	"fmt"
 	"math/rand"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -9,7 +12,16 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const (
+	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// Regular expression will match on the following URL formats:
+	//		redis://127.0.0.1:6379
+	//		redis://localhost:6379/5
+	//		127.0.0.1:6379/57
+	//		localhost:6379/156
+	RedisURLRegex = `^(?:redis:\/\/)?([^:]+:\d+)(?:\/(\d+))?$`
+)
 
 // IsBlank returns true if a string is empty or contains only whitespace.
 func IsBlank(s string) bool {
@@ -102,4 +114,37 @@ func ConvertStringToUUID(s string) uuid.UUID {
 		return uuid.Nil
 	}
 	return u
+}
+
+// Returns a parsed Redis address and DB index from URL string
+func RedisOptionsFromURL(redisURL string) (address string, dbIndex int, err error) {
+	re := regexp.MustCompile(RedisURLRegex)
+
+	capture := re.FindAllStringSubmatch(redisURL, -1)
+	if len(capture) == 0 {
+		err = fmt.Errorf(
+			"Invalid config. Unknow RedisURL format: [%s]",
+			redisURL,
+		)
+		return
+	}
+
+	address = capture[0][1]
+
+	if len(capture[0]) == 3 && len(capture[0][2]) > 0 {
+		dbIndex64, convErr := strconv.ParseInt(capture[0][2], 10, 32)
+		if convErr != nil {
+			err = fmt.Errorf(
+				"Invalid config. Unable to parse DB index from RedisURL: [%s] - %s",
+				redisURL,
+				convErr.Error(),
+			)
+
+			return
+		}
+
+		dbIndex = int(dbIndex64)
+	}
+
+	return address, dbIndex, nil
 }
