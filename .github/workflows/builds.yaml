@@ -28,7 +28,7 @@ jobs:
     secrets: inherit
 
   push-server-images:
-    needs: [ generate-tag, push-plugins ]
+    needs: [ generate-tag ]
     uses: ./.github/workflows/env.yaml
     strategy:
       fail-fast: false
