@@ -2,6 +2,7 @@ SHELL=bash
 
 include $(PWD)/scripts/_makefiles/build.mk
 include $(PWD)/scripts/_makefiles/develop.mk
+include $(PWD)/scripts/_makefiles/deploy.mk
 include $(PWD)/scripts/_makefiles/generate.mk
 include $(PWD)/scripts/_makefiles/tests_unit.mk
 include $(PWD)/scripts/_makefiles/lint.mk
