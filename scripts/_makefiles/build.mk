@@ -20,7 +20,6 @@ build-binary:
 # Base makefile target for building a docker image
 build-docker:
 	@DOCKER_BUILDKIT=1 docker build $(buildPlatform) \
-	--ssh default \
 	--target $(target) \
 	--quiet \
 	. \
