@@ -11,6 +11,9 @@ else
 	IMAGE_TAG=$(shell date '+%Y-%m-%d-%H%M')_$(BRANCHTAG_SAFE)_$(GIT_COMMIT_HASH)
 endif
 
+auth-to-ghcr:
+	@./scripts/github/auth.sh
+
 push-to-ghcr:
 	@docker tag $(IMAGE_NAME) $(REPOSITORY_URI):$(IMAGE_TAG)
 	@docker push $(REPOSITORY_URI):$(IMAGE_TAG)

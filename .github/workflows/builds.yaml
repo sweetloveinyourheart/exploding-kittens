@@ -44,6 +44,7 @@ jobs:
       pull-previous-builds: true
       setup-docker-buildx: true
       command-to-execute: |
+        make auth-to-ghcr
         make ${{ matrix.component }}-docker buildPlatform="--platform linux/amd64" IMAGE_TAG=$(cat tests/logs/image-tag.txt)
         make ${{ matrix.component }}-docker-push IMAGE_TAG=$(cat tests/logs/image-tag.txt)
     secrets: inherit
