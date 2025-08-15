@@ -22,6 +22,7 @@ jobs:
     with:
       job-name: generate-tag
       command-to-execute: |
+        mkdir -p tests/logs
         IMAGE_TAG=$(make image-tag)
         echo $IMAGE_TAG
         echo $IMAGE_TAG > tests/logs/image-tag.txt
