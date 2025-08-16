@@ -13,14 +13,13 @@ GOOS_OVERRIDE ?= GOOS=linux
 build-binary:
 	@echo "Building $(executablePath) with tag: $(IMAGE_TAG)"
 	@cd $(directory) && \
-	CGO_ENABLED=0 $(GOOS_OVERRIDE) go build -buildvcs=false -asmflags= -trimpath -ldflags "-buildid= -s -extldflags "-static"" && \
+	CGO_ENABLED=0 $(GOOS_OVERRIDE) $(extraArgs) go build -buildvcs=false -asmflags= -trimpath -ldflags "-buildid= -s -extldflags "-static"" && \
 	cd $(ROOT_DIR) && \
 	sha256sum $(executablePath)
 
 # Base makefile target for building a docker image
 build-docker:
 	@DOCKER_BUILDKIT=1 docker build $(buildPlatform) \
-	--ssh default \
 	--target $(target) \
 	--quiet \
 	. \
@@ -30,8 +29,8 @@ build-docker:
 	$(additionalDockerArgs)
 
 kittens-build:
-	@make build-binary directory=cmd/exploding-kittens executablePath=cmd/exploding-kittens/exploding-kittens
+	@make build-binary extraArgs=$(extraArgs) directory=cmd/exploding-kittens executablePath=cmd/exploding-kittens/exploding-kittens
 
 kittens-docker:
-	@make kittens-build $(optionalReproFlag)
+	@make kittens-build $(optionalReproFlag) extraArgs=$(extraArgs)
 	@make build-docker buildPlatform=$(buildPlatorm) target=kittens

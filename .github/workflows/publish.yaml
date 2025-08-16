@@ -1,0 +1,69 @@
+name: Publish - Build and Push
+on:
+  push:
+    branches:
+      - 'main'
+      - 'build-*'
+      
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  clean-old-tags:
+    uses: ./.github/workflows/env.yaml
+    with:
+      job-name: clean-old-tags
+      command-to-execute: |
+        make clean-old-tags
+    secrets: inherit
+
+  generate-tag:
+    uses: ./.github/workflows/env.yaml
+    with:
+      job-name: generate-tag
+      command-to-execute: |
+        mkdir -p tests/logs
+        IMAGE_TAG=$(make image-tag)
+        echo $IMAGE_TAG
+        echo $IMAGE_TAG > tests/logs/image-tag.txt
+    secrets: inherit
+
+  push-server-images:
+    needs: [ generate-tag ]
+    uses: ./.github/workflows/env.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [
+          kittens,
+        ]
+    with:
+      job-name: push-${{ matrix.component }}
+      login-to-ghcr: true
+      use-build-cache: true
+      pull-previous-logs: true
+      pull-previous-builds: true
+      setup-docker-buildx: true
+      command-to-execute: |
+        make ${{ matrix.component }}-docker buildPlatform="--platform linux/amd64" IMAGE_TAG=$(cat tests/logs/image-tag.txt)
+        make ${{ matrix.component }}-docker-push IMAGE_TAG=$(cat tests/logs/image-tag.txt)
+    secrets: inherit
+
+  tag-repo:
+    needs: [ 
+      push-server-images,
+    ]
+    uses: ./.github/workflows/env.yaml
+    with:
+      job-name: tag-repo
+      pull-previous-logs: true
+      command-to-execute: |
+        IMAGE_TAG=$(cat tests/logs/image-tag.txt)
+        if [ -z "$IMAGE_TAG" ]; then
+          echo "IMAGE_TAG is empty"
+          exit 1
+        fi
+        git tag $IMAGE_TAG
+        git push origin $IMAGE_TAG
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+    secrets: inherit
