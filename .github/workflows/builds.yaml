@@ -39,6 +39,7 @@ jobs:
         ]
     with:
       job-name: push-${{ matrix.component }}
+      login-to-ghcr: true
       use-build-cache: true
       pull-previous-logs: true
       pull-previous-builds: true
