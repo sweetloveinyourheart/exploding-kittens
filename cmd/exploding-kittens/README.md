@@ -153,6 +153,7 @@ app dataprovider [flags]
       --grpc-port int                             GRPC Port to listen on (default 50055)
   -h, --help                                      help for dataprovider
       --id string                                 Unique identifier for this services
+      --redis-url string                          Comma separated list of Redis endpoints (default "redis-edge:6379")
       --token-signing-key string                  Signing key used for service to service tokens
 ```
 
@@ -168,6 +169,7 @@ app dataprovider [flags]
 - DATAPROVIDER_DB_URL :: `dataprovider.db.url` Database connection URL
 - DATAPROVIDER_GRPC_PORT :: `dataprovider.grpc.port` GRPC Port to listen on
 - DATAPROVIDER_ID :: `dataprovider.id` Unique identifier for this services
+- DATAPROVIDER_REDIS_URL :: `dataprovider.redis.url` Comma separated list of Redis endpoints
 - DATAPROVIDER_SECRETS_TOKEN_SIGNING_KEY :: `dataprovider.secrets.token_signing_key` Signing key used for service to service tokens
 ```
 
