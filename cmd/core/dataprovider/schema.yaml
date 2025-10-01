@@ -100,6 +100,13 @@
     path: dataprovider.id
     env:
     - DATAPROVIDER_ID
+  - name: redis-url
+    usage: Comma separated list of Redis endpoints
+    default: redis-edge:6379
+    valueType: string
+    path: dataprovider.redis.url
+    env:
+    - DATAPROVIDER_REDIS_URL
   - name: token-signing-key
     usage: Signing key used for service to service tokens
     default: ""
